@@ -1,0 +1,12 @@
+*.tex
+*.swp
+*.aux
+*.idx
+*.ilg
+*.ind
+*.lof
+*.log
+*.pdf
+*.out
+*.tdo
+*.toc
