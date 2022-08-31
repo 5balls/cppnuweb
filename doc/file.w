@@ -15,42 +15,26 @@
 % You should have received a copy of the GNU Affero General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-\section{Boilerplate fragments}
-\subsection{Headerfiles}
-\codecpp
-@d Start of @'headername@' header
+\chapter{File}
+
+The file class should encapsulate an abstract file view. It should give line / row number access to certain context sensitive features of the file for implementing the language server protocol later.
+
+@O ../src/file.h -d
 @{
-#ifndef @1_H
-#define @1_H
+@<Start of @'FILE@' header@>
+#include "fragments.h"
+
+@<Start of class @'file@'@>
+public:
+private:
+std::string s_filename;
+std::vector<std::variant<scrap> > s_fragments;
+
+@<End of class and header@>
 @}
 
-@d End of header
+@O ../src/file.cpp -d
 @{
-#endif 
 @}
 
-\subsection{Classfiles}
-\codecpp
-@d Start of class @'classname@' base @'baseclass@'
-@{
-class @1 : public @2
-{
-@}
-
-@d Start of class @'classname@'
-@{
-class @1
-{
-@}
-
-@d End of class
-@{
-};
-@}
-
-@d End of class and header
-@{
-@<End of class@>
-@<End of header@>
-@}
 

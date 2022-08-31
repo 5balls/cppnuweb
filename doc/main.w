@@ -22,6 +22,10 @@
 @{
 @<Start of @'MAIN@' header@>
 #include <iostream>
+
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
+
 @<End of header@>
 @}
 
@@ -32,7 +36,7 @@
 
 int main(int argc, char *argv[])
 {
-    std::cout << "Hello world!" << std::endl;
+    std::cout << "C++ nuweb (version: " << TOSTRING(CPPNUWEB_VERSION) << ", git: " << TOSTRING(GIT_VERSION) << ")" << std::endl;
     return 0;
 }
 @}
