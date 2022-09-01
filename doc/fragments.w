@@ -17,6 +17,8 @@
 
 \chapter{Fragments}
 
+\todorefactor{Fragments may be obsolete with indexabletext class already}
+
 The fragment class is the base class of any indexable text fragment. This can be of different language type and should provide different output functions for creating text for the \LaTeX and for the language file in UTF-8 and UTF-16.
 
 @O ../src/fragments.h -d
@@ -27,15 +29,7 @@ public:
 enum class e_features{
     LABEL,
 };
-struct t_position{
-    unsigned int ui_row;
-    unsigned int ui_column;
-};
 protected:
-struct t_range{
-    t_position t_start;
-    t_position t_end;
-};
 t_range t_fragmentRange;
 std::vector<t_range> v_ranges;
 std::map<e_feature, std::vector<t_range& > > m_features;
