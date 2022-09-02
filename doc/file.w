@@ -39,9 +39,11 @@ public:
         t_position t_end;
     };
     std::string utf8();
+    std::string utf8(unsigned int ui_line);
     std::string utf8(t_position tp_fromHereToLineEnding);
     std::string utf8(t_range tr_fromTo);
     std::string utf16();
+    std::string utf16(unsigned int ui_line);
     std::string utf16(t_position tp_fromHereToLineEnding);
     std::string utf16(t_range tr_fromTo);
 @<End of class@>
@@ -49,19 +51,34 @@ public:
 
 Next we want to mark certain parts of the text with arbitrary UTF8 strings. This can be either positions in the text or ranges.
 
-\tododocument{Implementation missing}
+@d Class declaration tagabletext
+@{
+@<Start of class @'tagabletext@' base @'indexabletext@'@>
+private:
+    std::vector<t_range> v_ranges;
+    std::map<std::string, std::vector<t_range& > > m_features;
+public:
+
+@<End of class@>
+@}
+
+\tododocument{Implementations missing}
 
 @O ../src/file.h -d
 @{
 @<Start of @'FILE@' header@>
-#include "fragments.h"
-@<Class declaration indexabletext@>
 
-@<Start of class @'file@' base @'indexabletext@'@>
+#include <vector>
+#include <map>
+#include "utfcpp-3.2.1/source/utf8.h"
+
+@<Class declaration indexabletext@>
+@<Class declaration tagabletext@>
+
+@<Start of class @'file@' base @'tagabletext@'@>
 public:
 private:
 std::string s_filename;
-std::vector<std::variant<scrap> > s_fragments;
 
 @<End of class and header@>
 @}

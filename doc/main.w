@@ -22,6 +22,7 @@
 @{
 @<Start of @'MAIN@' header@>
 #include <iostream>
+#include "file.h"
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)

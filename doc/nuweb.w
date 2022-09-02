@@ -30,8 +30,6 @@
 
 @i infrastructure.w
 
-@i fragments.w
-
 @i file.w
 
 \begin{appendix}
