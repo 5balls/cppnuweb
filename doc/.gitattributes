@@ -1,4 +1,4 @@
-*.w linguist-language=TeX
+*.w linguist-language=CWeb
 file.w linguist-language=C++
 main.w linguist-language=C++
 boilerplate.w linguist-language=C++
