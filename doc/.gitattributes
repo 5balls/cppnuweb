@@ -1,0 +1,5 @@
+*.w linguist-language=TeX
+file.w linguist-language=C++
+main.w linguist-language=C++
+boilerplate.w linguist-language=C++
+cmake.w linguist-language=CMake
