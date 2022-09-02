@@ -63,6 +63,7 @@ public:
 @}
 
 \tododocument{Implementations missing}
+\tododocument{Adopt functionality for line length and conversion from example in utfcpp}
 
 @O ../src/file.h -d
 @{
