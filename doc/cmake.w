@@ -20,6 +20,11 @@
 @d Standard definitions for CMakeLists.txt
 @{
 cmake_minimum_required(VERSION 3.7.0)
+find_package(BISON 3.7.5)
+find_package(FLEX 2.6.4)
+
+set(FLEX_INCLUDE_DIR /usr/include)
+set(FLEX_LIBRARIES /usr/lib/x86_64-linux-gnu/libfl.a)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 message(STATUS "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -84,18 +89,28 @@ add_definitions(
 @O ../src/CMakeLists.txt
 @{
 @<Requirements for CMakeLists.txt@>
+
+BISON_TARGET(MyParser nuweb.y ${CMAKE_CURRENT_BINARY_DIR}/parser.cpp)
+FLEX_TARGET(MyLexer nuweb.l ${CMAKE_CURRENT_BINARY_DIR}/lexer.cpp)
+ADD_FLEX_BISON_DEPENDENCY(MyLexer MyParser)
+
+
+message(STATUS "BISON : ${BISON_MyParser_OUTPUTS}")
+message(STATUS "FLEX : ${FLEX_MyLexer_OUTPUTS}")
+
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 add_executable(nuweb
 @<C++ files@>
+${BISON_MyParser_OUTPUTS}
+${FLEX_MyLexer_OUTPUTS}
 )
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -ggdb")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -ggdb")
 
-target_link_libraries(nuweb PUBLIC ${LIBS})
+target_link_libraries(nuweb PUBLIC ${LIBS} ${FLEX_LIBRARIES})
 
 # Currently only local install target for nuweb
 install(TARGETS nuweb DESTINATION $ENV{HOME}/bin)
 @}
-
-
 

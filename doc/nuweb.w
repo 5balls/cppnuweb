@@ -28,11 +28,14 @@
 \tableofcontents
 \listoffigures
 
-@i infrastructure.w
-
 @i file.w
 
+@i parser.w
+
 \begin{appendix}
+
+@i infrastructure.w
+
 \chapter{Code indices}
 \section{Files}
 @f

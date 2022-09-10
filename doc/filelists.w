@@ -18,14 +18,15 @@
 \section{File lists}
 \subsection{Header files}
 @d Header files
-@{main.h @}
+@{main.h
+file.h @}
 
 \subsection{C++ files}
 @d C++ files without main
 @{@<C++ files without main in path @'@'@>@}
 
 @d C++ files without main in path @'path@'
-@{
+@{@1file.cpp
 @}
 
 @d C++ files

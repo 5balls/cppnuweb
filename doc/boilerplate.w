@@ -54,3 +54,9 @@ class @1
 @<End of header@>
 @}
 
+@d End of class, namespace and header
+@{
+@<End of class@>
+}
+@<End of header@>
+@}

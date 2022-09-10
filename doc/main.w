@@ -35,9 +35,23 @@
 @{
 #include "main.h"
 
+extern int yylex(void);
+
 int main(int argc, char *argv[])
 {
     std::cout << "C++ nuweb (version: " << TOSTRING(CPPNUWEB_VERSION) << ", git: " << TOSTRING(GIT_VERSION) << ")" << std::endl;
-    return 0;
+    if(argc<2){
+        std::cout << "Usage: nuweb <flags> <filename>" << std::endl;
+        return EXIT_FAILURE;
+    }
+    try{
+        nuweb::file baseFile(argv[argc-1]);
+        std::cout << "Read file \"" + std::string(argv[argc-1]) + "\" with " + std::to_string(baseFile.numberOfLines()) + " lines" << std::endl;
+    }    
+    catch(std::runtime_error& e){
+        std::cout << "Reading file \"" + std::string(argv[argc-1]) + "\" failed with error:\n  " << e.what() << std::endl;
+        return EXIT_FAILURE;
+    }
+    return EXIT_SUCCESS;
 }
 @}
