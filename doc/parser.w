@@ -115,6 +115,7 @@ extern int yylex(void);
 %token AT_PIPE AT_MINUS AT_PLUS AT_U_PLUS
 %token FLAG_D FLAG_I FLAG_T FLAG_C_C FLAG_C_PLUS FLAG_C_P
 %token AT_SMALL_O AT_LARGE_O AT_SMALL_D AT_LARGE_D AT_SMALL_Q AT_LARGE_Q AT_SMALL_F AT_LARGE_F AT_LARGE_D_PLUS AT_SMALL_D_PLUS AT_LARGE_Q_PLUS AT_SMALL_S AT_SMALL_Q_PLUS AT_LARGE_S
+%token LATIN_TEXT
 
 %union
 {
@@ -142,11 +143,51 @@ statement
 ;
 
 fragment
-    : AT_CURLY_BRACKET_OPEN fragmentinside AT_CURLY_BRACKET_CLOSE
+    : fragmentHeader scrap
 ;
 
-fragmentinside
-    : AT_AT
+fragmentHeader
+    : AT_SMALL_D fragmentName
+;
+
+fragmentName
+    : fragmentName fragmentNamePart
+;
+
+fragmentNamePart
+    : LATIN_TEXT
+    | fragmentNameArgument
+;
+
+fragmentNameArgument
+    : AT_TICK LATIN_TEXT AT_TICK
+;
+
+scrap
+    : scrapVerbatim
+    | scrapParagraph
+    | scrapMath
+;
+
+scrapVerbatim
+    : AT_CURLY_BRACKET_OPEN scrapElements AT_CURLY_BRACKET_CLOSE
+;
+
+scrapParagraph
+    : AT_SQUARE_BRACKET_OPEN scrapElements AT_SQUARE_BRACKET_CLOSE
+;
+
+scrapMath
+    : AT_ROUND_BRACKET_OPEN scrapElements AT_ROUND_BRACKET_CLOSE
+;
+
+scrapElements
+    : scrapElements scrapElement
+;
+
+scrapElement
+    : TEX_WITHOUT_AT
+    | AT_AT
 ;
 
 include
