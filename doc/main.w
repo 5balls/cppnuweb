@@ -23,7 +23,8 @@
 @<Start of @'MAIN@' header@>
 #include <iostream>
 #include "file.h"
-#include <FlexLexer.h>
+#include "helplexer.h"
+#include "ast.h"
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
@@ -35,8 +36,6 @@
 @O ../src/main.cpp -d
 @{
 #include "main.h"
-
-extern int yylex(void);
 
 int main(int argc, char *argv[])
 {
@@ -53,7 +52,12 @@ int main(int argc, char *argv[])
         std::cout << "Reading file \"" + std::string(argv[argc-1]) + "\" failed with error:\n  " << e.what() << std::endl;
         return EXIT_FAILURE;
     }
-    FlexLexer* lexer = new yyFlexLexer(std::cin, std::cout); 
+    statement* nuwebAstEntry = nullptr;
+    helpLexer* lexer = new helpLexer(std::cin, std::cout); 
+    yy::parser* parser = new yy::parser(lexer,&nuwebAstEntry);
+    int parserReturnValue = parser->parse();
+    std::cout << "Parser returned " << parserReturnValue << std::endl;
+    delete parser;
     delete lexer;
     return EXIT_SUCCESS;
 }

@@ -26,6 +26,11 @@
 \usepackage{tikz}
 \usepackage[textsize=tiny, textwidth=2.7cm, colorinlistoftodos]{todonotes}
 \usepackage{etoolbox}% http://ctan.org/pkg/etoolbox
+\usepackage{syntax} 
+\usepackage{tocbibind}
+\setlength{\grammarparsep}{10pt} % increase separation between rules
+\setlength{\grammarindent}{12em} % increase separation between LHS/RHS 
+
 \makeatletter
 \patchcmd{\@@makechapterhead}{\vspace*{50\p@@}}{}{}{}% Removes space above \chapter head
 \patchcmd{\@@makeschapterhead}{\vspace*{50\p@@}}{}{}{}% Removes space above \chapter* head
