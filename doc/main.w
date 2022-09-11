@@ -23,6 +23,7 @@
 @<Start of @'MAIN@' header@>
 #include <iostream>
 #include "file.h"
+#include <FlexLexer.h>
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
@@ -52,6 +53,8 @@ int main(int argc, char *argv[])
         std::cout << "Reading file \"" + std::string(argv[argc-1]) + "\" failed with error:\n  " << e.what() << std::endl;
         return EXIT_FAILURE;
     }
+    FlexLexer* lexer = new yyFlexLexer(std::cin, std::cout); 
+    delete lexer;
     return EXIT_SUCCESS;
 }
 @}

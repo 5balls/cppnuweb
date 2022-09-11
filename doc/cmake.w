@@ -90,7 +90,8 @@ add_definitions(
 @{
 @<Requirements for CMakeLists.txt@>
 
-BISON_TARGET(MyParser nuweb.y ${CMAKE_CURRENT_BINARY_DIR}/parser.cpp)
+BISON_TARGET(MyParser nuweb.y ${CMAKE_CURRENT_BINARY_DIR}/parser.cpp
+        COMPILE_FLAGS -v)
 FLEX_TARGET(MyLexer nuweb.l ${CMAKE_CURRENT_BINARY_DIR}/lexer.cpp)
 ADD_FLEX_BISON_DEPENDENCY(MyLexer MyParser)
 

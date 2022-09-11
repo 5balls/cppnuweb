@@ -28,29 +28,30 @@ We try to use the Flex and Bison programs to create our parser.
 
 
 extern int yylex(void);
-#define TOKEN(X) return yytokentype::X;
+#define TOKEN(X) return yy::parser::token::yytokentype::X;
 %}
 
- /*%option c++ */
+%option c++
 %option noyywrap
 %option yylineno
 
  /* %option prefix="nuweb" */
-%x fragment
+%x f
 
 
 %%
  /* rules */
-<INITIAL>"@@{" { BEGIN(fragment); TOKEN(AT_CURLY_BRACKET_OPEN) }
-<fragment>"@@}" { BEGIN(INITIAL); TOKEN(AT_CURLY_BRACKET_CLOSE) }
-<INITIAL>"@@[" { BEGIN(fragment); TOKEN(AT_SQUARE_BRACKET_OPEN) }
-<fragment>"@@]" { BEGIN(INITIAL); TOKEN(AT_SQUARE_BRACKET_CLOSE) }
-<INITIAL,fragment>"@@(" { BEGIN(fragment); TOKEN(AT_ROUND_BRACKET_OPEN) }
-<fragment>"@@)" { BEGIN(INITIAL); TOKEN(AT_ROUND_BRACKET_CLOSE) }
-<fragment>"@@<" { BEGIN(fragment); TOKEN(AT_ANGLE_BRACKET_OPEN) }
-<fragment>"@@<+" { BEGIN(fragment); TOKEN(AT_ANGLE_BRACKET_OPEN_PLUS) }
-<fragment>"@@>" { BEGIN(INITIAL); TOKEN(AT_ANGLE_BRACKET_CLOSE) }
-<*>"@@@@" { TOKEN(AT_AT) }
+[^@@]+ { TOKEN(TEX_WITHOUT_AT) }
+<INITIAL>"@@{" { BEGIN(f); TOKEN(AT_CURLY_BRACKET_OPEN) }
+<f>"@@}" { BEGIN(INITIAL); TOKEN(AT_CURLY_BRACKET_CLOSE) }
+<INITIAL>"@@[" { BEGIN(f); TOKEN(AT_SQUARE_BRACKET_OPEN) }
+<f>"@@]" { BEGIN(INITIAL); TOKEN(AT_SQUARE_BRACKET_CLOSE) }
+<INITIAL,f>"@@(" { BEGIN(f); TOKEN(AT_ROUND_BRACKET_OPEN) }
+<f>"@@)"         { BEGIN(INITIAL); TOKEN(AT_ROUND_BRACKET_CLOSE) }
+<f>"@@<"         { BEGIN(f); TOKEN(AT_ANGLE_BRACKET_OPEN) }
+<f>"@@<+"        { BEGIN(f); TOKEN(AT_ANGLE_BRACKET_OPEN_PLUS) }
+<f>"@@>"         { BEGIN(INITIAL); TOKEN(AT_ANGLE_BRACKET_CLOSE) }
+<*>"@@@@"               { TOKEN(AT_AT) }
 <*>"@@_" { TOKEN(AT_UNDERLINE) }
 <*>"@@i" { TOKEN(AT_I) }
 <*>"@@v" { TOKEN(AT_V) }
@@ -80,7 +81,7 @@ extern int yylex(void);
 <*>"@@|" { TOKEN(AT_PIPE) }
 <*>"@@+" { TOKEN(AT_PLUS) }
 <*>"@@+" { TOKEN(AT_MINUS) }
-<*>"@@[1-9]" { TOKEN(AT_NUMBER) } 
+<*>[@@][1-9] { TOKEN(AT_NUMBER) } 
 <*>"-d" { TOKEN(FLAG_D) }
 <*>"-i" { TOKEN(FLAG_I) }
 <*>"-t" { TOKEN(FLAG_T) }
@@ -98,11 +99,17 @@ extern int yylex(void);
 @{
 
 %require "3.2"
+%language "c++"
 
 %{
     #include <iostream>
-    extern int yylex(void);
-    void yyerror (char const *s){
+    #include "parser.hpp"
+
+    int yylex(yy::parser::semantic_type* yylvalue){
+        /* TODO Make it a real bridge to lexer here, no functionality here yet */
+        return 0;
+    };
+    void yy::parser::error(const std::string& s){
         /* TODO Throw error here */
         std::cout << s;
     };
@@ -115,14 +122,11 @@ extern int yylex(void);
 %token AT_PIPE AT_MINUS AT_PLUS AT_U_PLUS
 %token FLAG_D FLAG_I FLAG_T FLAG_C_C FLAG_C_PLUS FLAG_C_P
 %token AT_SMALL_O AT_LARGE_O AT_SMALL_D AT_LARGE_D AT_SMALL_Q AT_LARGE_Q AT_SMALL_F AT_LARGE_F AT_LARGE_D_PLUS AT_SMALL_D_PLUS AT_LARGE_Q_PLUS AT_SMALL_S AT_SMALL_Q_PLUS AT_LARGE_S
-%token LATIN_TEXT
 
 %union
 {
     int m_int;
 }
-
-%type <m_texCode> TEX_WITHOUT_AT
 
 %%
  /* rules */
@@ -151,16 +155,17 @@ fragmentHeader
 ;
 
 fragmentName
-    : fragmentName fragmentNamePart
+    : %empty
+    | fragmentName fragmentNamePart
 ;
 
 fragmentNamePart
-    : LATIN_TEXT
+    : TEX_WITHOUT_AT
     | fragmentNameArgument
 ;
 
 fragmentNameArgument
-    : AT_TICK LATIN_TEXT AT_TICK
+    : AT_TICK TEX_WITHOUT_AT AT_TICK
 ;
 
 scrap
@@ -182,7 +187,8 @@ scrapMath
 ;
 
 scrapElements
-    : scrapElements scrapElement
+    : %empty
+    | scrapElements scrapElement
 ;
 
 scrapElement
