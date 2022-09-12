@@ -40,6 +40,8 @@ project(
   LANGUAGES CXX)
 @}
 
+It seems the flex package on debian is broken currently, so unfortunately the set commands at seem to be needed.
+
 This bash scripts gather some information about the git repository and then we make them available to the program via preprocessor definitions:
 
 @d Scripts for git in CMakeLists.txt
@@ -94,7 +96,6 @@ BISON_TARGET(MyParser nuweb.y ${CMAKE_CURRENT_BINARY_DIR}/parser.cpp
         COMPILE_FLAGS -v)
 FLEX_TARGET(MyLexer nuweb.l ${CMAKE_CURRENT_BINARY_DIR}/lexer.cpp)
 ADD_FLEX_BISON_DEPENDENCY(MyLexer MyParser)
-
 
 message(STATUS "BISON : ${BISON_MyParser_OUTPUTS}")
 message(STATUS "FLEX : ${FLEX_MyLexer_OUTPUTS}")

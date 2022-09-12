@@ -16,12 +16,27 @@
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 \lstdefinelanguage{CMake}{
-  keywords={cmake_minimum_required, if, endif, include, project, set, execute\_process, cmake\_print\_variables, add\_definitions, find\_package, include\_directories, add\_library, else, add\_executable, target\_link\_libraries},
+  keywords={cmake_minimum_required, if, endif, include, project, set, execute\_process, cmake\_print\_variables, add\_definitions, find\_package, include\_directories, add\_library, else, add\_executable, target\_link\_libraries, install, message},
   morecomment=[l]{//},
   morecomment=[s]{/*}{*/},
   morestring=[b]',
   morestring=[b]",
   ndkeywords={},
+  keywordstyle=\bfseries,
+  ndkeywordstyle=\bfseries,
+  identifierstyle=\color{black},
+  commentstyle=\ttfamily,
+  stringstyle=\ttfamily,
+  sensitive=true
+}
+
+\lstdefinelanguage{bisonflex}{
+  morekeywords={\%option, \%x, \%\{, \%\}, \%\%, \%require, \%language, \%code, requires, \%lex-param, \%parse-param, \%token, \%union, \%empty},
+  alsoletter={\%\{\}-},
+  morecomment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  morestring=[b]',
+  morestring=[b]",
   keywordstyle=\bfseries,
   ndkeywordstyle=\bfseries,
   identifierstyle=\color{black},
@@ -36,6 +51,7 @@ extendedchars=true,
 literate={ä}{{\"a}}1 {ö}{{\"o}}1 {ü}{{\"u}}1 {é}{{\'e}}1 {—}{{-}}1,
 }}
 \newcommand\codecmake{\lstset{language=CMake,breaklines=true}}
+\newcommand\codebisonflex{\lstset{language=bisonflex,breaklines=true}}
 
 \newcounter{todobugcounter}
 \newcommand{\todobug}[1]{\stepcounter{todobugcounter}\todo[color=red!60]{Bug \thetodobugcounter: #1}}
