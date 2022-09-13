@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
         std::cout << "Reading file \"" + std::string(argv[argc-1]) + "\" failed with error:\n  " << e.what() << std::endl;
         return EXIT_FAILURE;
     }
-    statement* nuwebAstEntry = nullptr;
+    nuwebDocument* nuwebAstEntry = nullptr;
     helpLexer* lexer = new helpLexer(std::cin, std::cout); 
     yy::parser* parser = new yy::parser(lexer,&nuwebAstEntry);
     int parserReturnValue = parser->parse();
