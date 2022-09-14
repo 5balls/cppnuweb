@@ -105,6 +105,7 @@ if(REFLEX)
   set(FLEX_MyLexer_OUTPUTS ${CMAKE_CURRENT_BINARY_DIR}/lexer.cpp)
   add_custom_command(OUTPUT ${FLEX_MyLexer_OUTPUTS}
     COMMAND reflex -o lexer.cpp ../../src/nuweb.l --header-file
+    MAIN_DEPENDENCY ../../src/nuweb.l
     COMMENT "[REFLEX] Building lexer..."
   )
 else()
