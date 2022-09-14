@@ -53,7 +53,11 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
     nuwebDocument* nuwebAstEntry = nullptr;
+#ifdef REFLEX
+    helpLexer* lexer = new helpLexer(&std::cin, &std::cout); 
+#else
     helpLexer* lexer = new helpLexer(std::cin, std::cout); 
+#endif
     yy::parser* parser = new yy::parser(lexer,&nuwebAstEntry);
     int parserReturnValue = parser->parse();
     std::cout << "Parser returned " << parserReturnValue << std::endl;

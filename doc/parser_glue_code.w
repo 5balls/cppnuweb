@@ -72,8 +72,14 @@ So let's go ahead and write this helper class.
 @{
 @<Start of @'HELPLEXER@' header@>
 
-#if !defined(yyFlexLexerOnce)
-#include <FlexLexer.h>
+#if defined(REFLEX)
+#  if !defined(REFLEX_OPTION_header_file)
+#    include "lex.yy.h"
+#  endif
+#else
+#  if !defined(yyFlexLexerOnce)
+#    include <FlexLexer.h>
+#  endif
 #endif
 
 #include "parser.hpp"
@@ -83,7 +89,12 @@ private:
     yy::parser::semantic_type* yylvalue;
     int yylex(void);
 public:
+
+#if defined(REFLEX)
+    helpLexer(std::istream* inputStream, std::ostream* outputStream);
+#else
     helpLexer(std::istream& inputStream, std::ostream& outputStream);
+#endif
     int yylex(yy::parser::semantic_type* yylvalue);
 @<End of class and header@>
 @}
@@ -96,15 +107,22 @@ We need to still define the constructor ``\lstinline{helpLexer::helpLexer(std::i
     // Should never be called
     return 0;
 }*/
-
+#if defined(REFLEX)
+helpLexer::helpLexer(std::istream* inputStream, std::ostream* outputStream) : yyFlexLexer(inputStream, outputStream) {
+}
+#else
 helpLexer::helpLexer(std::istream& inputStream, std::ostream& outputStream) : yyFlexLexer(inputStream, outputStream) {
 }
+#endif
 
 int helpLexer::yylex(yy::parser::semantic_type* yylvalue){
     std::cout << "helpLexer::yylex" << std::endl;
     this->yylvalue = yylvalue;
     return yylex();
 }
+
+
+
 @}
 
 

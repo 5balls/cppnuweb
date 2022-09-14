@@ -20,11 +20,19 @@
 @d Standard definitions for CMakeLists.txt
 @{
 cmake_minimum_required(VERSION 3.7.0)
+include(CMakePrintHelpers)
 find_package(BISON 3.7.5)
-find_package(FLEX 2.6.4)
-
-set(FLEX_INCLUDE_DIR /usr/include)
-set(FLEX_LIBRARIES /usr/lib/x86_64-linux-gnu/libfl.a)
+find_program(REFLEX reflex)
+if(REFLEX)
+  message("-- Found REFLEX at " ${REFLEX})
+  find_library(FLEX_LIBRARIES reflex HINTS $ENV{HOME}/lib REQUIRED)
+  cmake_print_variables(FLEX_LIBRARIES)
+  set(FLEX_INCLUDE_DIR $ENV{HOME}/include)
+else()
+  find_package(FLEX 2.6.4)
+  set(FLEX_INCLUDE_DIR /usr/include)
+  set(FLEX_LIBRARIES /usr/lib/x86_64-linux-gnu/libfl.a)
+endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 message(STATUS "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -32,7 +40,6 @@ message(STATUS "${CMAKE_CURRENT_SOURCE_DIR}")
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-include(CMakePrintHelpers)
 
 project(
   cppnuweb
@@ -94,18 +101,28 @@ add_definitions(
 
 BISON_TARGET(MyParser nuweb.y ${CMAKE_CURRENT_BINARY_DIR}/parser.cpp
         COMPILE_FLAGS -v)
-FLEX_TARGET(MyLexer nuweb.l ${CMAKE_CURRENT_BINARY_DIR}/lexer.cpp)
-ADD_FLEX_BISON_DEPENDENCY(MyLexer MyParser)
+if(REFLEX)
+  execute_process(
+    COMMAND reflex -o lexer.cpp ../../src/nuweb.l --header-file
+  )
+  set(FLEX_MyLexer_OUTPUTS ${CMAKE_CURRENT_BINARY_DIR}/lexer.cpp)
+else()
+  FLEX_TARGET(MyLexer nuweb.l ${CMAKE_CURRENT_BINARY_DIR}/lexer.cpp)
+  ADD_FLEX_BISON_DEPENDENCY(MyLexer MyParser)
+endif()
 
-message(STATUS "BISON : ${BISON_MyParser_OUTPUTS}")
-message(STATUS "FLEX : ${FLEX_MyLexer_OUTPUTS}")
+cmake_print_variables(BISON_MyParser_OUTPUTS)
+cmake_print_variables(FLEX_MyLexer_OUTPUTS)
 
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
+include_directories(${CMAKE_CURRENT_BINARY_DIR} ${FLEX_INCLUDE_DIR})
 add_executable(nuweb
 @<C++ files@>
 ${BISON_MyParser_OUTPUTS}
 ${FLEX_MyLexer_OUTPUTS}
 )
+if(REFLEX)
+target_compile_definitions(nuweb PUBLIC REFLEX)
+endif()
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -ggdb")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -ggdb")

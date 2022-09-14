@@ -37,21 +37,21 @@ We try to use the Flex and Bison programs to create our parser.
 %option yylineno
 %option yyclass="helpLexer"
 
-%x f
+%x scrapContents
 
 
 %%
  /* rules */
 [^@@]+ { yylvalue->m_string = new std::string(yytext, yyleng); TOKEN(TEX_WITHOUT_AT) }
-<INITIAL>"@@{" { BEGIN(f); TOKEN(AT_CURLY_BRACKET_OPEN) }
-<f>"@@}" { BEGIN(INITIAL); TOKEN(AT_CURLY_BRACKET_CLOSE) }
-<INITIAL>"@@[" { BEGIN(f); TOKEN(AT_SQUARE_BRACKET_OPEN) }
-<f>"@@]" { BEGIN(INITIAL); TOKEN(AT_SQUARE_BRACKET_CLOSE) }
-<INITIAL,f>"@@(" { BEGIN(f); TOKEN(AT_ROUND_BRACKET_OPEN) }
-<f>"@@)"         { BEGIN(INITIAL); TOKEN(AT_ROUND_BRACKET_CLOSE) }
-<f>"@@<"         { BEGIN(f); TOKEN(AT_ANGLE_BRACKET_OPEN) }
-<f>"@@<+"        { BEGIN(f); TOKEN(AT_ANGLE_BRACKET_OPEN_PLUS) }
-<f>"@@>"         { BEGIN(INITIAL); TOKEN(AT_ANGLE_BRACKET_CLOSE) }
+<INITIAL>"@@{" { BEGIN(scrapContents); TOKEN(AT_CURLY_BRACKET_OPEN) }
+<scrapContents>"@@}" { BEGIN(INITIAL); TOKEN(AT_CURLY_BRACKET_CLOSE) }
+<INITIAL>"@@[" { BEGIN(scrapContents); TOKEN(AT_SQUARE_BRACKET_OPEN) }
+<scrapContents>"@@]" { BEGIN(INITIAL); TOKEN(AT_SQUARE_BRACKET_CLOSE) }
+<INITIAL,scrapContents>"@@(" { BEGIN(scrapContents); TOKEN(AT_ROUND_BRACKET_OPEN) }
+<scrapContents>"@@)"         { BEGIN(INITIAL); TOKEN(AT_ROUND_BRACKET_CLOSE) }
+<scrapContents>"@@<"         { BEGIN(scrapContents); TOKEN(AT_ANGLE_BRACKET_OPEN) }
+<scrapContents>"@@<+"        { BEGIN(scrapContents); TOKEN(AT_ANGLE_BRACKET_OPEN_PLUS) }
+<scrapContents>"@@>"         { BEGIN(INITIAL); TOKEN(AT_ANGLE_BRACKET_CLOSE) }
 <*>"@@@@"               { TOKEN(AT_AT) }
 <*>"@@_" { TOKEN(AT_UNDERLINE) }
 <*>"@@i" { TOKEN(AT_I) }
@@ -80,15 +80,13 @@ We try to use the Flex and Bison programs to create our parser.
 <*>"@@u+" { TOKEN(AT_U_PLUS) }
 <*>"@@%" { TOKEN(AT_PERCENT) }
 <*>"@@|" { TOKEN(AT_PIPE) }
-<*>"@@+" { TOKEN(AT_PLUS) }
-<*>"@@+" { TOKEN(AT_MINUS) }
+<*>"\-d" { TOKEN(FLAG_D) }
+<*>"\-i" { TOKEN(FLAG_I) }
+<*>"\-t" { TOKEN(FLAG_T) }
+<*>"\-cc" { TOKEN(FLAG_C_C) }
+<*>"\-c\+" { TOKEN(FLAG_C_PLUS) }
+<*>"\-cp" { TOKEN(FLAG_C_P) }
 <*>[@@][1-9] { TOKEN(AT_NUMBER) } 
-<*>"-d" { TOKEN(FLAG_D) }
-<*>"-i" { TOKEN(FLAG_I) }
-<*>"-t" { TOKEN(FLAG_T) }
-<*>"-cc" { TOKEN(FLAG_C_C) }
-<*>"-c+" { TOKEN(FLAG_C_PLUS) }
-<*>"-cp" { TOKEN(FLAG_C_P) }
 <<EOF>> { TOKEN(YYEOF) }
 %%
 

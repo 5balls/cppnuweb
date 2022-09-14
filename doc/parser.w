@@ -60,7 +60,22 @@ nuwebAstRoot
         *l_nuwebDocument = $nuwebDocument;
     }
 ;
+@}
 
+Each document consists of a list of document elements. We achieve this by matching an empty string to \lstinline{nuwebDocument} and afterwards match consecutively matched \lstinline{nuwebElement} to the right and add them to the list of elements in \lstinline{nuwebDocument}.
+
+\begin{figure}[ht]
+\begin{grammar}
+<nuwebDocument> ::= $\epsilon$
+\alt <nuwebDocument> <nuwebElement>;
+\end{grammar}
+\caption{BNF for nuwebDocument}
+\end{figure}
+
+The \lstinline{%empty} rule is only matched at the beginning.
+
+@O ../src/nuweb.y
+@{
 nuwebDocument
     : %empty
     {
@@ -72,7 +87,18 @@ nuwebDocument
         $$ = $l_nuwebDocument;
     }
 ;
+@}
 
+An \lstinline{nuwebElement} can be one of three types:
+
+\begin{enumerate}
+\item texCode
+\item nuwebExpression
+\item programCode
+\end{enumerate}
+
+@O ../src/nuweb.y
+@{
 nuwebElement
     : TEX_WITHOUT_AT
     {
