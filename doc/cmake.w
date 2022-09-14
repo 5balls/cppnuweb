@@ -102,10 +102,11 @@ add_definitions(
 BISON_TARGET(MyParser nuweb.y ${CMAKE_CURRENT_BINARY_DIR}/parser.cpp
         COMPILE_FLAGS -v)
 if(REFLEX)
-  execute_process(
-    COMMAND reflex -o lexer.cpp ../../src/nuweb.l --header-file
-  )
   set(FLEX_MyLexer_OUTPUTS ${CMAKE_CURRENT_BINARY_DIR}/lexer.cpp)
+  add_custom_command(OUTPUT ${FLEX_MyLexer_OUTPUTS}
+    COMMAND reflex -o lexer.cpp ../../src/nuweb.l --header-file
+    COMMENT "[REFLEX] Building lexer..."
+  )
 else()
   FLEX_TARGET(MyLexer nuweb.l ${CMAKE_CURRENT_BINARY_DIR}/lexer.cpp)
   ADD_FLEX_BISON_DEPENDENCY(MyLexer MyParser)
