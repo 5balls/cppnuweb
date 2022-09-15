@@ -27,6 +27,20 @@ Apparently there is some glue code needed so that Bison and Flex can talk to eac
     #include "parser.hpp"
     #include "../../src/ast.h"
     class helpLexer;
+    struct nuwebPosition {
+        nuwebPosition(int line, int column): m_line(line), m_column(column){};
+        unsigned int m_line;
+        unsigned int m_column;
+    };
+    struct nuwebPositionWithInt : public nuwebPosition {
+        int m_value;
+    };
+    struct nuwebPositionWithString : public nuwebPosition {
+        nuwebPositionWithString(int line, int column, std::string value):
+            nuwebPosition(line,column),
+            m_value(value){};
+        std::string m_value;
+    };
 }
 @}
 

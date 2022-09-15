@@ -102,7 +102,9 @@ An \lstinline{nuwebElement} can be one of three types:
 nuwebElement
     : TEX_WITHOUT_AT
     {
-        $$ = new texCode(*$TEX_WITHOUT_AT);
+        $$ = new texCode($TEX_WITHOUT_AT->m_value);
+        std::cout << "Line:" << $TEX_WITHOUT_AT->m_line << "\n";
+        std::cout << "Column:" << $TEX_WITHOUT_AT->m_column << "\n";
     }
     | fragment
     | include

@@ -16,12 +16,15 @@
 {
     int m_int;
     std::string* m_string;
+    nuwebPosition* m_position;
+    nuwebPositionWithInt* m_intValue;
+    nuwebPositionWithString* m_stringValue;
     nuwebDocument* m_nuwebDocument;
     nuwebElement* m_nuwebElement;
 }
 
 %type <m_nuwebDocument> nuwebDocument;
 %type <m_nuwebElement> nuwebElement;
-%type <m_string> TEX_WITHOUT_AT;
+%type <m_stringValue> TEX_WITHOUT_AT;
 
 @}

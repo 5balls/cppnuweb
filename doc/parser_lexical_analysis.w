@@ -28,7 +28,7 @@ We try to use the Flex and Bison programs to create our parser.
 #include "../../src/helplexer.h"
 #include "parser.hpp"
 
-#define DEBUG_LEXER(X) std::cout << X << " "; std::cout.flush();
+#define DEBUG_LEXER(X) std::cout << X << "[" << lineno() << columno() << "]"; std::cout.flush();
 #define TOKEN(X) DEBUG_LEXER(#X) return yy::parser::token::yytokentype::X;
 %}
 
@@ -42,7 +42,7 @@ We try to use the Flex and Bison programs to create our parser.
 
 %%
  /* rules */
-[^@@]+ { yylvalue->m_string = new std::string(yytext, yyleng); TOKEN(TEX_WITHOUT_AT) }
+[^@@]+ { yylvalue->m_stringValue = new nuwebPositionWithString(lineno(),columno(),std::string(yytext, yyleng)); TOKEN(TEX_WITHOUT_AT) }
 <INITIAL>"@@{" { BEGIN(scrapContents); TOKEN(AT_CURLY_BRACKET_OPEN) }
 <scrapContents>"@@}" { BEGIN(INITIAL); TOKEN(AT_CURLY_BRACKET_CLOSE) }
 <INITIAL>"@@[" { BEGIN(scrapContents); TOKEN(AT_SQUARE_BRACKET_OPEN) }
