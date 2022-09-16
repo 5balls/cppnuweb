@@ -30,6 +30,7 @@ We try to use the Flex and Bison programs to create our parser.
 
 #define DEBUG_LEXER(X) std::cout << X << "[" << lineno() << columno() << "]"; std::cout.flush();
 #define TOKEN(X) DEBUG_LEXER(#X) return yy::parser::token::yytokentype::X;
+#define STRINGTOKEN(X) yylvalue->m_stringValue = new nuwebPositionWithString(filename,lineno(),columno(),lineno_end(),columno_end(),std::string(yytext, yyleng)); TOKEN(X)
 %}
 
 %option c++
@@ -42,7 +43,7 @@ We try to use the Flex and Bison programs to create our parser.
 
 %%
  /* rules */
-[^@@]+ { yylvalue->m_stringValue = new nuwebPositionWithString(lineno(),columno(),std::string(yytext, yyleng)); TOKEN(TEX_WITHOUT_AT) }
+[^@@]+ {  STRINGTOKEN(TEX_WITHOUT_AT) }
 <INITIAL>"@@{" { BEGIN(scrapContents); TOKEN(AT_CURLY_BRACKET_OPEN) }
 <scrapContents>"@@}" { BEGIN(INITIAL); TOKEN(AT_CURLY_BRACKET_CLOSE) }
 <INITIAL>"@@[" { BEGIN(scrapContents); TOKEN(AT_SQUARE_BRACKET_OPEN) }

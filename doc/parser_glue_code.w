@@ -28,16 +28,27 @@ Apparently there is some glue code needed so that Bison and Flex can talk to eac
     #include "../../src/ast.h"
     class helpLexer;
     struct nuwebPosition {
-        nuwebPosition(int line, int column): m_line(line), m_column(column){};
+        nuwebPosition(std::string filename,
+                unsigned int line, unsigned int column,
+                unsigned int line_end, unsigned int column_end):
+            m_filename(filename),
+            m_line(line), m_column(column),
+            m_line_end(line_end), m_column_end(column_end){};
+        std::string m_filename;
         unsigned int m_line;
         unsigned int m_column;
+        unsigned int m_line_end;
+        unsigned int m_column_end;
     };
     struct nuwebPositionWithInt : public nuwebPosition {
         int m_value;
     };
     struct nuwebPositionWithString : public nuwebPosition {
-        nuwebPositionWithString(int line, int column, std::string value):
-            nuwebPosition(line,column),
+        nuwebPositionWithString(std::string filename, 
+                unsigned int line, unsigned int column,
+                unsigned int line_end, unsigned int column_end,
+                std::string value):
+            nuwebPosition(filename,line,column,line_end,column_end),
             m_value(value){};
         std::string m_value;
     };
@@ -101,6 +112,7 @@ So let's go ahead and write this helper class.
 @<Start of class @'helpLexer@' base @'yyFlexLexer@'@>
 private:
     yy::parser::semantic_type* yylvalue;
+    std::string filename;
     int yylex(void);
 public:
 
