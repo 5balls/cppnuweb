@@ -35,11 +35,11 @@ public:
         unsigned int m_character;
     };
     struct range{
-        position m_start;
-        position m_end;
+        position m_from;
+        position m_to;
     };
-    void addLine(std::string line);
-    unsigned int numberOfLines() {return m_utf8Content.size();};
+    void addLine(const std::string& line);
+    unsigned int numberOfLines() const {return m_utf8Content.size();};
     std::string utf8() const;
     std::string utf8(unsigned int line) const;
     std::string utf8(position fromHereToLineEnding) const;
@@ -60,17 +60,7 @@ private:
     std::vector<range> m_ranges;
     std::map<std::string, std::vector<range* > > m_features;
 public:
-    void addFeature(std::string name, range l_range);
-
-@<End of class@>
-@}
-
-We add parser features in a new class "parsableText".
-
-@d Class declaration parsableText
-@{
-@<Start of class @'parsableText@' base @'tagableText@'@>
-private:
+    void addFeature(const std::string& name, range l_range);
 
 @<End of class@>
 @}
@@ -88,14 +78,14 @@ private:
 namespace nuweb {
 @<Class declaration indexableText@>
 @<Class declaration tagableText@>
-@<Class declaration parsableText@>
 
-@<Start of class @'file@' base @'parsableText@'@>
+@<Start of class @'file@' base @'indexableText@'@>
 public:
     file(std::string filename);
+    static file* byName(const std::string& filename);
 private:
-std::string m_filename;
-
+    std::string m_filename;
+    static std::map<std::string, file*> m_allFiles;
 @<End of class, namespace and header@>
 @}
 
@@ -105,7 +95,11 @@ std::string m_filename;
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
+#include <iterator>
+
 using namespace nuweb;
+
+std::map<std::string, file*> file::m_allFiles = {};
 
 file::file(std::string filename) : m_filename(filename){
     std::ifstream fileStream(m_filename);
@@ -114,17 +108,47 @@ file::file(std::string filename) : m_filename(filename){
     std::string line;
     while(std::getline(fileStream, line))
         addLine(line);
+    m_allFiles[filename] = this;
 }
 
-void indexableText::addLine(std::string line){
+file* file::byName(const std::string& filename){
+    return m_allFiles[filename];
+}
+
+void indexableText::addLine(const std::string& line){
     auto endIterator = utf8::find_invalid(line.begin(), line.end());
     if(endIterator != line.end())
         throw std::runtime_error("Invalid UTF8 sequence detected in line " + std::to_string(numberOfLines() + 1));
     m_utf8Content.push_back(line);
     m_utf16Content.push_back(utf8::utf8to16(line));
 }
+    
+std::string indexableText::utf8() const {
+    std::string concatenatedString;
+    for(auto currentLine: m_utf8Content)
+        concatenatedString += currentLine + "\n";
+    concatenatedString.pop_back();
+    return concatenatedString;
+}
 
-void tagableText::addFeature(std::string name, range l_range){
+std::string indexableText::utf8(unsigned int line) const {
+    return m_utf8Content.at(line);
+}
+    
+std::string indexableText::utf8(nuweb::file::position fromHereToLineEnding) const {
+    std::string returnString;
+    std::string lineString = m_utf8Content.at(fromHereToLineEnding.m_line);
+    std::string::iterator currentStringPosition = lineString.begin();
+    std::string::iterator endStringPosition = lineString.end();
+    utf8::advance(currentStringPosition, fromHereToLineEnding.m_character, endStringPosition);
+    while(currentStringPosition != endStringPosition){
+        uint32_t currentChar = utf8::next(currentStringPosition, endStringPosition);
+        utf8::append(currentChar, std::back_inserter(returnString));
+    }
+    return returnString;
+}
+
+void tagableText::addFeature(const std::string& name, range l_range){
     m_ranges.push_back(l_range);
     if(m_features.find(name) != m_features.end())
         m_features[name].push_back(&m_ranges.back());
