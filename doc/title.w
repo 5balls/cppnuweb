@@ -16,7 +16,7 @@
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-\title{cppnuweb Software}
+\title{C++ nuweb Software}
 \author{Florian Pesth}
 \date{\today}
 \maketitle
