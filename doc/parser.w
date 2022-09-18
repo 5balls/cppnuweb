@@ -107,23 +107,25 @@ documentPart
 texCode
     : TEXT_WITHOUT_AT
     {
-        $$ = new texCode($TEXT_WITHOUT_AT->m_value);
+        $$ = new texCode(*$TEXT_WITHOUT_AT, $TEXT_WITHOUT_AT->m_value);
     }
 ;
 
 nuwebExpression
     : AT_I
     {
-        $$ = new includeFile($AT_I->m_filename);
+        $$ = new includeFile(*$AT_I, $AT_I->m_value);
     }
     | escapedchar
     | scrap
     {
         std::cout << "scrap\n";
     }
+    | NOT_IMPLEMENTED
+    {
+        std::cout << "  " << $NOT_IMPLEMENTED->m_filename << ":" << $NOT_IMPLEMENTED->m_line << ":" << $NOT_IMPLEMENTED->m_column << " command \"" << $NOT_IMPLEMENTED->m_value << "\" not implemented!\n";
+    }
 ;
-
-
 @}
 
 \subsection{Fragment}
@@ -189,7 +191,7 @@ scrapElement
 escapedchar
     : AT_AT
     {
-        $$ = new texCode("@@");
+        $$ = new texCode(*$AT_AT, "@@");
     }
 ;
 %%

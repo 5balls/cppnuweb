@@ -26,8 +26,8 @@ We define some classes for our Abstract Syntax Tree. This correspond mostly to t
 
 namespace nuweb {
 
-struct position {
-    position(std::string filename,
+struct filePosition {
+    filePosition(std::string filename,
             unsigned int line, unsigned int column,
             unsigned int line_end, unsigned int column_end):
         m_filename(filename),
@@ -37,19 +37,19 @@ struct position {
     unsigned int m_line;
     unsigned int m_column;
     unsigned int m_line_end;
-        unsigned int m_column_end;
+    unsigned int m_column_end;
 };
 
-struct positionWithInt : public position {
+struct filePositionWithInt : public filePosition {
     int m_value;
 };
 
-struct positionWithString : public position {
-    positionWithString(std::string filename, 
+struct filePositionWithString : public filePosition {
+    filePositionWithString(std::string filename, 
             unsigned int line, unsigned int column,
             unsigned int line_end, unsigned int column_end,
             std::string value):
-        position(filename,line,column,line_end,column_end),
+        filePosition(filename,line,column,line_end,column_end),
         m_value(value){};
     std::string m_value;
 };
@@ -58,9 +58,11 @@ struct positionWithString : public position {
 @O ../src/ast.h -d
 @{
 @<Start of class @'documentPart@'@>
+private:
+    filePosition m_filePosition;
 public:
-    documentPart(void){
-        std::cout << "documentPart.";
+    documentPart(const filePosition& l_filePosition) : m_filePosition(l_filePosition){
+        std::cout << "documentPart[" << m_filePosition.m_filename << ":" << m_filePosition.m_line << "," << m_filePosition.m_column << "|" << m_filePosition.m_line_end << "," << m_filePosition.m_column_end << ").";
     };
 @<End of class@>
 
@@ -68,7 +70,7 @@ public:
 private:
     std::string m_contents;
 public:
-    texCode(std::string l_contents) : m_contents(l_contents){
+    texCode(const filePosition& l_filePosition, std::string l_contents) : documentPart(l_filePosition), m_contents(l_contents){
         std::cout << "texCode\n";
         //std::cout << "texCode(" << m_contents << ")";
     }
@@ -78,7 +80,7 @@ public:
 private:
     std::string m_filename;
 public:
-    includeFile(std::string l_filename) : m_filename(l_filename){
+    includeFile(const filePosition& l_filePosition, std::string l_filename) : documentPart(l_filePosition), m_filename(l_filename){
         //std::cout << "includeFile";
         std::cout << "includeFile(" << m_filename << ")\n";
     }
@@ -88,7 +90,7 @@ public:
 private:
     std::string m_filename;
 public:
-    outputFile(std::string filename) : m_filename(filename){
+    outputFile(const filePosition& l_filePosition, std::string filename) : documentPart(l_filePosition), m_filename(filename){
         //std::cout << "outputFile";
         std::cout << "outputFile(" << m_filename << ")\n";
     }
@@ -105,6 +107,7 @@ public:
     }
     void addElement(documentPart* l_documentPart){
         m_documentParts.push_back(l_documentPart);
+        std::cout << m_documentParts.size();
         //std::cout << "document has now " << m_documentParts.size() << " documentParts" << std::endl;
     }
 @<End of class, namespace and header@>

@@ -1,3 +1,20 @@
+% Copyright 2022 Florian Pesth
+%
+% This file is part of cppnuweb.
+%
+% cppnuweb is free software: you can redistribute it and/or modify
+% it under the terms of the GNU Affero General Public License as
+% published by the Free Software Foundation version 3 of the
+% License.
+%
+% cppnuweb is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU Affero General Public License for more details.
+%
+% You should have received a copy of the GNU Affero General Public License
+% along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 \subsection{Tokens and types}
 
 \codebisonflex
@@ -11,14 +28,15 @@
 %token AT_PIPE AT_MINUS AT_PLUS AT_U_PLUS
 %token FLAG_D FLAG_I FLAG_T FLAG_C_C FLAG_C_PLUS FLAG_C_P
 %token AT_SMALL_O AT_LARGE_O AT_SMALL_D AT_LARGE_D AT_SMALL_Q AT_LARGE_Q AT_SMALL_F AT_LARGE_F AT_LARGE_D_PLUS AT_SMALL_D_PLUS AT_LARGE_Q_PLUS AT_SMALL_S AT_SMALL_Q_PLUS AT_LARGE_S
+%token NOT_IMPLEMENTED
 
 %union
 {
     int m_int;
     std::string* m_string;
-    position* m_position;
-    positionWithInt* m_intValue;
-    positionWithString* m_stringValue;
+    filePosition* m_filePosition;
+    filePositionWithInt* m_intValue;
+    filePositionWithString* m_stringValue;
     document* m_document;
     documentPart* m_documentPart;
 }
@@ -30,5 +48,6 @@
 %type <m_documentPart> escapedchar;
 %type <m_stringValue> TEXT_WITHOUT_AT;
 %type <m_stringValue> AT_I;
-
+%type <m_filePosition> AT_AT;
+%type <m_stringValue> NOT_IMPLEMENTED;
 @}

@@ -29,7 +29,7 @@ We need to have getter methods which return \codecpp\lstinline{std::stringstream
 \tododocument{Maybe make member functions utf8 and utf16 protected}
 
 \subsection{Interface}
-Our class in line based. This has advantages when trying to index UTF-8 code, because we only have to check the length of codepoints before the positions in the line (as UTF-8 is variable length we can't directly index the positions).
+Our class in line based. This has advantages when trying to index UTF-8 code, because we only have to check the length of codepoints before the filePositions in the line (as UTF-8 is variable length we can't directly index the filePositions).
 
 We store the lines in UTF-16 as well because we need to be able to return UTF-16 for the implementation of the Language Server Protocol:
 
@@ -41,18 +41,18 @@ private:
     std::vector<std::u16string> m_utf16Content;
 @}
 
-We define some simple position and range structure here:
+We define some simple filePosition and range structure here:
 
 @D Class declaration indexableText
 @{
 public:
-    struct position{
+    struct filePosition{
         unsigned int m_line;
         unsigned int m_character;
     };
     struct range{
-        position m_from;
-        position m_to;
+        filePosition m_from;
+        filePosition m_to;
     };
 @}
 
@@ -70,11 +70,11 @@ For the getter methods we have several overloaded functions. We need to have the
     unsigned int numberOfLines() const {return m_utf8Content.size();};
     std::string utf8() const;
     std::string utf8(const unsigned int line) const;
-    std::string utf8(const position& fromHereToLineEnding) const;
+    std::string utf8(const filePosition& fromHereToLineEnding) const;
     std::string utf8(const range& fromTo) const;
     std::stringstream utf8stream() const {return std::stringstream(utf8());};
     std::stringstream utf8stream(const unsigned int line) const { return std::stringstream(utf8(line)); };
-    std::stringstream utf8stream(const position& fromHereToLineEnding) const { return std::stringstream(utf8(fromHereToLineEnding)); };
+    std::stringstream utf8stream(const filePosition& fromHereToLineEnding) const { return std::stringstream(utf8(fromHereToLineEnding)); };
     std::stringstream utf8stream(const range& fromTo) const;
 @}
 
@@ -84,7 +84,7 @@ The same for UTF-16:
 @{
     std::string utf16() const;
     std::string utf16(unsigned int ui_line) const;
-    std::string utf16(const position& fromHereToLineEnding) const;
+    std::string utf16(const filePosition& fromHereToLineEnding) const;
     std::string utf16(const range& fromTo) const;
 @<End of class@>
 @}
@@ -115,7 +115,7 @@ std::string indexableText::utf8(const unsigned int line) const {
     return m_utf8Content.at(line);
 }
     
-std::string indexableText::utf8(const nuweb::file::position& fromHereToLineEnding) const {
+std::string indexableText::utf8(const nuweb::file::filePosition& fromHereToLineEnding) const {
     std::string returnString;
     std::string lineString = m_utf8Content.at(fromHereToLineEnding.m_line);
     std::string::iterator currentStringPosition = lineString.begin();
@@ -133,7 +133,7 @@ std::string indexableText::utf8(const nuweb::file::position& fromHereToLineEndin
 
 \section{Class tagableText}
 
-Next we want to mark certain parts of the text with arbitrary UTF8 strings. This can be either positions in the text or ranges.
+Next we want to mark certain parts of the text with arbitrary UTF8 strings. This can be either filePositions in the text or ranges.
 \subsection{Interface}
 @d Class declaration tagableText
 @{

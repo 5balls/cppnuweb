@@ -92,11 +92,20 @@ private:
     std::vector<std::string> filenameStack;
     int yylex(void);
     void include_file(){
+        // Get filename:
         std::string filename = std::string(yytext, yyleng);
         // Remove '@@i '
         filename.erase(filename.begin(), filename.begin()+3);
+        // Return correct values later:
+        if(filenameStack.empty())
+            yylvalue->m_stringValue = new filePositionWithString("",lineno(),columno(),lineno_end(),columno_end(),filename); 
+        else
+            yylvalue->m_stringValue = new filePositionWithString(filenameStack.back(),lineno(),columno(),lineno_end(),columno_end(),filename); 
+        // Read file:
         nuweb::file* currentFile = new nuweb::file(filename);
+        // Remember current file:
         filenameStack.push_back(filename);
+        // Start new matcher:
         push_matcher(new_matcher(currentFile->utf8()));
     }
     bool end_of_file(){

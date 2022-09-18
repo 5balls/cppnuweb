@@ -62,7 +62,7 @@ literate={ä}{{\"a}}1 {ö}{{\"o}}1 {ü}{{\"u}}1 {é}{{\'e}}1 {—}{{-}}1,
 \newcounter{tododocumentcounter}
 \newcommand{\tododocument}[1]{\stepcounter{tododocumentcounter}\todo[color=green!40]{Document \thetododocumentcounter: #1}}
 
-% This is to fix positioning of todo comments on the left margin:
+% This is to fix filePositioning of todo comments on the left margin:
 \setlength{\marginparwidth}{2.7cm}
 
 \usetikzlibrary{shapes,arrows,chains,decorations.pathmorphing,calc}
