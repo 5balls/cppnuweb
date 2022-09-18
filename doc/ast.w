@@ -18,42 +18,95 @@
 \section{Abstract Syntax Tree}
 We define some classes for our Abstract Syntax Tree. This correspond mostly to the non terminal expressions in the Bison grammar and are used there to build up the tree.
 
-\subsection{nuwebDocument}
+\subsection{document}
 @O ../src/ast.h -d
 @{
 @<Start of @'AST@' header@>
 #include <vector>
 
-@<Start of class @'nuwebElement@'@>
+namespace nuweb {
+
+struct position {
+    position(std::string filename,
+            unsigned int line, unsigned int column,
+            unsigned int line_end, unsigned int column_end):
+        m_filename(filename),
+        m_line(line), m_column(column),
+        m_line_end(line_end), m_column_end(column_end){};
+    std::string m_filename;
+    unsigned int m_line;
+    unsigned int m_column;
+    unsigned int m_line_end;
+        unsigned int m_column_end;
+};
+
+struct positionWithInt : public position {
+    int m_value;
+};
+
+struct positionWithString : public position {
+    positionWithString(std::string filename, 
+            unsigned int line, unsigned int column,
+            unsigned int line_end, unsigned int column_end,
+            std::string value):
+        position(filename,line,column,line_end,column_end),
+        m_value(value){};
+    std::string m_value;
+};
+@}
+
+@O ../src/ast.h -d
+@{
+@<Start of class @'documentPart@'@>
 public:
-    nuwebElement(void){
-        std::cout << "Constructor nuwebElement" << std::endl;
+    documentPart(void){
+        std::cout << "documentPart.";
     };
 @<End of class@>
 
-@<Start of class @'texCode@' base @'nuwebElement@'@>
+@<Start of class @'texCode@' base @'documentPart@'@>
 private:
     std::string m_contents;
 public:
     texCode(std::string l_contents) : m_contents(l_contents){
-        std::cout << "Constructor texCode(" << m_contents << ")" << std::endl;
+        std::cout << "texCode\n";
+        //std::cout << "texCode(" << m_contents << ")";
     }
 @<End of class@>
 
-@<Start of class @'nuwebDocument@'@>
+@<Start of class @'includeFile@' base @'documentPart@'@>
 private:
-    std::vector<nuwebElement*> m_elements;
+    std::string m_filename;
 public:
-    ~nuwebDocument(void){
-        for(auto* element: m_elements)
-            delete element;
-        m_elements.clear();
+    includeFile(std::string l_filename) : m_filename(l_filename){
+        //std::cout << "includeFile";
+        std::cout << "includeFile(" << m_filename << ")\n";
     }
-    void addElement(nuwebElement* l_element){
-        m_elements.push_back(l_element);
-        std::cout << "nuwebDocument has now " << m_elements.size() << " elements" << std::endl;
-    }
+@<End of class@>
 
-@<End of class and header@>
+@<Start of class @'outputFile@' base @'documentPart@'@>
+private:
+    std::string m_filename;
+public:
+    outputFile(std::string filename) : m_filename(filename){
+        //std::cout << "outputFile";
+        std::cout << "outputFile(" << m_filename << ")\n";
+    }
+@<End of class@>
+
+@<Start of class @'document@'@>
+private:
+    std::vector<documentPart*> m_documentParts;
+public:
+    ~document(void){
+        for(auto* documentPart: m_documentParts)
+            delete documentPart;
+        m_documentParts.clear();
+    }
+    void addElement(documentPart* l_documentPart){
+        m_documentParts.push_back(l_documentPart);
+        //std::cout << "document has now " << m_documentParts.size() << " documentParts" << std::endl;
+    }
+@<End of class, namespace and header@>
 @}
 

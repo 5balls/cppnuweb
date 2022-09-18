@@ -39,57 +39,57 @@ The context free grammar is defined by a Bison file. We use the C++ code generat
 The following rules are used to create the parser for nuweb. They also define a grammar for nuweb files in Backus-Naur form. I am not aware of previous work to describe the nuweb grammar this way, so there are likely some errors.
 
 \subsubsection{Document structure}
-First, each nuweb document ends with a end of file marker (which we don't consider part of \lstinline{nuwebDocument}):
+First, each nuweb document ends with a end of file marker (which we don't consider part of \lstinline{document}):
 
 \begin{figure}[ht]
 \begin{grammar}
-<nuwebAstRoot> ::= <nuwebDocument> YYEOF;
+<nuwebAstRoot> ::= <document> YYEOF;
 \end{grammar}
 \caption{BNF for nuwebAstRoot}
 \end{figure}
 
-In the code, we pass \lstinline{nuwebDocument} to the class pointer \codecpp\lstinline{*l_nuwebDocument}\codebisonflex.
+In the code, we pass \lstinline{document} to the class pointer \codecpp\lstinline{*l_document}\codebisonflex.
 
 @O ../src/nuweb.y
 @{
 %%
  /* rules */
 nuwebAstRoot
-    : nuwebDocument YYEOF
+    : document YYEOF
     {
-        *l_nuwebDocument = $nuwebDocument;
+        *l_document = $document;
     }
 ;
 @}
 
-Each document consists of a list of document elements. We achieve this by matching an empty string to \lstinline{nuwebDocument} and afterwards match consecutively matched \lstinline{nuwebElement} to the right and add them to the list of elements in \lstinline{nuwebDocument}.
+Each document consists of a list of document documentParts. We achieve this by matching an empty string to \lstinline{document} and afterwards match consecutively matched \lstinline{documentPart} to the right and add them to the list of documentParts in \lstinline{document}.
 
 \begin{figure}[ht]
 \begin{grammar}
-<nuwebDocument> ::= $\epsilon$
-\alt <nuwebDocument> <nuwebElement>;
+<document> ::= $\epsilon$
+\alt <document> <documentPart>;
 \end{grammar}
-\caption{BNF for nuwebDocument}
+\caption{BNF for document}
 \end{figure}
 
 The \lstinline{%empty} rule is only matched at the beginning.
 
 @O ../src/nuweb.y
 @{
-nuwebDocument
+document
     : %empty
     {
-        $$ = new nuwebDocument();
+        $$ = new document();
     }
-    | nuwebDocument[l_nuwebDocument] nuwebElement
+    | document[l_document] documentPart
     {
-        $l_nuwebDocument->addElement($nuwebElement);
-        $$ = $l_nuwebDocument;
+        $l_document->addElement($documentPart);
+        $$ = $l_document;
     }
 ;
 @}
 
-An \lstinline{nuwebElement} can be one of three types:
+An \lstinline{documentPart} can be one of three types:
 
 \begin{enumerate}
 \item texCode
@@ -99,17 +99,31 @@ An \lstinline{nuwebElement} can be one of three types:
 
 @O ../src/nuweb.y
 @{
-nuwebElement
-    : TEX_WITHOUT_AT
-    {
-        $$ = new texCode($TEX_WITHOUT_AT->m_value);
-        std::cout << "Line:" << $TEX_WITHOUT_AT->m_line << "\n";
-        std::cout << "Column:" << $TEX_WITHOUT_AT->m_column << "\n";
-    }
-    | fragment
-    | include
-    | escapedchar
+documentPart
+    : texCode
+    | nuwebExpression
 ;
+
+texCode
+    : TEXT_WITHOUT_AT
+    {
+        $$ = new texCode($TEXT_WITHOUT_AT->m_value);
+    }
+;
+
+nuwebExpression
+    : AT_I
+    {
+        $$ = new includeFile($AT_I->m_filename);
+    }
+    | escapedchar
+    | scrap
+    {
+        std::cout << "scrap\n";
+    }
+;
+
+
 @}
 
 \subsection{Fragment}
@@ -133,12 +147,12 @@ fragmentName
 ;
 
 fragmentNamePart
-    : TEX_WITHOUT_AT
+    : TEXT_WITHOUT_AT
     | fragmentNameArgument
 ;
 
 fragmentNameArgument
-    : AT_TICK TEX_WITHOUT_AT AT_TICK
+    : AT_TICK TEXT_WITHOUT_AT AT_TICK
 ;
 @}
 
@@ -168,20 +182,15 @@ scrapElements
 ;
 
 scrapElement
-    : TEX_WITHOUT_AT
+    : TEXT_WITHOUT_AT
     | AT_AT
-;
-
-include
-    : AT_I includefilename
-;
-
-includefilename
-    : FILENAME
 ;
 
 escapedchar
     : AT_AT
+    {
+        $$ = new texCode("@@");
+    }
 ;
 %%
  /* code */

@@ -45,24 +45,26 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
     try{
-        nuweb::file baseFile(argv[argc-1]);
-        std::cout << "Read file \"" + std::string(argv[argc-1]) + "\" with " + std::to_string(baseFile.numberOfLines()) + " lines" << std::endl;
+        std::string entryString = "@@i " + std::string(argv[argc-1]);
+        std::cout << "Entry string " << entryString << std::endl;
+        document* nuwebAstEntry = nullptr;
+#ifdef REFLEX
+        helpLexer* lexer = new helpLexer(entryString); 
+        std::cout << "Lexer " << lexer << std::endl;
+#else
+        helpLexer* lexer = new helpLexer(std::stringstream(entryString), std::cout); 
+#endif
+        yy::parser* parser = new yy::parser(lexer,&nuwebAstEntry);
+        std::cout << "Parser " << parser << std::endl;
+        int parserReturnValue = parser->parse();
+        std::cout << "Parser returned " << parserReturnValue << std::endl;
+        delete parser;
+        delete lexer;
+        return EXIT_SUCCESS;
     }    
     catch(std::runtime_error& e){
-        std::cout << "Reading file \"" + std::string(argv[argc-1]) + "\" failed with error:\n  " << e.what() << std::endl;
+        std::cout << "Parsing file \"" + std::string(argv[argc-1]) + "\" failed with error:\n  " << e.what() << std::endl;
         return EXIT_FAILURE;
     }
-    nuwebDocument* nuwebAstEntry = nullptr;
-#ifdef REFLEX
-    helpLexer* lexer = new helpLexer(&std::cin, &std::cout); 
-#else
-    helpLexer* lexer = new helpLexer(std::cin, std::cout); 
-#endif
-    yy::parser* parser = new yy::parser(lexer,&nuwebAstEntry);
-    int parserReturnValue = parser->parse();
-    std::cout << "Parser returned " << parserReturnValue << std::endl;
-    delete parser;
-    delete lexer;
-    return EXIT_SUCCESS;
 }
 @}

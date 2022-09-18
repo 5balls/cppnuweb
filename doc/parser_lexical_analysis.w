@@ -27,10 +27,12 @@ We try to use the Flex and Bison programs to create our parser.
 #include <iostream>
 #include "../../src/helplexer.h"
 #include "parser.hpp"
+#include "../../src/file.h"
 
-#define DEBUG_LEXER(X) std::cout << X << "[" << lineno() << columno() << "]"; std::cout.flush();
+#define DEBUG_LEXER(X) std::cout << X << "[" << filenameStack.back() << ":" << lineno() << "," << columno() << "]"; std::cout.flush();
 #define TOKEN(X) DEBUG_LEXER(#X) return yy::parser::token::yytokentype::X;
-#define STRINGTOKEN(X) yylvalue->m_stringValue = new nuwebPositionWithString(filename,lineno(),columno(),lineno_end(),columno_end(),std::string(yytext, yyleng)); TOKEN(X)
+#define STRINGTOKEN(X) yylvalue->m_stringValue = new positionWithString(filenameStack.back(),lineno(),columno(),lineno_end(),columno_end(),std::string(yytext, yyleng)); TOKEN(X)
+#define STRINGTOKEN_WITH_MODIFIED_STRING(X) yylvalue->m_stringValue = new positionWithString(filename,lineno(),columno(),lineno_end(),columno_end(),std::string(yytext, yyleng)); TOKEN(X)
 %}
 
 %option c++
@@ -40,22 +42,26 @@ We try to use the Flex and Bison programs to create our parser.
 
 %x scrapContents
 
-
 %%
  /* rules */
-[^@@]+ {  STRINGTOKEN(TEX_WITHOUT_AT) }
-<INITIAL>"@@{" { BEGIN(scrapContents); TOKEN(AT_CURLY_BRACKET_OPEN) }
-<scrapContents>"@@}" { BEGIN(INITIAL); TOKEN(AT_CURLY_BRACKET_CLOSE) }
-<INITIAL>"@@[" { BEGIN(scrapContents); TOKEN(AT_SQUARE_BRACKET_OPEN) }
-<scrapContents>"@@]" { BEGIN(INITIAL); TOKEN(AT_SQUARE_BRACKET_CLOSE) }
-<INITIAL,scrapContents>"@@(" { BEGIN(scrapContents); TOKEN(AT_ROUND_BRACKET_OPEN) }
-<scrapContents>"@@)"         { BEGIN(INITIAL); TOKEN(AT_ROUND_BRACKET_CLOSE) }
-<scrapContents>"@@<"         { BEGIN(scrapContents); TOKEN(AT_ANGLE_BRACKET_OPEN) }
+@@i[ ][^\n]+ { include_file(); STRINGTOKEN(AT_I) }
+@@@@ { TOKEN(AT_AT) }
+[^@@]+ { STRINGTOKEN(TEXT_WITHOUT_AT) }
+"@@{" { TOKEN(AT_CURLY_BRACKET_OPEN) }
+"@@}" { TOKEN(AT_CURLY_BRACKET_CLOSE) }
+@}
+
+@O ../src/nuweb.l
+@{
+<<EOF>> { if(end_of_file()) { TOKEN(YYEOF) } }
+%%
+@}
+
+\iffalse
+ /* <scrapContents>"@@<"         { BEGIN(scrapContents); TOKEN(AT_ANGLE_BRACKET_OPEN) }
 <scrapContents>"@@<+"        { BEGIN(scrapContents); TOKEN(AT_ANGLE_BRACKET_OPEN_PLUS) }
 <scrapContents>"@@>"         { BEGIN(INITIAL); TOKEN(AT_ANGLE_BRACKET_CLOSE) }
-<*>"@@@@"               { TOKEN(AT_AT) }
 <*>"@@_" { TOKEN(AT_UNDERLINE) }
-<*>"@@i" { TOKEN(AT_I) }
 <*>"@@v" { TOKEN(AT_V) }
 <*>"@@o" { TOKEN(AT_SMALL_O) }
 <*>"@@O" { TOKEN(AT_LARGE_O) }
@@ -87,9 +93,11 @@ We try to use the Flex and Bison programs to create our parser.
 <*>"\-cc" { TOKEN(FLAG_C_C) }
 <*>"\-c\+" { TOKEN(FLAG_C_PLUS) }
 <*>"\-cp" { TOKEN(FLAG_C_P) }
-<*>[@@][1-9] { TOKEN(AT_NUMBER) } 
-<<EOF>> { TOKEN(YYEOF) }
-%%
+<*>[@@][1-9] { TOKEN(AT_NUMBER) } */
+\fi
+
+@O ../src/nuweb.l
+@{
 
  /* code */
 @}

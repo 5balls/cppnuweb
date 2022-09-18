@@ -4,7 +4,7 @@
 @O ../src/nuweb.y
 @{
 
-%token TEX_WITHOUT_AT
+%token TEXT_WITHOUT_AT
 %token FILENAME
 %token AT_CURLY_BRACKET_OPEN AT_CURLY_BRACKET_CLOSE AT_SQUARE_BRACKET_OPEN AT_SQUARE_BRACKET_CLOSE AT_ROUND_BRACKET_OPEN AT_ROUND_BRACKET_CLOSE AT_ANGLE_BRACKET_OPEN AT_ANGLE_BRACKET_CLOSE AT_ANGLE_BRACKET_OPEN_PLUS 
 %token AT_I AT_AT AT_UNDERLINE AT_TICK AT_NUMBER AT_X AT_T AT_HASH AT_S AT_PERCENT AT_V AT_M AT_M_PLUS AT_U
@@ -16,15 +16,19 @@
 {
     int m_int;
     std::string* m_string;
-    nuwebPosition* m_position;
-    nuwebPositionWithInt* m_intValue;
-    nuwebPositionWithString* m_stringValue;
-    nuwebDocument* m_nuwebDocument;
-    nuwebElement* m_nuwebElement;
+    position* m_position;
+    positionWithInt* m_intValue;
+    positionWithString* m_stringValue;
+    document* m_document;
+    documentPart* m_documentPart;
 }
 
-%type <m_nuwebDocument> nuwebDocument;
-%type <m_nuwebElement> nuwebElement;
-%type <m_stringValue> TEX_WITHOUT_AT;
+%type <m_document> document;
+%type <m_documentPart> documentPart;
+%type <m_documentPart> texCode;
+%type <m_documentPart> nuwebExpression;
+%type <m_documentPart> escapedchar;
+%type <m_stringValue> TEXT_WITHOUT_AT;
+%type <m_stringValue> AT_I;
 
 @}

@@ -26,32 +26,8 @@ Apparently there is some glue code needed so that Bison and Flex can talk to eac
     #include <iostream>
     #include "parser.hpp"
     #include "../../src/ast.h"
+    using namespace nuweb;
     class helpLexer;
-    struct nuwebPosition {
-        nuwebPosition(std::string filename,
-                unsigned int line, unsigned int column,
-                unsigned int line_end, unsigned int column_end):
-            m_filename(filename),
-            m_line(line), m_column(column),
-            m_line_end(line_end), m_column_end(column_end){};
-        std::string m_filename;
-        unsigned int m_line;
-        unsigned int m_column;
-        unsigned int m_line_end;
-        unsigned int m_column_end;
-    };
-    struct nuwebPositionWithInt : public nuwebPosition {
-        int m_value;
-    };
-    struct nuwebPositionWithString : public nuwebPosition {
-        nuwebPositionWithString(std::string filename, 
-                unsigned int line, unsigned int column,
-                unsigned int line_end, unsigned int column_end,
-                std::string value):
-            nuwebPosition(filename,line,column,line_end,column_end),
-            m_value(value){};
-        std::string m_value;
-    };
 }
 @}
 
@@ -67,7 +43,7 @@ Here we need to fix a problem. Bison wants to call a function of type ``\lstinli
     };
     void yy::parser::error(const std::string& s){
         /* TODO Throw error here */
-        std::cout << s;
+        std::cout << "ERROR: " <<s;
     };
 }
 @}
@@ -87,7 +63,7 @@ We also need to pass a pointer to this \lstinline{helpLexer} object in the const
 @d Parse parameters
 @{
 %parse-param { helpLexer* lexer }
-%parse-param { nuwebDocument** l_nuwebDocument }
+%parse-param { document** l_document }
 @}
 
 So let's go ahead and write this helper class.
@@ -108,16 +84,36 @@ So let's go ahead and write this helper class.
 #endif
 
 #include "parser.hpp"
+#include "../../src/file.h"
 
 @<Start of class @'helpLexer@' base @'yyFlexLexer@'@>
 private:
     yy::parser::semantic_type* yylvalue;
-    std::string filename;
+    std::vector<std::string> filenameStack;
     int yylex(void);
+    void include_file(){
+        std::string filename = std::string(yytext, yyleng);
+        // Remove '@@i '
+        filename.erase(filename.begin(), filename.begin()+3);
+        nuweb::file* currentFile = new nuweb::file(filename);
+        filenameStack.push_back(filename);
+        push_matcher(new_matcher(currentFile->utf8()));
+    }
+    bool end_of_file(){
+        pop_matcher();
+        filenameStack.pop_back();
+        bool b_stackEmpty = filenameStack.empty();
+        if(b_stackEmpty){
+            push_matcher(new_matcher(""));
+            filenameStack.push_back("");
+        }
+        return b_stackEmpty;
+    }
 public:
 
 #if defined(REFLEX)
     helpLexer(std::istream* inputStream, std::ostream* outputStream);
+    helpLexer(std::string inputString);
 #else
     helpLexer(std::istream& inputStream, std::ostream& outputStream);
 #endif
@@ -136,13 +132,15 @@ We need to still define the constructor ``\lstinline{helpLexer::helpLexer(std::i
 #if defined(REFLEX)
 helpLexer::helpLexer(std::istream* inputStream, std::ostream* outputStream) : yyFlexLexer(inputStream, outputStream) {
 }
+helpLexer::helpLexer(std::string inputString) : yyFlexLexer(inputString) {
+}
+
 #else
 helpLexer::helpLexer(std::istream& inputStream, std::ostream& outputStream) : yyFlexLexer(inputStream, outputStream) {
 }
 #endif
 
 int helpLexer::yylex(yy::parser::semantic_type* yylvalue){
-    std::cout << "helpLexer::yylex" << std::endl;
     this->yylvalue = yylvalue;
     return yylex();
 }
