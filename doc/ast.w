@@ -96,6 +96,26 @@ public:
     }
 @<End of class@>
 
+@<Start of class @'fragmentNamePart@' base @'documentPart@'@>
+private:
+    std::string m_value;
+public:
+    fragmentNamePart(const filePosition& l_filePosition, const std::string& value) :
+        documentPart(l_filePosition), m_value(value){
+            std::cout << "fragmentNamePart\n";
+        };
+@<End of class@>
+
+@<Start of class @'fragmentNamePartArgument@' base @'fragmentNamePart@'@>
+private:
+    int m_counter;
+public:
+    fragmentNamePartArgument(const filePosition& l_filePosition, const std::string& argumentName, int counter):
+        fragmentNamePart(l_filePosition, argumentName), m_counter(counter){
+            std::cout << "fragmentNamePartArgument\n";
+        };
+@<End of class@>
+
 @<Start of class @'document@'@>
 private:
     std::vector<documentPart*> m_documentParts;

@@ -94,7 +94,7 @@ An \lstinline{documentPart} can be one of three types:
 \begin{enumerate}
 \item texCode
 \item nuwebExpression
-\item programCode
+\item outputFile
 \end{enumerate}
 
 @O ../src/nuweb.y
@@ -102,6 +102,7 @@ An \lstinline{documentPart} can be one of three types:
 documentPart
     : texCode
     | nuwebExpression
+    | outputFile
 ;
 
 texCode
@@ -121,6 +122,10 @@ nuwebExpression
     {
         std::cout << "scrap\n";
     }
+    | fragment
+    {
+        std::cout << "fragment\n";
+    }
     | NOT_IMPLEMENTED
     {
         std::cout << "  " << $NOT_IMPLEMENTED->m_filename << ":" << $NOT_IMPLEMENTED->m_line << ":" << $NOT_IMPLEMENTED->m_column << " command \"" << $NOT_IMPLEMENTED->m_value << "\" not implemented!\n";
@@ -128,33 +133,79 @@ nuwebExpression
 ;
 @}
 
+\subsection{Output file}
+@O ../src/nuweb.y
+@{
+outputFile
+    : outputCommand WHITESPACE outputFilename WHITESPACE outputFlags WHITESPACE scrap
+;
+
+outputCommand
+    : AT_SMALL_O
+;
+
+outputFilename
+    : TEXT_WITHOUT_WHITESPACE
+;
+
+outputFlags
+    : FLAG_D
+;
+@}
+
+
 \subsection{Fragment}
 @O ../src/nuweb.y
 @{
 fragment
-    : fragmentHeader scrap
+    : fragmentCommand fragmentName WHITESPACE scrap
 ;
-@}
 
-\subsubsection{Header}
-@O ../src/nuweb.y
-@{
-fragmentHeader
-    : AT_SMALL_D fragmentName
+fragmentCommand
+    : AT_SMALL_D
+    | AT_SMALL_Q
 ;
 
 fragmentName
-    : %empty
+    : fragmentNamePart
     | fragmentName fragmentNamePart
 ;
 
 fragmentNamePart
-    : TEXT_WITHOUT_AT
+    : fragmentNameText
     | fragmentNameArgument
+    | fragmentNameArgumentOld
 ;
 
 fragmentNameArgument
-    : AT_TICK TEXT_WITHOUT_AT AT_TICK
+    : AT_TICK fragmentNameText AT_TICK
+;
+
+fragmentNameText
+    : %empty
+    | fragmentNameText fragmentNameTextPart
+;
+
+fragmentNameTextPart
+    : TEXT_WITHOUT_AT 
+    | AT_AT
+;
+
+fragmentNameArgumentOld
+    : AT_ROUND_BRACKET_OPEN commaSeparatedFragmentArguments AT_ROUND_BRACKET_CLOSE
+;
+
+commaSeparatedFragmentArguments
+    : %empty
+    | commaSeparatedFragmentArguments AT_AT commaSeparatedFragmentArgument
+;
+
+commaSeparatedFragmentArgument
+    : TEXT_WITHOUT_AT
+;
+
+fragmentExpansion
+    : AT_ANGLE_BRACKET_OPEN fragmentName AT_ANGLE_BRACKET_CLOSE
 ;
 @}
 
@@ -186,6 +237,7 @@ scrapElements
 scrapElement
     : TEXT_WITHOUT_AT
     | AT_AT
+    | fragmentExpansion
 ;
 
 escapedchar

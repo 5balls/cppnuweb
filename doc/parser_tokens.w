@@ -29,6 +29,9 @@
 %token FLAG_D FLAG_I FLAG_T FLAG_C_C FLAG_C_PLUS FLAG_C_P
 %token AT_SMALL_O AT_LARGE_O AT_SMALL_D AT_LARGE_D AT_SMALL_Q AT_LARGE_Q AT_SMALL_F AT_LARGE_F AT_LARGE_D_PLUS AT_SMALL_D_PLUS AT_LARGE_Q_PLUS AT_SMALL_S AT_SMALL_Q_PLUS AT_LARGE_S
 %token NOT_IMPLEMENTED
+%token WHITESPACE
+%token TEXT_WITHOUT_WHITESPACE
+%token AT_COMMA
 
 %union
 {
@@ -46,8 +49,10 @@
 %type <m_documentPart> texCode;
 %type <m_documentPart> nuwebExpression;
 %type <m_documentPart> escapedchar;
+%type <m_documentPart> outputFile;
 %type <m_stringValue> TEXT_WITHOUT_AT;
 %type <m_stringValue> AT_I;
 %type <m_filePosition> AT_AT;
+%type <m_filePosition> WHITESPACE;
 %type <m_stringValue> NOT_IMPLEMENTED;
 @}

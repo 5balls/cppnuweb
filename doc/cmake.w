@@ -100,7 +100,7 @@ add_definitions(
 @<Requirements for CMakeLists.txt@>
 
 BISON_TARGET(MyParser nuweb.y ${CMAKE_CURRENT_BINARY_DIR}/parser.cpp
-        COMPILE_FLAGS -v)
+        COMPILE_FLAGS "-v -Wcounterexamples")
 if(REFLEX)
   set(FLEX_MyLexer_OUTPUTS ${CMAKE_CURRENT_BINARY_DIR}/lexer.cpp)
   add_custom_command(OUTPUT ${FLEX_MyLexer_OUTPUTS}
