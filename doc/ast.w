@@ -41,6 +41,13 @@ struct filePosition {
 };
 
 struct filePositionWithInt : public filePosition {
+    filePositionWithInt(std::string filename, 
+            unsigned int line, unsigned int column,
+            unsigned int line_end, unsigned int column_end,
+            int value):
+        filePosition(filename,line,column,line_end,column_end),
+        m_value(value){
+        };
     int m_value;
 };
 

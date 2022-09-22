@@ -110,6 +110,10 @@ texCode
     {
         $$ = new texCode(*$TEXT_WITHOUT_AT);
     }
+    | WHITESPACE
+    {
+        $$ = new texCode(*$WHITESPACE);
+    }
 ;
 
 nuwebExpression
@@ -124,7 +128,7 @@ nuwebExpression
     }
     | fragment
     {
-        std::cout << "fragment";
+        std::cout << "fragment in nuwebExpression\n";
     }
     | NOT_IMPLEMENTED
     {
@@ -161,39 +165,39 @@ outputFlags
 @O ../src/nuweb.y
 @{
 fragment
-    : fragmentCommand fragmentName WHITESPACE scrap
+    : fragmentCommand fragmentName scrap
+    {
+        std::cout << "fragment\n";
+    }
+    | fragmentCommand fragmentName WHITESPACE scrap
+    {
+        std::cout << "fragment whitespace\n";
+    }
 ;
 
 fragmentCommand
     : AT_SMALL_D
+    | AT_LARGE_D
+    {
+        std::cout << "large d\n";
+    }
     | AT_SMALL_Q
 ;
 
 fragmentName
-    : fragmentName
-    | fragmentName fragmentNamePart
-;
-
-fragmentNamePart
-    : fragmentNameTextList
+    : fragmentNameText
     | fragmentNameArgument
-    | fragmentNameArgumentOld
+    | fragmentName fragmentNameText
+    | fragmentName fragmentNameArgument
+//    | fragmentNameArgumentOld
 ;
 
 fragmentNameArgument
-    : AT_TICK TEXT_WITHOUT_AT AT_TICK
-;
-
-fragmentNameTextList
-    : fragmentNameText
+    : AT_TICK AT_TICK
+    | AT_TICK TEXT_WITHOUT_AT AT_TICK
 ;
 
 fragmentNameText
-    : fragmentNameText
-    | fragmentNameText fragmentNameTextPart
-;
-
-fragmentNameTextPart
     : TEXT_WITHOUT_AT 
     | AT_AT
 ;
@@ -237,13 +241,15 @@ scrap
 ;
 
 scrapElements
-    : %empty
+    : scrapElement
     | scrapElements scrapElement
 ;
 
 scrapElement
     : TEXT_WITHOUT_AT
     | AT_AT
+    | WHITESPACE
+    | AT_NUMBER
     | fragmentExpansion
 ;
 

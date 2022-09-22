@@ -49,11 +49,14 @@
 %type <m_documentPart> documentPart;
 %type <m_texCode> texCode;
 %type <m_documentPart> nuwebExpression;
+%type <m_documentPart> fragment;
 %type <m_texCode> escapedchar;
 %type <m_documentPart> outputFile;
 %type <m_stringValue> TEXT_WITHOUT_AT;
 %type <m_stringValue> AT_I;
 %type <m_filePosition> AT_AT;
-%type <m_filePosition> WHITESPACE;
+%type <m_stringValue> WHITESPACE;
 %type <m_stringValue> NOT_IMPLEMENTED;
+%type <m_filePosition> AT_LARGE_D;
+%type <m_intValue> AT_NUMBER;
 @}

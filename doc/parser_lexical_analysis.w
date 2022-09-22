@@ -35,6 +35,8 @@ We try to use the Flex and Bison programs to create our parser.
 #define DTOKEN(X) DEBUG_LEXER(#X) yylvalue->m_filePosition = new filePosition(filenameStack.back(),lineno(),columno(),lineno_end(),columno_end()); return yy::parser::token::yytokentype::X;
 #define STRINGTOKEN(X) yylvalue->m_stringValue = new filePositionWithString(std::string(filenameStack.back()),lineno(),columno(),lineno_end(),columno_end(),std::string(yytext, yyleng)); return yy::parser::token::yytokentype::X;
 #define DSTRINGTOKEN(X) DEBUG_LEXER(#X) yylvalue->m_stringValue = new filePositionWithString(std::string(filenameStack.back()),lineno(),columno(),lineno_end(),columno_end(),std::string(yytext, yyleng)); return yy::parser::token::yytokentype::X;
+#define INTTOKEN(X,Y) yylvalue->m_intValue = new filePositionWithInt(std::string(filenameStack.back()),lineno(),columno(),lineno_end(),columno_end(),Y); return yy::parser::token::yytokentype::X;
+#define DINTTOKEN(X,Y) DEBUG_LEXER(#X) INTTOKEN(X,Y)
 %}
 
 %option c++
@@ -46,14 +48,18 @@ We try to use the Flex and Bison programs to create our parser.
 
 %%
  /* rules */
-[[:space:]] { TOKEN(WHITESPACE) }
+[[:space:]] { DSTRINGTOKEN(WHITESPACE) }
 @@i[ ][^\n]+ { include_file(); return yy::parser::token::yytokentype::AT_I; }
-@@@@ { STRINGTOKEN(AT_AT) }
-[^@@]+ { STRINGTOKEN(TEXT_WITHOUT_AT) }
-[@@d]+ { STRINGTOKEN(AT_SMALL_D) }
-[@@D]+ { STRINGTOKEN(AT_LARGE_D) }
-"@@{" { TOKEN(AT_CURLY_BRACKET_OPEN) }
-"@@}" { TOKEN(AT_CURLY_BRACKET_CLOSE) }
+@@@@ { DSTRINGTOKEN(AT_AT) }
+[^@@]+ { DSTRINGTOKEN(TEXT_WITHOUT_AT) }
+@@d { DTOKEN(AT_SMALL_D) }
+@@D { DTOKEN(AT_LARGE_D) }
+@@< { DTOKEN(AT_ANGLE_BRACKET_OPEN) }
+@@> { DTOKEN(AT_ANGLE_BRACKET_CLOSE) }
+@@' {  DTOKEN(AT_TICK) }
+@@[1-9] { DINTTOKEN(AT_NUMBER, std::stoi(std::string(yytext+1, yyleng-1))) }
+[@@][{] { DTOKEN(AT_CURLY_BRACKET_OPEN) }
+[@@][}] { DTOKEN(AT_CURLY_BRACKET_CLOSE) }
 @}
 
 @O ../src/nuweb.l
