@@ -108,14 +108,14 @@ documentPart
 texCode
     : TEXT_WITHOUT_AT
     {
-        $$ = new texCode(*$TEXT_WITHOUT_AT, $TEXT_WITHOUT_AT->m_value);
+        $$ = new texCode(*$TEXT_WITHOUT_AT);
     }
 ;
 
 nuwebExpression
     : AT_I
     {
-        $$ = new includeFile(*$AT_I, $AT_I->m_value);
+        $$ = new includeFile(*$AT_I);
     }
     | escapedchar
     | scrap
@@ -124,7 +124,7 @@ nuwebExpression
     }
     | fragment
     {
-        std::cout << "fragment\n";
+        std::cout << "fragment";
     }
     | NOT_IMPLEMENTED
     {
@@ -138,6 +138,9 @@ nuwebExpression
 @{
 outputFile
     : outputCommand WHITESPACE outputFilename WHITESPACE outputFlags WHITESPACE scrap
+    {
+        std::cout << "outputCommand\n";
+    }
 ;
 
 outputCommand
@@ -167,22 +170,26 @@ fragmentCommand
 ;
 
 fragmentName
-    : fragmentNamePart
+    : fragmentName
     | fragmentName fragmentNamePart
 ;
 
 fragmentNamePart
-    : fragmentNameText
+    : fragmentNameTextList
     | fragmentNameArgument
     | fragmentNameArgumentOld
 ;
 
 fragmentNameArgument
-    : AT_TICK fragmentNameText AT_TICK
+    : AT_TICK TEXT_WITHOUT_AT AT_TICK
+;
+
+fragmentNameTextList
+    : fragmentNameText
 ;
 
 fragmentNameText
-    : %empty
+    : fragmentNameText
     | fragmentNameText fragmentNameTextPart
 ;
 
@@ -243,7 +250,7 @@ scrapElement
 escapedchar
     : AT_AT
     {
-        $$ = new texCode(*$AT_AT, "@@");
+        $$ = new texCode(filePositionWithString(*$AT_AT, "@@"));
     }
 ;
 %%

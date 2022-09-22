@@ -42,13 +42,14 @@
     filePositionWithString* m_stringValue;
     document* m_document;
     documentPart* m_documentPart;
+    texCode* m_texCode;
 }
 
 %type <m_document> document;
 %type <m_documentPart> documentPart;
-%type <m_documentPart> texCode;
+%type <m_texCode> texCode;
 %type <m_documentPart> nuwebExpression;
-%type <m_documentPart> escapedchar;
+%type <m_texCode> escapedchar;
 %type <m_documentPart> outputFile;
 %type <m_stringValue> TEXT_WITHOUT_AT;
 %type <m_stringValue> AT_I;

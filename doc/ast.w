@@ -45,12 +45,17 @@ struct filePositionWithInt : public filePosition {
 };
 
 struct filePositionWithString : public filePosition {
+    filePositionWithString(const filePosition& l_filePosition,
+            std::string value):
+        filePosition(l_filePosition),
+        m_value(value){};
     filePositionWithString(std::string filename, 
             unsigned int line, unsigned int column,
             unsigned int line_end, unsigned int column_end,
             std::string value):
         filePosition(filename,line,column,line_end,column_end),
-        m_value(value){};
+        m_value(value){
+        };
     std::string m_value;
 };
 @}
@@ -70,7 +75,7 @@ public:
 private:
     std::string m_contents;
 public:
-    texCode(const filePosition& l_filePosition, std::string l_contents) : documentPart(l_filePosition), m_contents(l_contents){
+    texCode(const filePositionWithString& l_filePosition) : documentPart(filePosition(l_filePosition.m_filename, l_filePosition.m_line, l_filePosition.m_column, l_filePosition.m_line_end, l_filePosition.m_column_end)), m_contents(l_filePosition.m_value){
         std::cout << "texCode\n";
         //std::cout << "texCode(" << m_contents << ")";
     }
@@ -80,7 +85,7 @@ public:
 private:
     std::string m_filename;
 public:
-    includeFile(const filePosition& l_filePosition, std::string l_filename) : documentPart(l_filePosition), m_filename(l_filename){
+    includeFile(const filePositionWithString& l_filePosition) : documentPart(filePosition(l_filePosition.m_filename, l_filePosition.m_line, l_filePosition.m_column, l_filePosition.m_line_end, l_filePosition.m_column_end)), m_filename(l_filePosition.m_value){
         //std::cout << "includeFile";
         std::cout << "includeFile(" << m_filename << ")\n";
     }
