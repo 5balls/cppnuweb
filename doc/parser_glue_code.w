@@ -107,6 +107,8 @@ private:
         filenameStack.push_back(filename);
         // Start new matcher:
         push_matcher(new_matcher(currentFile->utf8()));
+        if(!has_matcher())
+            std::cout << "  Current matcher not usable!\n";
     }
     bool end_of_file(){
         pop_matcher();

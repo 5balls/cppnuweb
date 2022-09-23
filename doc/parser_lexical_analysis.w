@@ -29,12 +29,13 @@ We try to use the Flex and Bison programs to create our parser.
 #include "parser.hpp"
 #include "../../src/file.h"
 
-#define DDEBUG_LEXER(X) std::cout << X << "[" << filenameStack.back() << ":" << lineno() << "," << columno() << "](" << std::string(yytext, yyleng) << "){" << file::byName(filenameStack.back())->utf8() << "}"; std::cout.flush();
-#define DEBUG_LEXER(X) std::cout << X << "[" << filenameStack.back() << ":" << lineno() << "," << columno() << "](" << std::string(yytext, yyleng) << ")"; std::cout.flush();
+#define DDEBUG_LEXER(X) std::cout << X << "[" << filenameStack.back() << ":" << lineno() << "," << columno() << "](" << str() << "){" << file::byName(filenameStack.back())->utf8() << "}"; std::cout.flush();
+#define DEBUG_LEXER(X) std::cout << X << "[" << filenameStack.back() << ":" << lineno() << "," << columno() << "](" << str() << ")"; std::cout.flush();
 #define TOKEN(X) yylvalue->m_filePosition = new filePosition(filenameStack.back(),lineno(),columno(),lineno_end(),columno_end()); return yy::parser::token::yytokentype::X;
 #define DTOKEN(X) DEBUG_LEXER(#X) yylvalue->m_filePosition = new filePosition(filenameStack.back(),lineno(),columno(),lineno_end(),columno_end()); return yy::parser::token::yytokentype::X;
-#define STRINGTOKEN(X) yylvalue->m_stringValue = new filePositionWithString(std::string(filenameStack.back()),lineno(),columno(),lineno_end(),columno_end(),std::string(yytext, yyleng)); return yy::parser::token::yytokentype::X;
-#define DSTRINGTOKEN(X) DEBUG_LEXER(#X) yylvalue->m_stringValue = new filePositionWithString(std::string(filenameStack.back()),lineno(),columno(),lineno_end(),columno_end(),std::string(yytext, yyleng)); return yy::parser::token::yytokentype::X;
+#define STRINGTOKEN(X) yylvalue->m_stringValue = new filePositionWithString(std::string(filenameStack.back()),lineno(),columno(),lineno_end(),columno_end(),str()); return yy::parser::token::yytokentype::X;
+#define DSTRINGTOKEN(X) DEBUG_LEXER(#X) yylvalue->m_stringValue = new filePositionWithString(std::string(filenameStack.back()),lineno(),columno(),lineno_end(),columno_end(),str()); return yy::parser::token::yytokentype::X;
+#define DDSTRINGTOKEN(X) DDEBUG_LEXER(#X) yylvalue->m_stringValue = new filePositionWithString(std::string(filenameStack.back()),lineno(),columno(),lineno_end(),columno_end(),str()); return yy::parser::token::yytokentype::X;
 #define INTTOKEN(X,Y) yylvalue->m_intValue = new filePositionWithInt(std::string(filenameStack.back()),lineno(),columno(),lineno_end(),columno_end(),Y); return yy::parser::token::yytokentype::X;
 #define DINTTOKEN(X,Y) DEBUG_LEXER(#X) INTTOKEN(X,Y)
 %}
@@ -48,10 +49,10 @@ We try to use the Flex and Bison programs to create our parser.
 
 %%
  /* rules */
-[[:space:]] { DSTRINGTOKEN(WHITESPACE) }
 @@i[ ][^\n]+ { include_file(); return yy::parser::token::yytokentype::AT_I; }
 @@@@ { DSTRINGTOKEN(AT_AT) }
-[^@@]+ { DSTRINGTOKEN(TEXT_WITHOUT_AT) }
+[[:space:]]+  { DSTRINGTOKEN(WHITESPACE) }
+[^@@]+ { DDSTRINGTOKEN(TEXT_WITHOUT_AT) }
 @@d { DTOKEN(AT_SMALL_D) }
 @@D { DTOKEN(AT_LARGE_D) }
 @@< { DTOKEN(AT_ANGLE_BRACKET_OPEN) }

@@ -41,6 +41,17 @@ private:
     std::vector<std::u16string> m_utf16Content;
 @}
 
+Maybe we need the constructor after all:
+
+@D Class declaration indexableText
+@{
+public:
+    indexableText() : m_utf8Content({}), m_utf16Content({}){
+        std::cout << "indexableText()\n";
+    };
+@}
+
+
 We define some simple filePosition and range structure here:
 
 @D Class declaration indexableText
@@ -104,9 +115,9 @@ void indexableText::addLine(const std::string& line){
 @d Implementation of class indexableText
 @{
 std::string indexableText::utf8() const {
-    std::string concatenatedString;
-    for(auto currentLine: m_utf8Content)
-        concatenatedString += currentLine + "\n";
+    std::string concatenatedString = "";
+    for(unsigned int line=0; line<m_utf8Content.size(); line++)
+        concatenatedString += utf8(line) + "\n";
     concatenatedString.pop_back();
     return concatenatedString;
 }
@@ -174,6 +185,7 @@ void tagableText::addFeature(const std::string& name, const range& l_range){
 #include <map>
 #include "utfcpp-3.2.1/source/utf8.h"
 #include <sstream>
+#include <iostream>
 
 namespace nuweb {
 @<Class declaration indexableText@>

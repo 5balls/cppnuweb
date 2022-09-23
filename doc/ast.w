@@ -27,7 +27,7 @@ We define some classes for our Abstract Syntax Tree. This correspond mostly to t
 namespace nuweb {
 
 struct filePosition {
-    filePosition(std::string filename,
+    filePosition(const std::string& filename,
             unsigned int line, unsigned int column,
             unsigned int line_end, unsigned int column_end):
         m_filename(filename),
@@ -41,7 +41,7 @@ struct filePosition {
 };
 
 struct filePositionWithInt : public filePosition {
-    filePositionWithInt(std::string filename, 
+    filePositionWithInt(const std::string& filename, 
             unsigned int line, unsigned int column,
             unsigned int line_end, unsigned int column_end,
             int value):
@@ -56,12 +56,14 @@ struct filePositionWithString : public filePosition {
             std::string value):
         filePosition(l_filePosition),
         m_value(value){};
-    filePositionWithString(std::string filename, 
+    filePositionWithString(const std::string& filename, 
             unsigned int line, unsigned int column,
             unsigned int line_end, unsigned int column_end,
-            std::string value):
+            const std::string& value):
         filePosition(filename,line,column,line_end,column_end),
         m_value(value){
+            std::cout << "»filePositionWithString::filePositionWithString::value»" << value << "«";
+            std::cout << "»filePositionWithString::filePositionWithString::m_value»" << value << "«";
         };
     std::string m_value;
 };
