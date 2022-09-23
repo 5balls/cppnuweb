@@ -62,8 +62,8 @@ struct filePositionWithString : public filePosition {
             const std::string& value):
         filePosition(filename,line,column,line_end,column_end),
         m_value(value){
-            std::cout << "»filePositionWithString::filePositionWithString::value»" << value << "«";
-            std::cout << "»filePositionWithString::filePositionWithString::m_value»" << value << "«";
+            //std::cout << "»filePositionWithString::filePositionWithString::value»" << value << "«";
+            //std::cout << "»filePositionWithString::filePositionWithString::m_value»" << value << "«";
         };
     std::string m_value;
 };
