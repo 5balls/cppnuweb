@@ -46,21 +46,29 @@ We try to use the Flex and Bison programs to create our parser.
 %option yyclass="helpLexer"
 
 %x scrapContents
+%x outputFileHeader
+%x fragmentHeader
+%x fragmentExpansion
 
 %%
  /* rules */
-@@i[ ][^\n]+ { include_file(); return yy::parser::token::yytokentype::AT_I; }
-@@@@ { DSTRINGTOKEN(AT_AT) }
-[[:space:]]+  { DSTRINGTOKEN(WHITESPACE) }
-[^@@]+ { DDSTRINGTOKEN(TEXT_WITHOUT_AT) }
-@@d { DTOKEN(AT_SMALL_D) }
-@@D { DTOKEN(AT_LARGE_D) }
-@@< { DTOKEN(AT_ANGLE_BRACKET_OPEN) }
-@@> { DTOKEN(AT_ANGLE_BRACKET_CLOSE) }
-@@' {  DTOKEN(AT_TICK) }
-@@[1-9] { DINTTOKEN(AT_NUMBER, std::stoi(std::string(yytext+1, yyleng-1))) }
-[@@][{] { DTOKEN(AT_CURLY_BRACKET_OPEN) }
-[@@][}] { DTOKEN(AT_CURLY_BRACKET_CLOSE) }
+<INITIAL>@@i[ ][^\n]+ { include_file(); return yy::parser::token::yytokentype::AT_I; }
+<INITIAL,scrapContents,fragmentHeader>@@@@ { STRINGTOKEN(AT_AT) }
+<outputFileHeader>[[:space:]]+  { DSTRINGTOKEN(WHITESPACE) }
+<outputFileHeader>-d { DTOKEN(MINUS_D) }
+<outputFileHeader>[^@@[:space:]]+ { DSTRINGTOKEN(TEXT_WITHOUT_AT_OR_WHITESPACE) }
+<INITIAL,scrapContents,fragmentHeader,fragmentExpansion>[^@@]+ { DSTRINGTOKEN(TEXT_WITHOUT_AT) }
+<INITIAL>@@d { start(fragmentHeader); DTOKEN(AT_SMALL_D) }
+<INITIAL>@@D { start(fragmentHeader); DTOKEN(AT_LARGE_D) }
+<INITIAL>@@o { start(outputFileHeader); DTOKEN(AT_SMALL_O) }
+<INITIAL>@@O { start(outputFileHeader); DTOKEN(AT_LARGE_O) }
+<INITIAL>@@f { DTOKEN(AT_SMALL_F) }
+<scrapContents>@@< { start(fragmentExpansion); DTOKEN(AT_ANGLE_BRACKET_OPEN) }
+<fragmentExpansion>@@> { start(scrapContents); DTOKEN(AT_ANGLE_BRACKET_CLOSE) }
+<fragmentHeader,fragmentExpansion>@@' {  DTOKEN(AT_TICK) }
+<fragmentHeader,scrapContents>@@[1-9] { DINTTOKEN(AT_NUMBER, std::stoi(std::string(yytext+1, yyleng-1))) }
+<INITIAL,outputFileHeader,fragmentHeader>[@@][{] { start(scrapContents); DTOKEN(AT_CURLY_BRACKET_OPEN) }
+<scrapContents>[@@][}] { start(INITIAL); DTOKEN(AT_CURLY_BRACKET_CLOSE) }
 @}
 
 @O ../src/nuweb.l

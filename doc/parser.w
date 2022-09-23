@@ -101,6 +101,9 @@ An \lstinline{documentPart} can be one of three types:
 @{
 documentPart
     : texCode
+    {
+        $$ = $texCode;
+    }
     | nuwebExpression
     | outputFile
 ;
@@ -114,6 +117,10 @@ texCode
     {
         $$ = new texCode(*$WHITESPACE);
     }
+    | TEXT_WITHOUT_AT_OR_WHITESPACE
+    {
+        $$ = new texCode(*$TEXT_WITHOUT_AT_OR_WHITESPACE);
+    }
 ;
 
 nuwebExpression
@@ -122,6 +129,9 @@ nuwebExpression
         $$ = new includeFile(*$AT_I);
     }
     | escapedchar
+    {
+        $$ = $escapedchar;
+    }
     | scrap
     {
         std::cout << "scrap\n";
@@ -129,6 +139,10 @@ nuwebExpression
     | fragment
     {
         std::cout << "fragment in nuwebExpression\n";
+    }
+    | AT_SMALL_F
+    {
+        std::cout << "@@f not implemented\n";
     }
     | NOT_IMPLEMENTED
     {
@@ -141,22 +155,27 @@ nuwebExpression
 @O ../src/nuweb.y
 @{
 outputFile
-    : outputCommand WHITESPACE outputFilename WHITESPACE outputFlags WHITESPACE scrap
+    : outputCommand WHITESPACE outputFilename WHITESPACE scrap
     {
         std::cout << "outputCommand\n";
+    }
+    | outputCommand WHITESPACE outputFilename WHITESPACE outputFlags WHITESPACE scrap
+    {
+        std::cout << "outputCommand with filename »" << $outputFilename->m_value << "« and flags\n";
     }
 ;
 
 outputCommand
     : AT_SMALL_O
+    | AT_LARGE_O
 ;
 
 outputFilename
-    : TEXT_WITHOUT_WHITESPACE
+    : TEXT_WITHOUT_AT_OR_WHITESPACE
 ;
 
 outputFlags
-    : FLAG_D
+    : MINUS_D
 ;
 @}
 
@@ -195,11 +214,13 @@ fragmentName
 fragmentNameArgument
     : AT_TICK AT_TICK
     | AT_TICK TEXT_WITHOUT_AT AT_TICK
+    | AT_TICK TEXT_WITHOUT_AT_OR_WHITESPACE AT_TICK
 ;
 
 fragmentNameText
     : TEXT_WITHOUT_AT 
     | AT_AT
+    | TEXT_WITHOUT_AT_OR_WHITESPACE
 ;
 
 fragmentNameArgumentOld
