@@ -43,16 +43,14 @@
     filePosition* m_filePosition;
     filePositionWithInt* m_intValue;
     filePositionWithString* m_stringValue;
-@<Lex union definitions@>
-    documentPart* m_documentPart;
+@<Bison union definitions@>
     texCode* m_texCode;
 }
 @}
 
 @O ../src/nuweb.y
 @{
-@<Flex type definitions@>
-%type <m_documentPart> documentPart;
+@<Bison type definitions@>
 %type <m_texCode> texCode;
 %type <m_documentPart> nuwebExpression;
 %type <m_documentPart> fragment;

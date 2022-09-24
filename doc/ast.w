@@ -25,6 +25,7 @@ We define some classes for our Abstract Syntax Tree. This correspond mostly to t
 @<Start of @'DEFINITIONS@' header@>
 
 #include <vector>
+#include <iostream>
 
 namespace nuweb {
 @}

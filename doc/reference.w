@@ -19,19 +19,22 @@
 
 This is an attempt to describe the nuweb grammar in a formal and consistent way. I'm not aware of any previous attempts so there may be and probably are some errors. In a ``webified'' style I attempt to do heavy reordering here for keeping fragments logical together which will go in completely different places.
 
-The Bison program is used together with a Flex compatible program to generate a lexer and parser. The Bison code is basically the grammar in Backus-Naur form but with code fragments attached to the rules. To improve readability I write out the (sometimes simplified) Backus-Naur form seperately at the beginning of each section in this chapter.
+The Bison program is used together with a Flex compatible program to generate a lexer and parser. The Bison code is basically the grammar in Backus-Naur form but with code fragments attached to the rules. To improve readability I write out the (sometimes simplified) Backus-Naur form seperately at the beginning of each section in this chapter. I shorten the Backus-Naur form by notating lists with zero or more elements with a ``*'' and lists with one or more elements with a ``+''.
 
 \section{Document structure}
-The first section is about an implementation detail and can be probably skipped, if you are more interested in the language. Anyway, it needs to be done.
+First, and probably obviously, each nuweb {\synshorts<document>} consists of a list of {\synshorts<documentPart>} and is delimited with an end of file marker (which we don't consider part of \lstinline{document}). {\synshorts<documentPart>} can be either {\synshorts<texCode>}, {\synshorts<nuwebExpression>} or {\synshorts<outputFile>}. This section is only about {\synshorts<document>} and the {\synshorts<documentPart>} are treated in \tododocument{Replace with reference to the sections when those sections are written}later sections.
 
-\subsection{General structure}
-First, and probably obviously, each nuweb document ends with a end of file marker (which we don't consider part of \lstinline{document}):
-
-\indexBackusNaur{nuwebAstRoot}\begin{figure}[ht]
+\indexBackusNaur{nuwebAstRoot}\indexBackusNaur{document}\indexBackusNaur{documentPart}\begin{figure}[ht]
 \begin{grammar}
 <nuwebAstRoot> ::= <document> YYEOF;
+
+<document> ::= <documentPart>*;
+
+<documentPart> ::= <texCode>;
+\alt <nuwebExpression>;
+\alt <outputFile>;
 \end{grammar}
-\caption{BNF for nuwebAstRoot}
+\caption{BNF for nuwebAstRoot, document and documentPart}
 \end{figure}
 
 We keep a pointer to the document structure in Bison
@@ -62,9 +65,10 @@ nuwebAstRoot
 <<EOF>> { if(end_of_file()) { TOKEN(YYEOF) } }
 @}
 
-\codecpp\lstinline{end_of_file()} is discussed later. We have to tell Flex about the return value of the Flex rule \codebisonflex\lstinline{document}:
+\codecpp\lstinline{end_of_file()} is discussed later\tododocument{Insert reference here}. We have to tell Flex about the return value of the Flex rule \codebisonflex\lstinline{document}:
 
-@d Flex type definitions
+\indexBisonType{document}
+@d Bison type definitions
 @{
 %type <m_document> document;
 @}
@@ -72,7 +76,7 @@ nuwebAstRoot
 \lstinline{m_document} refers to a part of a union we define for passing values between Flex and Bison. Note that ``\codecpp\lstinline{document*}'' is a C++ class pointer named the same as the Flex rule ``\codebisonflex\lstinline{document}'':
 
 \codecpp
-@d Lex union definitions
+@d Bison union definitions
 @{
 document* m_document;
 @}
@@ -81,15 +85,7 @@ We will use the same name for any Flex rule and C++ class wherever we can, becau
 
 Each document consists of a list of ``\lstinline{documentParts}''. We achieve this by matching an empty string to ``\lstinline{document}'' and afterwards match consecutively matched ``\lstinline{documentPart}'' to the right and add them to the list of documentParts in ``\lstinline{document}''.
 
-\indexBackusNaur{document}\begin{figure}[ht]
-\begin{grammar}
-<document> ::= $\epsilon$
-\alt <document> <documentPart>;
-\end{grammar}
-\caption{BNF for document}
-\end{figure}
-
-The \lstinline{%empty} rule is only matched at the beginning and creates a singleton instance of the \codecpp\lstinline{class document}. The second rule is used to add instances of the \lstinline{class documentPart} to this object. \lstinline{class documentPart} is defined in the next section.
+The \lstinline{%empty} rule is only matched at the beginning and creates a singleton instance of the \codecpp\lstinline{class document}. The second rule is used to add instances of the \lstinline{class documentPart} to this object. We have to refer to the \lstinline{document} rule by an alternative name \lstinline{l_document} because \lstinline{document} is ambiguous here. \lstinline{class documentPart} is defined in the next sections.
 
 \indexBisonRule{document}
 @d Bison rules
@@ -130,7 +126,7 @@ public:
 @<End of class, namespace and header@>
 @}\indexHeader{DOCUMENT}\indexClass{document}\indexClassMethod{document}{addElement}
 
-\subsection{Document parts}
+\section{Document parts}
 We have to keep track of the filename and the range we refer to when parsing our document, so let's define a structure for that:
 
 \indexStructure{filePosition}
@@ -151,7 +147,37 @@ struct filePosition {
 };
 @}
 
-We want to keep this outside of a class, so we can use this as a return type for the lexer as well. The lexer does not know about the higher structures of the document. This is all we need to define our ``\lstinline{class documentPart}''.
+We want to keep this outside of a class, so we can use this as a return type for the lexer as well. The lexer should not know about the higher structures of the document.
+
+As mentioned in the previous section, a ``\codebisonflex\lstinline{documentPart}'' can be ``\lstinline{texCode}'', a ``\lstinline{nuwebExpression}'' or an ``\lstinline{outputFile}'':
+\indexBisonRule{documentPart}
+@d Bison rules
+@{
+documentPart
+    : texCode
+    {
+        $$ = $texCode;
+    }
+    | nuwebExpression
+    | outputFile
+;
+@}
+
+We add the documentPart to our union and define a type based on that union element again:
+
+\indexBisonType{documentPart}
+@d Bison type definitions
+@{
+%type <m_documentPart> documentPart;
+@}
+
+\codecpp
+@d Bison union definitions
+@{
+documentPart* m_documentPart;
+@}
+
+This is all we need to define our ``\lstinline{class documentPart}''.
 
 \indexHeader{DOCUMENT\_PART}\indexClass{documentPart}\indexClassBaseOf{documentPart}{texCode}\indexClassBaseOf{documentPart}{includeFile}\indexClassBaseOf{documentPart}{outputFile}
 @O ../src/documentPart.h -d
@@ -168,38 +194,31 @@ public:
     documentPart(const filePosition& l_filePosition) : m_filePosition(l_filePosition){
         std::cout << "documentPart[" << m_filePosition.m_filename << ":" << m_filePosition.m_line << "," << m_filePosition.m_column << "|" << m_filePosition.m_line_end << "," << m_filePosition.m_column_end << ").";
     };
-    std::string texUtf8(){
-        file* l_file = file::byName(m_filePosition.m_filename);
-        return l_file->utf8({{m_filePosition.m_line,m_filePosition.m_column},
-                {m_filePosition.m_line_end,m_filePosition.m_column_end}});
-    };
+    virtual std::string texUtf8();
 @<End of class@>
 @}
 
-A \lstinline{documentPart} can be one of three types:
-
-\indexBackusNaur{documentPart}\begin{figure}[ht]
-\begin{grammar}
-<documentPart> ::= <texCode>;
-\alt <nuwebExpression>;
-\alt <outputFile>;
-\end{grammar}
-\caption{BNF for documentPart}
-\end{figure}
-
-\indexBisonRule{documentPart}
-@d Bison rules
-@{
-documentPart
-    : texCode
-    {
-        $$ = $texCode;
-    }
-    | nuwebExpression
-    | outputFile
-;
+@d C++ files without main in path @'path@'
+@{@1documentPart.cpp
 @}
 
+@o ../src/documentPart.cpp -d
+@{
+#include "documentPart.h"
+@<Implementation of class documentPart@>
+@}
+
+\indexClassMethod{documentPart}{texUtf8}
+@d Implementation of class documentPart
+@{
+std::string nuweb::documentPart::texUtf8(){
+    file* l_file = file::byName(m_filePosition.m_filename);
+    return l_file->utf8({{m_filePosition.m_line,m_filePosition.m_column},
+            {m_filePosition.m_line_end,m_filePosition.m_column_end}});
+};
+@}
+
+\subsection{texCode}
 \indexBisonRule{texCode}\indexBisonRuleUsesToken{texCode}{TEXT\_WITHOUT\_AT}\indexBisonRuleUsesToken{texCode}{WHITESPACE}\indexBisonRuleUsesToken{texCode}{TEXT\_WITHOUT\_AT\_OR\_WHITESPACE}
 @d Bison rules
 @{
@@ -229,7 +248,8 @@ We have the following Flex rules for this
 <INITIAL,scrapContents,fragmentHeader,fragmentExpansion>[^@@]+ { DSTRINGTOKEN(TEXT_WITHOUT_AT) }
 @}
 
-\indexBisonRule{nuwebExpression}\indexBisonRuleUsesToken{nuwebExpression}{AT\_AT}\indexBisonRuleUsesToken{nuwebExpression}{AT\_SMALL\_F}\indexBisonRuleUsesToken{nuwebExpression}{NOT\_IMPLEMENTED}
+\subsection{nuwebExpression}
+\indexBisonRule{nuwebExpression}\indexBisonRuleUsesToken{nuwebExpression}{AT\_I}\indexBisonRuleUsesToken{nuwebExpression}{AT\_SMALL\_F}\indexBisonRuleUsesToken{nuwebExpression}{NOT\_IMPLEMENTED}
 @d Bison rules
 @{
 nuwebExpression
@@ -288,7 +308,139 @@ public:
 @<End of class@>
 @}
 
-\indexClass{outputFile}
+\subsubsection{Fragment}
+@d Bison rules
+@{
+fragment
+    : fragmentCommand fragmentName scrap
+    {
+        std::cout << "fragment\n";
+    }
+    | fragmentCommand fragmentName WHITESPACE scrap
+    {
+        std::cout << "fragment whitespace\n";
+    }
+;
+
+fragmentCommand
+    : AT_SMALL_D
+    | AT_LARGE_D
+    {
+        std::cout << "large d\n";
+    }
+    | AT_SMALL_Q
+;
+
+fragmentName
+    : fragmentNameText
+    | fragmentNameArgument
+    | fragmentName fragmentNameText
+    | fragmentName fragmentNameArgument
+//    | fragmentNameArgumentOld
+;
+
+fragmentNameArgument
+    : AT_TICK AT_TICK
+    | AT_TICK TEXT_WITHOUT_AT AT_TICK
+    | AT_TICK TEXT_WITHOUT_AT_OR_WHITESPACE AT_TICK
+;
+
+fragmentNameText
+    : TEXT_WITHOUT_AT 
+    | AT_AT
+    | TEXT_WITHOUT_AT_OR_WHITESPACE
+;
+
+fragmentNameArgumentOld
+    : AT_ROUND_BRACKET_OPEN commaSeparatedFragmentArguments AT_ROUND_BRACKET_CLOSE
+;
+
+commaSeparatedFragmentArguments
+    : %empty
+    | commaSeparatedFragmentArguments AT_AT commaSeparatedFragmentArgument
+;
+
+commaSeparatedFragmentArgument
+    : TEXT_WITHOUT_AT
+;
+
+fragmentExpansion
+    : AT_ANGLE_BRACKET_OPEN fragmentName AT_ANGLE_BRACKET_CLOSE
+;
+@}
+
+\subsubsection{Scrap}
+A scrap can be typeset in three ways, as verbatim, as paragraph or as math:
+
+\begin{figure}[ht]
+\begin{grammar}
+<scrap> ::= '@@\{' <scrapElements> '@@\}'; verbatim
+\alt '@@[' <scrapElements> '@@]'; paragraph
+\alt '@@(' <scrapElements> '@@)'; math
+\end{grammar}
+\caption{BNF for scrap}
+\end{figure}
+
+@d Bison rules
+@{
+scrap
+    : AT_CURLY_BRACKET_OPEN scrapElements AT_CURLY_BRACKET_CLOSE
+    | AT_SQUARE_BRACKET_OPEN scrapElements AT_SQUARE_BRACKET_CLOSE
+    | AT_ROUND_BRACKET_OPEN scrapElements AT_ROUND_BRACKET_CLOSE
+;
+
+scrapElements
+    : scrapElement
+    | scrapElements scrapElement
+;
+
+scrapElement
+    : TEXT_WITHOUT_AT
+    | AT_AT
+    | WHITESPACE
+    | AT_NUMBER
+    | fragmentExpansion
+;
+
+escapedchar
+    : AT_AT
+    {
+        $$ = new texCode(filePositionWithString(*$AT_AT, "@@"));
+    }
+;
+@}
+
+
+
+\subsection{Output file}
+@d Bison rules
+@{
+outputFile
+    : outputCommand WHITESPACE outputFilename WHITESPACE scrap
+    {
+        std::cout << "outputCommand\n";
+    }
+    | outputCommand WHITESPACE outputFilename WHITESPACE outputFlags WHITESPACE scrap
+    {
+        std::cout << "outputCommand with filename \"" << $outputFilename->m_value << "\" and flags\n";
+    }
+;
+
+outputCommand
+    : AT_SMALL_O
+    | AT_LARGE_O
+;
+
+outputFilename
+    : TEXT_WITHOUT_AT_OR_WHITESPACE
+;
+
+outputFlags
+    : MINUS_D
+;
+@}
+
+\indexClass{outputFile}\todoimplement{Output function for file contents}
 @O ../src/documentPart.h -d
 @{
 @<Start of class @'outputFile@' base @'documentPart@'@>

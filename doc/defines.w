@@ -62,7 +62,7 @@ literate={ä}{{\"a}}1 {ö}{{\"o}}1 {ü}{{\"u}}1 {é}{{\'e}}1 {—}{{-}}1
   {!=}{$\ne{}$}{1}
   {++}{$\uparrow{}$}{1}
   {--}{$\downarrow{}$}{1}
-  {*}{$\ast{}$}{1},
+  {*}{$\ast{}$\quad}{1},
 }}
 \newcommand\codecmake{\lstset{language=CMake,breaklines=true}}
 \newcommand\codebisonflex{\lstset{language=bisonflex,breaklines=true}}
@@ -73,6 +73,8 @@ literate={ä}{{\"a}}1 {ö}{{\"o}}1 {ü}{{\"u}}1 {é}{{\'e}}1 {—}{{-}}1
 \newcommand{\todoremove}[1]{\stepcounter{todoremovecounter}\todo[color=red!40]{Remove \thetodoremovecounter: #1}}
 \newcounter{todorefactorcounter}
 \newcommand{\todorefactor}[1]{\stepcounter{todorefactorcounter}\todo[color=yellow!40]{Refactor \thetodorefactorcounter: #1}}
+\newcounter{todoimplementcounter}
+\newcommand{\todoimplement}[1]{\stepcounter{todoimplementcounter}\todo[color=blue!40]{Implement \thetodoimplementcounter: #1}}
 \newcounter{tododocumentcounter}
 \newcommand{\tododocument}[1]{\stepcounter{tododocumentcounter}\todo[color=green!40]{Document \thetododocumentcounter: #1}}
 
@@ -115,4 +117,5 @@ literate={ä}{{\"a}}1 {ö}{{\"o}}1 {ü}{{\"u}}1 {é}{{\'e}}1 {—}{{-}}1
 \newcommand{\indexClassMethod}[2]{\index{#1@@\textsl{#1}!Methods!#2@@\textsl{#2}}\index{#1::#2@@\textsl{#1::#2}}}
 \newcommand{\indexStructure}[1]{\doubleLinkedIndexEntry{Structure definition}{#1}\codecpp}
 \newcommand{\indexFlexRule}[1]{\doubleLinkedIndexEntry{Flex rule}{#1}\codebisonflex}
+\newcommand{\indexBisonType}[1]{\doubleLinkedIndexEntry{Bison type}{#1}\codebisonflex}
 \newcommand{\indexBisonRuleUsesToken}[2]{\index{#2@@\textsl{#2}!Bison rule #1@@Bison rule \textsl{#1}}\codebisonflex}

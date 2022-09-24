@@ -20,7 +20,7 @@
 The file class should encapsulate an abstract file view. It should give line / character number access to certain context sensitive features of the file for implementing the language server protocol later. We define some helper classes (like \codecpp\lstinline{class indexableText} and \lstinline{class tagableText}) from which we inherit.
 
 \section{Class indexableText}
-First we need a class "indexableText" that stores text and gives us access to this text on a line / character basis. For the implementation of the language server protocol we should be able to access the contents in UTF8 as well as UTF16. The internal storage will be in UTF8 and UTF16.
+First we need a class "indexableText" that stores text and gives us access to this text on a line / character basis. For the implementation of the language server protocol we should be able to access the contents in UTF8 as well as UTF16. \todorefactor{Is the storage in UTF16 really needed? We can convert on the fly}The internal storage will be in UTF8 and UTF16.
 
 We need to have getter methods which return \codecpp\lstinline{std::stringstream} as well. Right now those are just calling the \lstinline{std::string} methods which is not very good performance wise as \lstinline{std::stringstream::stringstream(const std::string&)} performs a copy of the string (which may be a huge file) but lets go with this for now.
 
@@ -52,7 +52,7 @@ public:
     };
 @}
 
-We define some simple filePosition and range structure here:
+We define some simple \todorefactor{This is confusingly named the same way as in the nuweb namespace and it has similar functionality. This should be renamed and moved into the nuweb namespace and merged with the existing structures.}filePosition and range structure here:
 
 @D Class declaration indexableText
 @{
