@@ -124,7 +124,7 @@ public:
         m_documentParts.push_back(l_documentPart);
     }
 @<End of class, namespace and header@>
-@}\indexHeader{DOCUMENT}\indexClass{document}\indexClassMethod{document}{addElement}
+@| document addElement @}\indexHeader{DOCUMENT}\indexClass{document}\indexClassMethod{document}{addElement}
 
 \section{Document parts}
 We have to keep track of the filename and the range we refer to when parsing our document, so let's define a structure for that:
@@ -145,7 +145,7 @@ struct filePosition {
     unsigned int m_line_end;
     unsigned int m_column_end;
 };
-@}
+@| filePosition @}
 
 We want to keep this outside of a class, so we can use this as a return type for the lexer as well. The lexer should not know about the higher structures of the document.
 
@@ -161,7 +161,7 @@ documentPart
     | nuwebExpression
     | outputFile
 ;
-@}
+@| documentPart @}
 
 We add the documentPart to our union and define a type based on that union element again:
 
@@ -169,13 +169,13 @@ We add the documentPart to our union and define a type based on that union eleme
 @d Bison type definitions
 @{
 %type <m_documentPart> documentPart;
-@}
+@| documentPart @}
 
 \codecpp
 @d Bison union definitions
 @{
 documentPart* m_documentPart;
-@}
+@| documentPart @}
 
 This is all we need to define our ``\lstinline{class documentPart}''.
 
@@ -196,7 +196,7 @@ public:
     };
     virtual std::string texUtf8();
 @<End of class@>
-@}
+@| documentPart texUtf8 @}
 
 @d C++ files without main in path @'path@'
 @{@1documentPart.cpp
@@ -216,7 +216,7 @@ std::string nuweb::documentPart::texUtf8(){
     return l_file->utf8({{m_filePosition.m_line,m_filePosition.m_column},
             {m_filePosition.m_line_end,m_filePosition.m_column_end}});
 };
-@}
+@| texUtf8 @}
 
 \subsection{texCode}
 \indexBisonRule{texCode}\indexBisonRuleUsesToken{texCode}{TEXT\_WITHOUT\_AT}\indexBisonRuleUsesToken{texCode}{WHITESPACE}\indexBisonRuleUsesToken{texCode}{TEXT\_WITHOUT\_AT\_OR\_WHITESPACE}
@@ -236,7 +236,7 @@ texCode
         $$ = new texCode(*$TEXT_WITHOUT_AT_OR_WHITESPACE);
     }
 ;
-@}
+@| texCode @}
 
 We have the following Flex rules for this
 
@@ -246,7 +246,7 @@ We have the following Flex rules for this
 <outputFileHeader>[[:space:]]+  { DSTRINGTOKEN(WHITESPACE) }
 <outputFileHeader>[^@@[:space:]]+ { DSTRINGTOKEN(TEXT_WITHOUT_AT_OR_WHITESPACE) }
 <INITIAL,scrapContents,fragmentHeader,fragmentExpansion>[^@@]+ { DSTRINGTOKEN(TEXT_WITHOUT_AT) }
-@}
+@| WHITESPACE TEXT_WITHOUT_AT_OR_WHITESPACE TEXT_WITHOUT_AT @}
 
 \subsection{nuwebExpression}
 \indexBisonRule{nuwebExpression}\indexBisonRuleUsesToken{nuwebExpression}{AT\_I}\indexBisonRuleUsesToken{nuwebExpression}{AT\_SMALL\_F}\indexBisonRuleUsesToken{nuwebExpression}{NOT\_IMPLEMENTED}
@@ -278,7 +278,7 @@ nuwebExpression
         std::cout << "  " << $NOT_IMPLEMENTED->m_filename << ":" << $NOT_IMPLEMENTED->m_line << ":" << $NOT_IMPLEMENTED->m_column << " command \"" << $NOT_IMPLEMENTED->m_value << "\" not implemented!\n";
     }
 ;
-@}
+@| nuwebExpression @}
 
 \indexClass{texCode}
 @O ../src/documentPart.h -d
@@ -292,7 +292,7 @@ public:
         //std::cout << "texCode(" << m_contents << ")";
     }
 @<End of class@>
-@}
+@| texCode @}
 
 \indexClass{includeFile}
 @O ../src/documentPart.h -d
@@ -306,7 +306,7 @@ public:
         std::cout << "includeFile(" << m_filename << ")\n";
     }
 @<End of class@>
-@}
+@| includeFile @}
 
 \subsubsection{Fragment}
 @d Bison rules
@@ -321,7 +321,10 @@ fragment
         std::cout << "fragment whitespace\n";
     }
 ;
+@| fragment @}
 
+@d Bison rules
+@{
 fragmentCommand
     : AT_SMALL_D
     | AT_LARGE_D
@@ -330,7 +333,10 @@ fragmentCommand
     }
     | AT_SMALL_Q
 ;
+@| fragmentCommand @}
 
+@d Bison rules
+@{
 fragmentName
     : fragmentNameText
     | fragmentNameArgument
@@ -338,36 +344,54 @@ fragmentName
     | fragmentName fragmentNameArgument
 //    | fragmentNameArgumentOld
 ;
+@| fragmentName @}
 
+@d Bison rules
+@{
 fragmentNameArgument
     : AT_TICK AT_TICK
     | AT_TICK TEXT_WITHOUT_AT AT_TICK
     | AT_TICK TEXT_WITHOUT_AT_OR_WHITESPACE AT_TICK
 ;
+@| fragmentNameArgument @}
 
+@d Bison rules
+@{
 fragmentNameText
     : TEXT_WITHOUT_AT 
     | AT_AT
     | TEXT_WITHOUT_AT_OR_WHITESPACE
 ;
+@| fragmentNameText @}
 
+@d Bison rules
+@{
 fragmentNameArgumentOld
     : AT_ROUND_BRACKET_OPEN commaSeparatedFragmentArguments AT_ROUND_BRACKET_CLOSE
 ;
+@| fragmentNameArgumentOld @}
 
+@d Bison rules
+@{
 commaSeparatedFragmentArguments
-    : %empty
+    : commaSeparatedFragmentArgument
     | commaSeparatedFragmentArguments AT_AT commaSeparatedFragmentArgument
 ;
+@| commaSeparatedFragmentArguments @}
 
+@d Bison rules
+@{
 commaSeparatedFragmentArgument
     : TEXT_WITHOUT_AT
 ;
+@| commaSeparatedFragmentArgument @}
 
+@d Bison rules
+@{
 fragmentExpansion
     : AT_ANGLE_BRACKET_OPEN fragmentName AT_ANGLE_BRACKET_CLOSE
 ;
-@}
+@| fragmentExpansion @}
 
 \subsubsection{Scrap}
 A scrap can be typeset in three ways, as verbatim, as paragraph or as math:
@@ -388,12 +412,18 @@ scrap
     | AT_SQUARE_BRACKET_OPEN scrapElements AT_SQUARE_BRACKET_CLOSE
     | AT_ROUND_BRACKET_OPEN scrapElements AT_ROUND_BRACKET_CLOSE
 ;
+@| scrap @}
 
+@d Bison rules
+@{
 scrapElements
     : scrapElement
     | scrapElements scrapElement
 ;
+@| scrapElements @}
 
+@d Bison rules
+@{
 scrapElement
     : TEXT_WITHOUT_AT
     | AT_AT
@@ -401,16 +431,17 @@ scrapElement
     | AT_NUMBER
     | fragmentExpansion
 ;
+@| scrapElement @}
 
+@d Bison rules
+@{
 escapedchar
     : AT_AT
     {
         $$ = new texCode(filePositionWithString(*$AT_AT, "@@"));
     }
 ;
-@}
-
-
+@| escapedchar @}
 
 \subsection{Output file}
 @d Bison rules
@@ -425,20 +456,29 @@ outputFile
         std::cout << "outputCommand with filename \"" << $outputFilename->m_value << "\" and flags\n";
     }
 ;
+@| outputFile @}
 
+@d Bison rules
+@{
 outputCommand
     : AT_SMALL_O
     | AT_LARGE_O
 ;
+@| outputCommand @}
 
+@d Bison rules
+@{
 outputFilename
     : TEXT_WITHOUT_AT_OR_WHITESPACE
 ;
+@| outputFilename @}
 
+@d Bison rules
+@{
 outputFlags
     : MINUS_D
 ;
-@}
+@| outputFlags @}
 
 \indexClass{outputFile}\todoimplement{Output function for file contents}
 @O ../src/documentPart.h -d
@@ -452,4 +492,4 @@ public:
         std::cout << "outputFile(" << m_filename << ")\n";
     }
 @<End of class, namespace and header@>
-@}
+@| outputFile @}
