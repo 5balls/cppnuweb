@@ -43,6 +43,15 @@ class @1
 {
 @}
 
+@d Start of class @'classname@' in namespace @'namespace@'
+@{
+namespace @2 {
+
+class @1
+{
+@}
+
+
 @d End of class
 @{
 };

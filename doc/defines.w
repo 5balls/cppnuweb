@@ -48,7 +48,21 @@
 \newcommand\codecpp{\lstset{language=C++,
 breaklines=true,
 extendedchars=true,
-literate={ä}{{\"a}}1 {ö}{{\"o}}1 {ü}{{\"u}}1 {é}{{\'e}}1 {—}{{-}}1,
+literate={ä}{{\"a}}1 {ö}{{\"o}}1 {ü}{{\"u}}1 {é}{{\'e}}1 {—}{{-}}1
+  {=}{$\overset{\operatorname{def}}{=}{}$}{1}
+  {==}{$\overset{?}{=}{}$}{1}
+  {+=}{$\overset{+}{=}{}$}{1}
+  {-=}{$\overset{-}{=}{}$}{1}
+  {->}{$\rightarrow{}$}{1}
+  {>>}{$\gg{}$}{2}
+  {<<}{$\ll{}$}{2}
+  {>=}{$\ge{}$}{2}
+  {<=}{$\le{}$}{2}
+  {::}{$::$}{1}
+  {!=}{$\ne{}$}{1}
+  {++}{$\uparrow{}$}{1}
+  {--}{$\downarrow{}$}{1}
+  {*}{$\ast{}$}{1},
 }}
 \newcommand\codecmake{\lstset{language=CMake,breaklines=true}}
 \newcommand\codebisonflex{\lstset{language=bisonflex,breaklines=true}}
@@ -89,6 +103,16 @@ literate={ä}{{\"a}}1 {ö}{{\"o}}1 {ü}{{\"u}}1 {é}{{\'e}}1 {—}{{-}}1,
   every join/.style={norm}
 }}
 
-
 \setcounter{secnumdepth}{5}
 \setcounter{tocdepth}{5}
+
+\newcommand{\doubleLinkedIndexEntry}[2]{\index{#1@@\textbf{#1}!#2@@\textsl{#2}}\index{#2@@\textsl{#2}!#1}}
+\newcommand{\indexHeader}[1]{\index{Header@@\textbf{Header}!#1@@\textsl{#1}}\codecpp}
+\newcommand{\indexBackusNaur}[1]{\doubleLinkedIndexEntry{Backus-Naur form}{#1}}
+\newcommand{\indexBisonRule}[1]{\doubleLinkedIndexEntry{Bison rule}{#1}\codebisonflex}
+\newcommand{\indexClass}[1]{\doubleLinkedIndexEntry{Class definition}{#1}\codecpp}
+\newcommand{\indexClassBaseOf}[2]{\index{#2@@\textsl{#2}!Base class #1@@Base class \textsl{#1}}\codecpp}
+\newcommand{\indexClassMethod}[2]{\index{#1@@\textsl{#1}!Methods!#2@@\textsl{#2}}\index{#1::#2@@\textsl{#1::#2}}}
+\newcommand{\indexStructure}[1]{\doubleLinkedIndexEntry{Structure definition}{#1}\codecpp}
+\newcommand{\indexFlexRule}[1]{\doubleLinkedIndexEntry{Flex rule}{#1}\codebisonflex}
+\newcommand{\indexBisonRuleUsesToken}[2]{\index{#2@@\textsl{#2}!Bison rule #1@@Bison rule \textsl{#1}}\codebisonflex}

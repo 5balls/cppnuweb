@@ -33,6 +33,7 @@ Our class in line based. This has advantages when trying to index UTF-8 code, be
 
 We store the lines in UTF-16 as well because we need to be able to return UTF-16 for the implementation of the Language Server Protocol:
 
+\indexClass{indexableText}\indexClassBaseOf{indexableText}{tagableText}\indexClassBaseOf{indexableText}{file}
 @D Class declaration indexableText
 @{
 @<Start of class @'indexableText@'@>
@@ -50,7 +51,6 @@ public:
         std::cout << "indexableText()\n";
     };
 @}
-
 
 We define some simple filePosition and range structure here:
 
@@ -81,12 +81,10 @@ For the getter methods we have several overloaded functions. We need to have the
     unsigned int numberOfLines() const {return m_utf8Content.size();};
     std::string utf8() const;
     std::string utf8(const unsigned int line) const;
-    std::string utf8(const filePosition& fromHereToLineEnding) const;
     std::string utf8(const range& fromTo) const;
-    std::stringstream utf8stream() const {return std::stringstream(utf8());};
-    std::stringstream utf8stream(const unsigned int line) const { return std::stringstream(utf8(line)); };
-    std::stringstream utf8stream(const filePosition& fromHereToLineEnding) const { return std::stringstream(utf8(fromHereToLineEnding)); };
-    std::stringstream utf8stream(const range& fromTo) const;
+    std::string utf8TillLineEnd(const filePosition& fromHereToLineEnding) const;
+    std::string utf8FromLineBeginning(const filePosition& fromLineBeginningToHere) const;
+    std::string utf8FromToInLine(const range& fromTo) const;
 @}
 
 The same for UTF-16:
@@ -101,6 +99,7 @@ The same for UTF-16:
 @}
 
 \subsection{Implementation}
+\indexClassMethod{indexableText}{addLine}
 @d Implementation of class indexableText
 @{
 void indexableText::addLine(const std::string& line){
@@ -111,7 +110,8 @@ void indexableText::addLine(const std::string& line){
     m_utf16Content.push_back(utf8::utf8to16(line));
 }
 @}
-    
+
+\indexClassMethod{indexableText}{utf8}
 @d Implementation of class indexableText
 @{
 std::string indexableText::utf8() const {
@@ -121,17 +121,24 @@ std::string indexableText::utf8() const {
     concatenatedString.pop_back();
     return concatenatedString;
 }
+@}
 
+@d Implementation of class indexableText
+@{
 std::string indexableText::utf8(const unsigned int line) const {
     return m_utf8Content.at(line);
 }
-    
-std::string indexableText::utf8(const nuweb::file::filePosition& fromHereToLineEnding) const {
+@}
+
+\indexClassMethod{indexableText}{utf8TillLineEnd}
+@d Implementation of class indexableText
+@{
+std::string indexableText::utf8TillLineEnd(const filePosition& fromHere) const {
     std::string returnString;
-    std::string lineString = m_utf8Content.at(fromHereToLineEnding.m_line);
+    std::string lineString = m_utf8Content.at(fromHere.m_line);
     std::string::iterator currentStringPosition = lineString.begin();
     std::string::iterator endStringPosition = lineString.end();
-    utf8::advance(currentStringPosition, fromHereToLineEnding.m_character, endStringPosition);
+    utf8::advance(currentStringPosition, fromHere.m_character, endStringPosition);
     while(currentStringPosition != endStringPosition){
         uint32_t currentChar = utf8::next(currentStringPosition, endStringPosition);
         utf8::append(currentChar, std::back_inserter(returnString));
@@ -140,12 +147,73 @@ std::string indexableText::utf8(const nuweb::file::filePosition& fromHereToLineE
 }
 @}
 
-\todorefactor{Implementation for fromTo missing}
+\indexClassMethod{indexableText}{utf8FromLineBeginning}
+@d Implementation of class indexableText
+@{
+std::string indexableText::utf8FromLineBeginning(const filePosition& toHere) const {
+    std::string returnString;
+    std::string lineString = m_utf8Content.at(toHere.m_line);
+    std::string::iterator endStringPosition = lineString.end();
+    std::string::iterator currentStringPosition = lineString.begin();
+    unsigned int currentCharIndex = 0;
+    while(currentCharIndex != toHere.m_character){
+        uint32_t currentChar = utf8::next(currentStringPosition, endStringPosition);
+        utf8::append(currentChar, std::back_inserter(returnString));
+        currentCharIndex++;
+    }
+    return returnString;
+}
+@}
+
+\indexClassMethod{indexableText}{utf8FromToInLine}
+@d Implementation of class indexableText
+@{
+std::string indexableText::utf8FromToInLine(const range& fromTo) const {
+    std::string returnString;
+    std::string lineString = m_utf8Content.at(fromTo.m_from.m_line);
+    std::string::iterator currentStringPosition = lineString.begin();
+    std::string::iterator endStringPosition = lineString.end();
+    utf8::advance(currentStringPosition, fromTo.m_from.m_character, endStringPosition);
+    unsigned int currentCharIndex = 0;
+    while(currentCharIndex <= fromTo.m_to.m_character){
+        uint32_t currentChar = utf8::next(currentStringPosition, endStringPosition);
+        utf8::append(currentChar, std::back_inserter(returnString));
+        currentCharIndex++;
+    }
+    return returnString;
+}
+@}
+
+\indexClassMethod{indexableText}{utf8}
+@d Implementation of class indexableText
+@{
+std::string indexableText::utf8(const range& fromTo) const {
+    unsigned int firstLine = fromTo.m_from.m_line;
+    unsigned int lastLine = fromTo.m_to.m_line;
+    std::string returnString;
+    for(unsigned int lineNumber = firstLine; lineNumber < lastLine; lineNumber++){
+        if(firstLine == lastLine)
+            return utf8FromToInLine(fromTo);
+        if((lineNumber == firstLine) && (fromTo.m_from.m_character > 0)){
+            returnString += utf8TillLineEnd(fromTo.m_from) + "\n";
+            continue;
+        }
+        if(lineNumber == lastLine){
+            returnString += utf8FromLineBeginning(fromTo.m_to) + "\n";
+            continue;
+        }
+        returnString += m_utf8Content.at(lineNumber);
+    }
+    returnString.pop_back();
+    return returnString;
+}
+@}
 
 \section{Class tagableText}
 
 Next we want to mark certain parts of the text with arbitrary UTF8 strings. This can be either filePositions in the text or ranges.
 \subsection{Interface}
+\indexClass{tagableText}
 @d Class declaration tagableText
 @{
 @<Start of class @'tagableText@' base @'indexableText@'@>
@@ -158,6 +226,7 @@ public:
 @<End of class@>
 @}
 \subsection{Implementation}
+\indexClassMethod{tagableText}{addFeature}
 @d Implementation of class tagableText
 @{
 void tagableText::addFeature(const std::string& name, const range& l_range){
@@ -177,6 +246,7 @@ void tagableText::addFeature(const std::string& name, const range& l_range){
 
 \section{Files}
 \subsection{Header}
+\indexHeader{FILE}
 @O ../src/file.h -d
 @{
 @<Start of @'FILE@' header@>
@@ -190,7 +260,11 @@ void tagableText::addFeature(const std::string& name, const range& l_range){
 namespace nuweb {
 @<Class declaration indexableText@>
 @<Class declaration tagableText@>
+@}
 
+\indexClass{file}
+@O ../src/file.h -d
+@{
 @<Start of class @'file@' base @'indexableText@'@>
 public:
     file(std::string filename);
@@ -222,7 +296,11 @@ file::file(std::string filename) : m_filename(filename){
         addLine(line);
     m_allFiles[filename] = this;
 }
+@}
 
+\indexClassMethod{file}{byName}
+@O ../src/file.cpp -d
+@{
 file* file::byName(const std::string& filename){
     return m_allFiles[filename];
 }

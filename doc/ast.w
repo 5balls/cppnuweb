@@ -19,96 +19,72 @@
 We define some classes for our Abstract Syntax Tree. This correspond mostly to the non terminal expressions in the Bison grammar and are used there to build up the tree.
 
 \subsection{document}
-@O ../src/ast.h -d
+\indexHeader{DEFINITIONS}
+@O ../src/definitions.h -d
 @{
-@<Start of @'AST@' header@>
+@<Start of @'DEFINITIONS@' header@>
+
 #include <vector>
 
 namespace nuweb {
+@}
 
-struct filePosition {
-    filePosition(const std::string& filename,
-            unsigned int line, unsigned int column,
-            unsigned int line_end, unsigned int column_end):
-        m_filename(filename),
-        m_line(line), m_column(column),
-        m_line_end(line_end), m_column_end(column_end){};
-    std::string m_filename;
-    unsigned int m_line;
-    unsigned int m_column;
-    unsigned int m_line_end;
-    unsigned int m_column_end;
-};
+@O ../src/definitions.h -d
+@{
+@<C++ structure definitions in namespace nuweb@>
+@}
 
-struct filePositionWithInt : public filePosition {
-    filePositionWithInt(const std::string& filename, 
-            unsigned int line, unsigned int column,
-            unsigned int line_end, unsigned int column_end,
-            int value):
-        filePosition(filename,line,column,line_end,column_end),
-        m_value(value){
-        };
-    int m_value;
-};
+\indexStructure{filePositionWithInt}
+@O ../src/definitions.h -d
+@{
+    struct filePositionWithInt : public filePosition {
+        filePositionWithInt(const std::string& filename, 
+                unsigned int line, unsigned int column,
+                unsigned int line_end, unsigned int column_end,
+                int value):
+            filePosition(filename,line,column,line_end,column_end),
+            m_value(value){
+            };
+        int m_value;
+    };
+@}
 
-struct filePositionWithString : public filePosition {
-    filePositionWithString(const filePosition& l_filePosition,
-            std::string value):
-        filePosition(l_filePosition),
-        m_value(value){};
-    filePositionWithString(const std::string& filename, 
-            unsigned int line, unsigned int column,
-            unsigned int line_end, unsigned int column_end,
-            const std::string& value):
-        filePosition(filename,line,column,line_end,column_end),
-        m_value(value){
-            //std::cout << "»filePositionWithString::filePositionWithString::value»" << value << "«";
-            //std::cout << "»filePositionWithString::filePositionWithString::m_value»" << value << "«";
-        };
-    std::string m_value;
-};
+\indexStructure{filePositionWithString}
+@O ../src/definitions.h -d
+@{
+    struct filePositionWithString : public filePosition {
+        filePositionWithString(const filePosition& l_filePosition,
+                std::string value):
+            filePosition(l_filePosition),
+            m_value(value){};
+        filePositionWithString(const std::string& filename, 
+                unsigned int line, unsigned int column,
+                unsigned int line_end, unsigned int column_end,
+                const std::string& value):
+            filePosition(filename,line,column,line_end,column_end),
+            m_value(value){
+                //std::cout << "filePositionWithString::filePositionWithString::value" << value << "";
+                //std::cout << "filePositionWithString::filePositionWithString::m_value" << value << "";
+            };
+        std::string m_value;
+    };
+}
+@<End of header@>
 @}
 
 @O ../src/ast.h -d
 @{
-@<Start of class @'documentPart@'@>
-private:
-    filePosition m_filePosition;
-public:
-    documentPart(const filePosition& l_filePosition) : m_filePosition(l_filePosition){
-        std::cout << "documentPart[" << m_filePosition.m_filename << ":" << m_filePosition.m_line << "," << m_filePosition.m_column << "|" << m_filePosition.m_line_end << "," << m_filePosition.m_column_end << ").";
-    };
-@<End of class@>
+@<Start of @'AST@' header@>
+#include <vector>
+#include "document.h"
+#include "definitions.h"
 
-@<Start of class @'texCode@' base @'documentPart@'@>
-private:
-    std::string m_contents;
-public:
-    texCode(const filePositionWithString& l_filePosition) : documentPart(filePosition(l_filePosition.m_filename, l_filePosition.m_line, l_filePosition.m_column, l_filePosition.m_line_end, l_filePosition.m_column_end)), m_contents(l_filePosition.m_value){
-        std::cout << "texCode\n";
-        //std::cout << "texCode(" << m_contents << ")";
-    }
-@<End of class@>
+namespace nuweb {
 
-@<Start of class @'includeFile@' base @'documentPart@'@>
-private:
-    std::string m_filename;
-public:
-    includeFile(const filePositionWithString& l_filePosition) : documentPart(filePosition(l_filePosition.m_filename, l_filePosition.m_line, l_filePosition.m_column, l_filePosition.m_line_end, l_filePosition.m_column_end)), m_filename(l_filePosition.m_value){
-        //std::cout << "includeFile";
-        std::cout << "includeFile(" << m_filename << ")\n";
-    }
-@<End of class@>
+@}
 
-@<Start of class @'outputFile@' base @'documentPart@'@>
-private:
-    std::string m_filename;
-public:
-    outputFile(const filePosition& l_filePosition, std::string filename) : documentPart(l_filePosition), m_filename(filename){
-        //std::cout << "outputFile";
-        std::cout << "outputFile(" << m_filename << ")\n";
-    }
-@<End of class@>
+@O ../src/ast.h -d
+@{
 
 @<Start of class @'fragmentNamePart@' base @'documentPart@'@>
 private:
@@ -128,22 +104,7 @@ public:
         fragmentNamePart(l_filePosition, argumentName), m_counter(counter){
             std::cout << "fragmentNamePartArgument\n";
         };
-@<End of class@>
-
-@<Start of class @'document@'@>
-private:
-    std::vector<documentPart*> m_documentParts;
-public:
-    ~document(void){
-        for(auto* documentPart: m_documentParts)
-            delete documentPart;
-        m_documentParts.clear();
-    }
-    void addElement(documentPart* l_documentPart){
-        m_documentParts.push_back(l_documentPart);
-        std::cout << m_documentParts.size();
-        //std::cout << "document has now " << m_documentParts.size() << " documentParts" << std::endl;
-    }
 @<End of class, namespace and header@>
+
 @}
 

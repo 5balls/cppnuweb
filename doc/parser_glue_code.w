@@ -51,7 +51,7 @@ Here we need to fix a problem. Bison wants to call a function of type ``\lstinli
 We need to tell Bison about this new argument of course:
 
 \codebisonflex
-@d Flex parameters
+@d Bison flex parameters
 @{
 %lex-param { helpLexer* lexer }
 @}
@@ -60,10 +60,9 @@ We need to tell Bison about this new argument of course:
 We also need to pass a pointer to this \lstinline{helpLexer} object in the constructor of the ``\lstinline{class yy::parser}'' which is generated for us by Bison.
 
 \codebisonflex
-@d Parse parameters
+@d Bison parse parameters first
 @{
 %parse-param { helpLexer* lexer }
-%parse-param { document** l_document }
 @}
 
 So let's go ahead and write this helper class.

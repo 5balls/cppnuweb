@@ -19,14 +19,14 @@
 
 @i defines.w
 
-\makeindex
-
 \begin{document}
 
 @i title.w
 
 \tableofcontents
 \listoffigures
+
+@i reference.w
 
 @i file.w
 

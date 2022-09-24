@@ -28,6 +28,8 @@
 \usepackage{etoolbox}% http://ctan.org/pkg/etoolbox
 \usepackage{syntax} 
 \usepackage{tocbibind}
+\usepackage{amssymb}
+\usepackage{amsmath}
 \setlength{\grammarparsep}{10pt} % increase separation between rules
 \setlength{\grammarindent}{12em} % increase separation between LHS/RHS 
 
@@ -36,4 +38,4 @@
 \patchcmd{\@@makeschapterhead}{\vspace*{50\p@@}}{}{}{}% Removes space above \chapter* head
 \makeatother
 \usepackage[colorlinks=true]{hyperref}
-\makeindex
+\makeindex[options=-s ./index]

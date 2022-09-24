@@ -54,10 +54,8 @@ We try to use the Flex and Bison programs to create our parser.
  /* rules */
 <INITIAL>@@i[ ][^\n]+ { include_file(); return yy::parser::token::yytokentype::AT_I; }
 <INITIAL,scrapContents,fragmentHeader>@@@@ { STRINGTOKEN(AT_AT) }
-<outputFileHeader>[[:space:]]+  { DSTRINGTOKEN(WHITESPACE) }
 <outputFileHeader>-d { DTOKEN(MINUS_D) }
-<outputFileHeader>[^@@[:space:]]+ { DSTRINGTOKEN(TEXT_WITHOUT_AT_OR_WHITESPACE) }
-<INITIAL,scrapContents,fragmentHeader,fragmentExpansion>[^@@]+ { DSTRINGTOKEN(TEXT_WITHOUT_AT) }
+@<Lexer rules for text handling@>
 <INITIAL>@@d { start(fragmentHeader); DTOKEN(AT_SMALL_D) }
 <INITIAL>@@D { start(fragmentHeader); DTOKEN(AT_LARGE_D) }
 <INITIAL>@@o { start(outputFileHeader); DTOKEN(AT_SMALL_O) }
@@ -73,7 +71,7 @@ We try to use the Flex and Bison programs to create our parser.
 
 @O ../src/nuweb.l
 @{@@. { DSTRINGTOKEN(NOT_IMPLEMENTED) }
-<<EOF>> { if(end_of_file()) { TOKEN(YYEOF) } }
+@<Lexer rule for end of file@>
 %%
 @}
 

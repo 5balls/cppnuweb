@@ -32,7 +32,10 @@
 %token WHITESPACE
 %token TEXT_WITHOUT_AT_OR_WHITESPACE
 %token AT_COMMA
+@}
 
+@O ../src/nuweb.y
+@{
 %union
 {
     int m_int;
@@ -40,12 +43,15 @@
     filePosition* m_filePosition;
     filePositionWithInt* m_intValue;
     filePositionWithString* m_stringValue;
-    document* m_document;
+@<Lex union definitions@>
     documentPart* m_documentPart;
     texCode* m_texCode;
 }
+@}
 
-%type <m_document> document;
+@O ../src/nuweb.y
+@{
+@<Flex type definitions@>
 %type <m_documentPart> documentPart;
 %type <m_texCode> texCode;
 %type <m_documentPart> nuwebExpression;
