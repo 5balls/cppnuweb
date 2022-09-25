@@ -61,8 +61,7 @@ nuwebAstRoot
 
 \indexFlexRule{YYEOF}
 @D Lexer rule for end of file
-@{
-<<EOF>> { if(end_of_file()) { TOKEN(YYEOF) } }
+@{<<EOF>> { if(end_of_file()) { TOKEN(YYEOF) } }
 @}
 
 \codecpp\lstinline{end_of_file()} is discussed later\tododocument{Insert reference here}. We have to tell Flex about the return value of the Flex rule \codebisonflex\lstinline{document}:
@@ -123,8 +122,7 @@ public:
     void addElement(documentPart* l_documentPart){
         m_documentParts.push_back(l_documentPart);
     }
-@<End of class, namespace and header@>
-@| document addElement @}\indexHeader{DOCUMENT}\indexClass{document}\indexClassMethod{document}{addElement}
+@<End of class, namespace and header@>@| document addElement @}\indexHeader{DOCUMENT}\indexClass{document}\indexClassMethod{document}{addElement}
 
 \section{Document parts}
 We have to keep track of the filename and the range we refer to when parsing our document, so let's define a structure for that:
@@ -195,8 +193,7 @@ public:
         std::cout << "documentPart[" << m_filePosition.m_filename << ":" << m_filePosition.m_line << "," << m_filePosition.m_column << "|" << m_filePosition.m_line_end << "," << m_filePosition.m_column_end << ").";
     };
     virtual std::string texUtf8();
-@<End of class@>
-@| documentPart texUtf8 @}
+@<End of class@>@| documentPart texUtf8 @}
 
 @d C++ files without main in path @'path@'
 @{@1documentPart.cpp
@@ -242,11 +239,9 @@ We have the following Flex rules for this
 
 \indexFlexRule{WHITESPACE}\indexFlexRule{TEXT\_WITHOUT\_AT\_OR\_WHITESPACE}\indexFlexRule{TEXT\_WITHOUT\_AT}
 @d Lexer rules for text handling
-@{
-<outputFileHeader>[[:space:]]+  { DSTRINGTOKEN(WHITESPACE) }
+@{<outputFileHeader>[[:space:]]+  { DSTRINGTOKEN(WHITESPACE) }
 <outputFileHeader>[^@@[:space:]]+ { DSTRINGTOKEN(TEXT_WITHOUT_AT_OR_WHITESPACE) }
-<INITIAL,scrapContents,fragmentHeader,fragmentExpansion>[^@@]+ { DSTRINGTOKEN(TEXT_WITHOUT_AT) }
-@| WHITESPACE TEXT_WITHOUT_AT_OR_WHITESPACE TEXT_WITHOUT_AT @}
+<INITIAL,scrapContents,fragmentHeader,fragmentExpansion>[^@@]+ { DSTRINGTOKEN(TEXT_WITHOUT_AT) } @| WHITESPACE TEXT_WITHOUT_AT_OR_WHITESPACE TEXT_WITHOUT_AT @}
 
 \subsection{nuwebExpression}
 \indexBisonRule{nuwebExpression}\indexBisonRuleUsesToken{nuwebExpression}{AT\_I}\indexBisonRuleUsesToken{nuwebExpression}{AT\_SMALL\_F}\indexBisonRuleUsesToken{nuwebExpression}{NOT\_IMPLEMENTED}
@@ -342,7 +337,7 @@ fragmentName
     | fragmentNameArgument
     | fragmentName fragmentNameText
     | fragmentName fragmentNameArgument
-//    | fragmentNameArgumentOld
+    | fragmentNameArgumentOld
 ;
 @| fragmentName @}
 
@@ -390,6 +385,9 @@ commaSeparatedFragmentArgument
 @{
 fragmentExpansion
     : AT_ANGLE_BRACKET_OPEN fragmentName AT_ANGLE_BRACKET_CLOSE
+    {
+        std::cout << "fragmentExpansion\n";
+    }
 ;
 @| fragmentExpansion @}
 
@@ -409,8 +407,17 @@ A scrap can be typeset in three ways, as verbatim, as paragraph or as math:
 @{
 scrap
     : AT_CURLY_BRACKET_OPEN scrapElements AT_CURLY_BRACKET_CLOSE
+    {
+        std::cout << "scrap (verbatim)\n";
+    }
     | AT_SQUARE_BRACKET_OPEN scrapElements AT_SQUARE_BRACKET_CLOSE
+    {
+        std::cout << "scrap (paragraph)\n";
+    }
     | AT_ROUND_BRACKET_OPEN scrapElements AT_ROUND_BRACKET_CLOSE
+    {
+        std::cout << "scrap (math)\n";
+    }
 ;
 @| scrap @}
 
@@ -418,6 +425,9 @@ scrap
 @{
 scrapElements
     : scrapElement
+    {
+        std::cout << "scrapElement\n";
+    }
     | scrapElements scrapElement
 ;
 @| scrapElements @}
@@ -426,10 +436,25 @@ scrapElements
 @{
 scrapElement
     : TEXT_WITHOUT_AT
+    {
+        std::cout << "TEXT_WITHOUT_AT\n";
+    }
     | AT_AT
+    {
+        std::cout << "AT_AT\n";
+    }
     | WHITESPACE
+    {
+        std::cout << "WHITESPACE\n";
+    }
     | AT_NUMBER
+    {
+        std::cout << "AT_NUMBER\n";
+    }
     | fragmentExpansion
+    {
+        std::cout << "fragmentExpansion\n";
+    }
 ;
 @| scrapElement @}
 
