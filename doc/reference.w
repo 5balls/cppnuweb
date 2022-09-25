@@ -173,6 +173,8 @@ This is all we need to define our ``\lstinline{class documentPart}''.
 private:
     filePosition m_filePosition;
 public:
+    documentPart() : m_filePosition("",0,0,0,0){
+    };
     documentPart(const filePosition& l_filePosition) : m_filePosition(l_filePosition){
         //std::cout << "documentPart[" << m_filePosition.m_filename << ":" << m_filePosition.m_line << "," << m_filePosition.m_column << "|" << m_filePosition.m_line_end << "," << m_filePosition.m_column_end << ").";
     };
@@ -255,7 +257,7 @@ nuwebExpression
     }
     | AT_AT
     {
-        throw std::runtime_error($AT_AT->m_filename + ":" + std::to_string($AT_AT->m_line) + ": AT_AT not implemented\n");
+        $$ = new escapeCharacterDocumentPart(*$AT_AT);
     }
     | scrap
     {
@@ -275,6 +277,7 @@ nuwebExpression
     }
 ;
 @| nuwebExpression @}
+
 
 \subsubsection{Include file}
 Before going further let's define a ``\codecpp\lstinline{class emptyDocumentPart}''. This is a class which will return a empty string for the \TeX{} code. We don't want to have the include files in any form in the final document.
@@ -368,6 +371,35 @@ bool end_of_file(){
 }
 @| end_of_file() @}
 \label{methodEndOfFile}
+
+\subsubsection{Escape character}
+@d Lexer rule for escape character
+@{
+<INITIAL,scrapContents,fragmentHeader>[@@][@@] { DTOKEN(AT_AT) }
+@}
+
+@d \classDeclaration{escapeCharacterDocumentPart}
+@{
+private:
+    static std::string m_escapementString;
+public:
+    escapeCharacterDocumentPart(const filePosition& l_filePosition) : documentPart(l_filePosition){
+    }
+    void setEscapeCharacter(const std::string& escape_Character){
+        m_escapementString = escape_Character;
+    };
+    virtual std::string texUtf8(void) override {
+        return m_escapementString;
+    }
+@}
+
+@d \staticDefinitions{escapeCharacterDocumentPart}
+@{
+std::string nuweb::escapeCharacterDocumentPart::m_escapementString = "@@";
+@}
+
+
+
 \subsubsection{Fragment}
 @d Bison rules
 @{
@@ -398,30 +430,20 @@ fragmentCommand
 @d Bison rules
 @{
 fragmentName
-    : fragmentNameText
-    {
-        throw std::runtime_error("fragmentNameText\n");
-    }
-    | fragmentNameArgument
-    {
-        throw std::runtime_error("fragmentNameArgument\n");
-    }
-    | fragmentName fragmentNameText
-    {
-        throw std::runtime_error("fragmentName fragmentNameText\n");
-    }
-    | fragmentName fragmentNameArgument
-    {
-        throw std::runtime_error("fragmentName fragmentNameArgument\n");
-    }
-    | fragmentNameArgumentOld
-    {
-        throw std::runtime_error("fragmentNameArgumentOld\n");
-    }
+    : fragmentNamePart
+    | fragmentName fragmentNamePart
 ;
 @| fragmentName @}
 
-\indexBisonRuleUsesToken{fragmentNameArgument}{TEXT\_WITHOUT\_AT}
+@d Bison rules
+@{
+fragmentNamePart
+    : fragmentNameText
+    | fragmentNameArgument
+;
+@| fragmentNamePart @}
+
+\indexBisonRuleUsesToken{fragmentNameArgument}{TEXT\_WITHOUT\_AT}\indexBisonRuleUsesToken{fragmentNameArgument}{AT\_TICK}\indexBisonRuleUsesToken{fragmentNameArgument}{TEXT\_WITHOUT\_AT\_OR\_WHITESPACE}
 @d Bison rules
 @{
 fragmentNameArgument
@@ -431,15 +453,29 @@ fragmentNameArgument
 ;
 @| fragmentNameArgument @}
 
-\indexBisonRuleUsesToken{fragmentNameText}{TEXT\_WITHOUT\_AT}
+\indexBisonRuleUsesToken{fragmentNameText}{TEXT\_WITHOUT\_AT}\indexBisonRuleUsesToken{fragmentNameText}{AT\_AT}\indexBisonRuleUsesToken{fragmentNameText}{TEXT\_WITHOUT\_AT\_OR\_WHITESPACE}
 @d Bison rules
 @{
 fragmentNameText
     : TEXT_WITHOUT_AT 
+    {
+        $$ = new documentPart(*$TEXT_WITHOUT_AT);
+    }
     | AT_AT
+    {
+        throw std::runtime_error("AT_AT in fragmentNameText not implemented!\n");
+    }
     | TEXT_WITHOUT_AT_OR_WHITESPACE
+    {
+        throw std::runtime_error("TEXT_WITHOUT_AT_OR_WHITESPACE in fragmentNameText not implemented!\n");
+    }
 ;
 @| fragmentNameText @}
+
+@d Bison type definitions
+@{%type <m_documentPart> fragmentNameText;
+@} 
+
 
 @d Bison rules
 @{
@@ -469,7 +505,11 @@ commaSeparatedFragmentArgument
 fragmentExpansion
     : AT_ANGLE_BRACKET_OPEN fragmentName AT_ANGLE_BRACKET_CLOSE
     {
-        throw std::runtime_error("fragmentExpansion\n");
+        throw std::runtime_error("fragmentExpansion not implemented\n");
+    }
+    | AT_ANGLE_BRACKET_OPEN fragmentName fragmentNameArgumentOld AT_ANGLE_BRACKET_CLOSE
+    {
+        throw std::runtime_error("fragmentExpansion with old arguments not implemented\n");
     }
 ;
 @| fragmentExpansion @}
@@ -499,7 +539,7 @@ A scrap can be typeset in three ways, as verbatim, as paragraph or as math:
 scrap
     : AT_CURLY_BRACKET_OPEN scrapContents AT_CURLY_BRACKET_CLOSE
     {
-        throw std::runtime_error("scrap (verbatim)\n");
+        throw std::runtime_error("scrap (verbatim) not implemented\n");
     }
     | AT_SQUARE_BRACKET_OPEN scrapContents AT_SQUARE_BRACKET_CLOSE
     {
@@ -512,6 +552,38 @@ scrap
 ;
 @| scrap @}
 
+@d Bison type definitions
+@{%type <m_documentPart> scrap
+@}
+
+@d \classDeclaration{documentParts}
+@{
+class documentParts: public documentPart, public std::vector<documentPart*> 
+{
+public:
+    documentParts(void) : std::vector<documentPart*>({}){
+    }
+    documentParts(const std::vector<documentPart*>& l_documentParts) : std::vector<documentPart*>(l_documentParts){
+    }
+    virtual std::string texUtf8(void) override{
+        std::string returnString;
+        for(auto documentPart: *this)
+            returnString += documentPart->texUtf8();
+        return returnString;
+    }
+    virtual std::string utf8(void){
+        std::string returnString;
+        for(auto documentPart: *this)
+            returnString += documentPart->utf8();
+        return returnString;
+    }
+};
+@}
+
+@d \classDeclaration{scrapVerbatim}
+@{
+@}
+
 Some commands are only valid inside a scrap, so we define a specific start condition for scraps:
 
 @d Lexer start conditions
@@ -523,9 +595,21 @@ Some commands are only valid inside a scrap, so we define a specific start condi
 @{
 scrapContents
     : scrapElements
+    {
+        $$ = $scrapElements;
+    }
     | scrapElements AT_PIPE userIdentifiers
+    {
+        throw std::runtime_error("User identifiers not implemented!");
+    }
 ;
 @| scrapContents @}
+
+@d Bison type definitions
+@{%type <m_documentPart> scrapContents
+%type <m_documentPart> AT_PIPE
+%type <m_documentPart> userIdentifiers
+@}
 
 @d Lexer rules for regular nuweb commands
 @{
@@ -538,7 +622,13 @@ The user identifiers do not allow any nuweb commands inside it, so we define a n
 @{
 userIdentifiers
     : WHITESPACE TEXT_WITHOUT_AT_OR_WHITESPACE WHITESPACE
+    {
+        throw std::runtime_error("User identifiers not implemented!");
+    }
     | userIdentifiers TEXT_WITHOUT_AT_OR_WHITESPACE WHITESPACE
+    {
+        throw std::runtime_error("User identifiers not implemented!");
+    }
 ;
 @| userIdentifiers @}
 
@@ -552,18 +642,29 @@ userIdentifiers
 %token AT_PIPE
 @| AT_PIPE @}
 
-
-
 @d Bison rules
 @{
 scrapElements
     : scrapElement
     {
-        throw std::runtime_error("scrapElement\n");
+        $$ = new documentParts();
+        $$->push_back($scrapElement);
     }
-    | scrapElements scrapElement
+    | scrapElements[l_scrapElements] scrapElement
+    {
+        $l_scrapElements->push_back($scrapElement);
+        $$ = $l_scrapElements;
+    }
 ;
 @| scrapElements @}
+
+@d Bison type definitions
+@{%type <m_documentParts> scrapElements
+@}
+
+@d Bison union definitions
+@{documentParts* m_documentParts;
+@}
 
 \indexBisonRuleUsesToken{scrapElement}{TEXT\_WITHOUT\_AT}
 @d Bison rules
@@ -571,7 +672,7 @@ scrapElements
 scrapElement
     : TEXT_WITHOUT_AT
     {
-        throw std::runtime_error("TEXT_WITHOUT_AT\n");
+        $$ = new documentPart(*$TEXT_WITHOUT_AT);
     }
     | AT_AT
     {
@@ -591,6 +692,10 @@ scrapElement
     }
 ;
 @| scrapElement @}
+
+@d Bison type definitions
+@{%type <m_documentPart> scrapElement
+@}
 
 \subsection{Output file}
 @d Bison rules

@@ -104,14 +104,21 @@ See @{@<\classDeclaration{document}@>@}.
 @<\classDeclaration{documentPart}@>
 @<End of class@>
 
+@<\classDeclaration{documentParts}@>
+
 @<Start of class @'emptyDocumentPart@' public @'documentPart@'@>
 @<\classDeclaration{emptyDocumentPart}@>
 @<End of class@>
 
 @<Start of class @'outputFile@' public @'documentPart@'@>
 @<\classDeclaration{outputFile}@>
+@<End of class@>
+
+@<Start of class @'escapeCharacterDocumentPart@' public @'documentPart@'@>
+@<\classDeclaration{escapeCharacterDocumentPart}@>
 @<End of class, namespace and header@>
 @}
+
 \subsection{Implementation}
 @d C++ files without main in path @'path@'
 @{@1documentPart.cpp
@@ -120,6 +127,8 @@ See @{@<\classDeclaration{document}@>@}.
 @o ../src/documentPart.cpp -d
 @{
 #include "documentPart.h"
+
+@<\staticDefinitions{escapeCharacterDocumentPart}@>
 
 @<\classImplementation{documentPart}@>
 @}

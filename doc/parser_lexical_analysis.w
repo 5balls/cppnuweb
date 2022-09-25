@@ -53,7 +53,7 @@ We try to use the Flex and Bison programs to create our parser.
 %%
  /* rules */
 @<Lexer rule for including files@>
-<INITIAL,scrapContents,fragmentHeader>[@@][@@] { DSTRINGTOKEN(AT_AT) }
+@<Lexer rule for escape character@>
 <outputFileHeader>-d { DTOKEN(MINUS_D) }
 @<Lexer rules for text handling@>
 <INITIAL>@@d { start(fragmentHeader); DTOKEN(AT_SMALL_D) }
