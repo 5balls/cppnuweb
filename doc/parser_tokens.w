@@ -32,6 +32,7 @@
 %token WHITESPACE
 %token TEXT_WITHOUT_AT_OR_WHITESPACE
 %token AT_COMMA
+@<Bison token definitions@>
 @}
 
 @O ../src/nuweb.y

@@ -239,8 +239,8 @@ We have the following Flex rules for this
 
 \indexFlexRule{WHITESPACE}\indexFlexRule{TEXT\_WITHOUT\_AT\_OR\_WHITESPACE}\indexFlexRule{TEXT\_WITHOUT\_AT}
 @d Lexer rules for text handling
-@{<outputFileHeader>[[:space:]]+  { DSTRINGTOKEN(WHITESPACE) }
-<outputFileHeader>[^@@[:space:]]+ { DSTRINGTOKEN(TEXT_WITHOUT_AT_OR_WHITESPACE) }
+@{<outputFileHeader,userIdentifiers>[[:space:]]+  { DSTRINGTOKEN(WHITESPACE) }
+<outputFileHeader,userIdentifiers>[^@@[:space:]]+ { DSTRINGTOKEN(TEXT_WITHOUT_AT_OR_WHITESPACE) }
 <INITIAL,scrapContents,fragmentHeader,fragmentExpansion>[^@@]+ { DSTRINGTOKEN(TEXT_WITHOUT_AT) } @| WHITESPACE TEXT_WITHOUT_AT_OR_WHITESPACE TEXT_WITHOUT_AT @}
 
 \subsection{nuwebExpression}
@@ -334,10 +334,25 @@ fragmentCommand
 @{
 fragmentName
     : fragmentNameText
+    {
+        std::cout << "fragmentNameText\n";
+    }
     | fragmentNameArgument
+    {
+        std::cout << "fragmentNameArgument\n";
+    }
     | fragmentName fragmentNameText
+    {
+        std::cout << "fragmentName fragmentNameText\n";
+    }
     | fragmentName fragmentNameArgument
+    {
+        std::cout << "fragmentName fragmentNameArgument\n";
+    }
     | fragmentNameArgumentOld
+    {
+        std::cout << "fragmentNameArgumentOld\n";
+    }
 ;
 @| fragmentName @}
 
@@ -406,20 +421,60 @@ A scrap can be typeset in three ways, as verbatim, as paragraph or as math:
 @d Bison rules
 @{
 scrap
-    : AT_CURLY_BRACKET_OPEN scrapElements AT_CURLY_BRACKET_CLOSE
+    : AT_CURLY_BRACKET_OPEN scrapContents AT_CURLY_BRACKET_CLOSE
     {
         std::cout << "scrap (verbatim)\n";
     }
-    | AT_SQUARE_BRACKET_OPEN scrapElements AT_SQUARE_BRACKET_CLOSE
+    | AT_SQUARE_BRACKET_OPEN scrapContents AT_SQUARE_BRACKET_CLOSE
     {
         std::cout << "scrap (paragraph)\n";
     }
-    | AT_ROUND_BRACKET_OPEN scrapElements AT_ROUND_BRACKET_CLOSE
+    | AT_ROUND_BRACKET_OPEN scrapContents AT_ROUND_BRACKET_CLOSE
     {
         std::cout << "scrap (math)\n";
     }
 ;
 @| scrap @}
+
+Some commands are only valid inside a scrap, so we define a specific start condition for scraps:
+
+@d Lexer start conditions
+@{
+%x scrapContents
+@| scrapContents @}
+
+@d Bison rules
+@{
+scrapContents
+    : scrapElements
+    | scrapElements AT_PIPE userIdentifiers
+;
+@| scrapContents @}
+
+@d Lexer rules for regular nuweb commands
+@{
+<scrapContents>@@\| { start(userIdentifiers); DSTRINGTOKEN(AT_PIPE) }
+@| AT_PIPE @}
+
+The user identifiers do not allow any nuweb commands inside it, so we define a new start condition \lstinline{userIdentifiers} for it. This ends with \lstinline{AT_CURLY_BRACKET_CLOSE} or similar, so we are fine here.
+
+@d Lexer start conditions
+@{
+%x userIdentifiers
+@| userIdentifiers @}
+
+@d Bison token definitions
+@{
+%token AT_PIPE
+@| AT_PIPE @}
+
+@d Bison rules
+@{
+userIdentifiers
+    : WHITESPACE TEXT_WITHOUT_AT_OR_WHITESPACE WHITESPACE
+    | userIdentifiers TEXT_WITHOUT_AT_OR_WHITESPACE WHITESPACE
+;
+@| userIdentifiers @}
 
 @d Bison rules
 @{
