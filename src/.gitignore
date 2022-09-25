@@ -2,4 +2,5 @@
 *.h
 *.l
 *.y
+*.swp
 CMakeLists.txt

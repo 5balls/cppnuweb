@@ -182,6 +182,7 @@ This is all we need to define our ``\lstinline{class documentPart}''.
 @{
 @<Start of @'DOCUMENT_PART@' header@>
 
+#include <vector>
 #include "definitions.h"
 #include "file.h"
 
@@ -192,8 +193,9 @@ public:
     documentPart(const filePosition& l_filePosition) : m_filePosition(l_filePosition){
         std::cout << "documentPart[" << m_filePosition.m_filename << ":" << m_filePosition.m_line << "," << m_filePosition.m_column << "|" << m_filePosition.m_line_end << "," << m_filePosition.m_column_end << ").";
     };
+    std::string utf8();
     virtual std::string texUtf8();
-@<End of class@>@| documentPart texUtf8 @}
+@<End of class@>@| documentPart utf8 texUtf8 @}
 
 @d C++ files without main in path @'path@'
 @{@1documentPart.cpp
@@ -202,16 +204,29 @@ public:
 @o ../src/documentPart.cpp -d
 @{
 #include "documentPart.h"
+
+std::vector<nuweb::texCode*> nuweb::texCode::m_allTexCode = {};
+
 @<Implementation of class documentPart@>
 @}
+
+\indexClassMethod{documentPart}{utf8}
+@d Implementation of class documentPart
+@{
+std::string nuweb::documentPart::utf8(){
+    file* l_file = file::byName(m_filePosition.m_filename);
+    // Line numbers in lex start by one, internally we start at 0, so we
+    // have to substract one here:
+    return l_file->utf8({{m_filePosition.m_line-1,m_filePosition.m_column},
+            {m_filePosition.m_line_end-1,m_filePosition.m_column_end}});
+};
+@| utf8 @}
 
 \indexClassMethod{documentPart}{texUtf8}
 @d Implementation of class documentPart
 @{
 std::string nuweb::documentPart::texUtf8(){
-    file* l_file = file::byName(m_filePosition.m_filename);
-    return l_file->utf8({{m_filePosition.m_line,m_filePosition.m_column},
-            {m_filePosition.m_line_end,m_filePosition.m_column_end}});
+    return utf8();
 };
 @| texUtf8 @}
 
@@ -223,6 +238,12 @@ texCode
     : TEXT_WITHOUT_AT
     {
         $$ = new texCode(*$TEXT_WITHOUT_AT);
+        try {
+            std::cout << "\n\n------------(" << $$->utf8() << ")--------------\n\n";
+        }
+        catch(const std::runtime_error& error){
+            throw std::runtime_error("Error while parsing TEXT_WITHOUT_AT in file \"" + $TEXT_WITHOUT_AT->m_filename + "\"[" + std::to_string($TEXT_WITHOUT_AT->m_line) + "," + std::to_string($TEXT_WITHOUT_AT->m_column) + "|" + std::to_string($TEXT_WITHOUT_AT->m_line_end) + "," + std::to_string($TEXT_WITHOUT_AT->m_column_end) + "]: " + error.what());
+        }
     }
     | WHITESPACE
     {
@@ -281,8 +302,10 @@ nuwebExpression
 @<Start of class @'texCode@' base @'documentPart@'@>
 private:
     std::string m_contents;
+    static std::vector<texCode*> m_allTexCode;
 public:
     texCode(const filePositionWithString& l_filePosition) : documentPart(filePosition(l_filePosition.m_filename, l_filePosition.m_line, l_filePosition.m_column, l_filePosition.m_line_end, l_filePosition.m_column_end)), m_contents(l_filePosition.m_value){
+        m_allTexCode.push_back(this);
         std::cout << "texCode\n";
         //std::cout << "texCode(" << m_contents << ")";
     }
@@ -518,7 +541,8 @@ scrapElement
 escapedchar
     : AT_AT
     {
-        $$ = new texCode(filePositionWithString(*$AT_AT, "@@"));
+        //$$ = new atAt();
+        throw std::runtime_error("AT_AT not implemented\n");
     }
 ;
 @| escapedchar @}

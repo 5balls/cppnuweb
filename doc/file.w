@@ -134,16 +134,21 @@ std::string indexableText::utf8(const unsigned int line) const {
 @d Implementation of class indexableText
 @{
 std::string indexableText::utf8TillLineEnd(const filePosition& fromHere) const {
-    std::string returnString;
-    std::string lineString = m_utf8Content.at(fromHere.m_line);
-    std::string::iterator currentStringPosition = lineString.begin();
-    std::string::iterator endStringPosition = lineString.end();
-    utf8::advance(currentStringPosition, fromHere.m_character, endStringPosition);
-    while(currentStringPosition != endStringPosition){
-        uint32_t currentChar = utf8::next(currentStringPosition, endStringPosition);
-        utf8::append(currentChar, std::back_inserter(returnString));
+    try {
+        std::string returnString;
+        std::string lineString = m_utf8Content.at(fromHere.m_line);
+        std::string::iterator currentStringPosition = lineString.begin();
+        std::string::iterator endStringPosition = lineString.end();
+        utf8::advance(currentStringPosition, fromHere.m_character, endStringPosition);
+        while(currentStringPosition != endStringPosition){
+            uint32_t currentChar = utf8::next(currentStringPosition, endStringPosition);
+            utf8::append(currentChar, std::back_inserter(returnString));
+        }
+        return returnString;
     }
-    return returnString;
+    catch(...){
+        throw std::runtime_error("Error while trying to read indexableText[>" + std::to_string(fromHere.m_line) + "," + std::to_string(fromHere.m_character) + "] in line \"" + m_utf8Content.at(fromHere.m_line) + "\"");
+    }
 }
 @}
 
@@ -156,12 +161,18 @@ std::string indexableText::utf8FromLineBeginning(const filePosition& toHere) con
     std::string::iterator endStringPosition = lineString.end();
     std::string::iterator currentStringPosition = lineString.begin();
     unsigned int currentCharIndex = 0;
-    while(currentCharIndex != toHere.m_character){
-        uint32_t currentChar = utf8::next(currentStringPosition, endStringPosition);
-        utf8::append(currentChar, std::back_inserter(returnString));
-        currentCharIndex++;
+    try {
+       while(currentCharIndex != toHere.m_character){
+            uint32_t currentChar = utf8::next(currentStringPosition, endStringPosition);
+            utf8::append(currentChar, std::back_inserter(returnString));
+            currentCharIndex++;
+        }
+        //std::cout << "returnString \"" << returnString << "\"\n";
+        return returnString;
     }
-    return returnString;
+    catch(...){
+        throw std::runtime_error("Error while trying to read indexableText[<" + std::to_string(toHere.m_line) + "," + std::to_string(toHere.m_character) + "] in line \"" + m_utf8Content.at(toHere.m_line) + "\"");
+    }
 }
 @}
 
@@ -169,18 +180,29 @@ std::string indexableText::utf8FromLineBeginning(const filePosition& toHere) con
 @d Implementation of class indexableText
 @{
 std::string indexableText::utf8FromToInLine(const range& fromTo) const {
+    if(fromTo.m_from.m_line != fromTo.m_to.m_line)
+        throw std::runtime_error("Internal program error while trying to read indexableText[>"+ std::to_string(fromTo.m_from.m_line) + "," + std::to_string(fromTo.m_from.m_character) + "<" + std::to_string(fromTo.m_to.m_line) + "," + std::to_string(fromTo.m_to.m_character) + "] - this function is intended to be called with a range on one line!");
     std::string returnString;
     std::string lineString = m_utf8Content.at(fromTo.m_from.m_line);
     std::string::iterator currentStringPosition = lineString.begin();
     std::string::iterator endStringPosition = lineString.end();
     utf8::advance(currentStringPosition, fromTo.m_from.m_character, endStringPosition);
-    unsigned int currentCharIndex = 0;
-    while(currentCharIndex <= fromTo.m_to.m_character){
-        uint32_t currentChar = utf8::next(currentStringPosition, endStringPosition);
-        utf8::append(currentChar, std::back_inserter(returnString));
-        currentCharIndex++;
+    unsigned int currentCharIndex = fromTo.m_from.m_character;
+    try {
+       while(currentCharIndex <= fromTo.m_to.m_character){
+            uint32_t currentChar = utf8::next(currentStringPosition, endStringPosition);
+            utf8::append(currentChar, std::back_inserter(returnString));
+            currentCharIndex++;
+        }
+        return returnString;
     }
-    return returnString;
+    catch(...){
+        throw std::runtime_error("Internal program error while trying to read indexableText[>" +
+                std::to_string(fromTo.m_from.m_line) + "," + std::to_string(fromTo.m_from.m_character) +
+                "<" + std::to_string(fromTo.m_to.m_line) + "," + std::to_string(fromTo.m_to.m_character) + "] in line \"" +
+                m_utf8Content.at(fromTo.m_from.m_line) + "\" read so far the string \"" +
+                returnString + "\" currentCharIndex " + std::to_string(currentCharIndex) + " fromTo.m_to.m_character " + std::to_string(fromTo.m_to.m_character));
+    }
 }
 @}
 
@@ -191,7 +213,7 @@ std::string indexableText::utf8(const range& fromTo) const {
     unsigned int firstLine = fromTo.m_from.m_line;
     unsigned int lastLine = fromTo.m_to.m_line;
     std::string returnString;
-    for(unsigned int lineNumber = firstLine; lineNumber < lastLine; lineNumber++){
+    for(unsigned int lineNumber = firstLine; lineNumber <= lastLine; lineNumber++){
         if(firstLine == lastLine)
             return utf8FromToInLine(fromTo);
         if((lineNumber == firstLine) && (fromTo.m_from.m_character > 0)){
@@ -202,7 +224,7 @@ std::string indexableText::utf8(const range& fromTo) const {
             returnString += utf8FromLineBeginning(fromTo.m_to) + "\n";
             continue;
         }
-        returnString += m_utf8Content.at(lineNumber);
+        returnString += m_utf8Content.at(lineNumber) + "\n";
     }
     returnString.pop_back();
     return returnString;
@@ -292,8 +314,16 @@ file::file(std::string filename) : m_filename(filename){
     if(!fileStream.is_open())
         throw std::runtime_error("Could not open file \"" + m_filename + "\"");
     std::string line;
-    while(std::getline(fileStream, line))
-        addLine(line);
+    try {
+        while(std::getline(fileStream, line))
+            addLine(line);
+    }
+    catch(const std::runtime_error& error) {
+        throw std::runtime_error("Error while reading file \"" + m_filename + "\": " + error.what());
+    }
+    catch(...) {
+        throw std::runtime_error("Error while reading file \"" + m_filename + "\"");
+    }
     m_allFiles[filename] = this;
 }
 @}
