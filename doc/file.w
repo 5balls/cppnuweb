@@ -34,7 +34,7 @@ Our class in line based. This has advantages when trying to index UTF-8 code, be
 We store the lines in UTF-16 as well because we need to be able to return UTF-16 for the implementation of the Language Server Protocol:
 
 \indexClass{indexableText}\indexClassBaseOf{indexableText}{tagableText}\indexClassBaseOf{indexableText}{file}
-@D Class declaration indexableText
+@D \classDeclaration{indexableText}
 @{
 @<Start of class @'indexableText@'@>
 private:
@@ -44,7 +44,7 @@ private:
 
 Maybe we need the constructor after all:
 
-@D Class declaration indexableText
+@D \classDeclaration{indexableText}
 @{
 public:
     indexableText() : m_utf8Content({}), m_utf16Content({}){
@@ -54,7 +54,7 @@ public:
 
 We define some simple \todorefactor{This is confusingly named the same way as in the nuweb namespace and it has similar functionality. This should be renamed and moved into the nuweb namespace and merged with the existing structures.}filePosition and range structure here:
 
-@D Class declaration indexableText
+@D \classDeclaration{indexableText}
 @{
 public:
     struct filePosition{
@@ -69,14 +69,14 @@ public:
 
 Currently \lstinline{addLine} is the only way to get data into the class:
 
-@D Class declaration indexableText
+@D \classDeclaration{indexableText}
 @{
     void addLine(const std::string& line);
 @}
 
 For the getter methods we have several overloaded functions. We need to have them with return value \lstinline{std::stringstream} as well because we need it for the lexer class.
 
-@D Class declaration indexableText
+@D \classDeclaration{indexableText}
 @{
     unsigned int numberOfLines() const {return m_utf8Content.size();};
     std::string utf8() const;
@@ -89,7 +89,7 @@ For the getter methods we have several overloaded functions. We need to have the
 
 The same for UTF-16:
 
-@D Class declaration indexableText
+@D \classDeclaration{indexableText}
 @{
     std::string utf16() const;
     std::string utf16(unsigned int ui_line) const;
@@ -100,9 +100,9 @@ The same for UTF-16:
 
 \subsection{Implementation}
 \indexClassMethod{indexableText}{addLine}
-@d Implementation of class indexableText
+@d \classImplementation{indexableText}
 @{
-void indexableText::addLine(const std::string& line){
+void nuweb::indexableText::addLine(const std::string& line){
     auto endIterator = utf8::find_invalid(line.begin(), line.end());
     if(endIterator != line.end())
         throw std::runtime_error("Invalid UTF8 sequence detected in line " + std::to_string(numberOfLines() + 1));
@@ -112,9 +112,9 @@ void indexableText::addLine(const std::string& line){
 @}
 
 \indexClassMethod{indexableText}{utf8}
-@d Implementation of class indexableText
+@d \classImplementation{indexableText}
 @{
-std::string indexableText::utf8() const {
+std::string nuweb::indexableText::utf8() const {
     std::string concatenatedString = "";
     for(unsigned int line=0; line<m_utf8Content.size(); line++)
         concatenatedString += utf8(line) + "\n";
@@ -123,17 +123,18 @@ std::string indexableText::utf8() const {
 }
 @}
 
-@d Implementation of class indexableText
+\indexClassMethod{indexableText}{utf8}
+@d \classImplementation{indexableText}
 @{
-std::string indexableText::utf8(const unsigned int line) const {
+std::string nuweb::indexableText::utf8(const unsigned int line) const {
     return m_utf8Content.at(line);
 }
 @}
 
 \indexClassMethod{indexableText}{utf8TillLineEnd}
-@d Implementation of class indexableText
+@d \classImplementation{indexableText}
 @{
-std::string indexableText::utf8TillLineEnd(const filePosition& fromHere) const {
+std::string nuweb::indexableText::utf8TillLineEnd(const filePosition& fromHere) const {
     try {
         std::string returnString;
         std::string lineString = m_utf8Content.at(fromHere.m_line);
@@ -153,9 +154,9 @@ std::string indexableText::utf8TillLineEnd(const filePosition& fromHere) const {
 @}
 
 \indexClassMethod{indexableText}{utf8FromLineBeginning}
-@d Implementation of class indexableText
+@d \classImplementation{indexableText}
 @{
-std::string indexableText::utf8FromLineBeginning(const filePosition& toHere) const {
+std::string nuweb::indexableText::utf8FromLineBeginning(const filePosition& toHere) const {
     std::string returnString;
     std::string lineString = m_utf8Content.at(toHere.m_line);
     std::string::iterator endStringPosition = lineString.end();
@@ -177,9 +178,9 @@ std::string indexableText::utf8FromLineBeginning(const filePosition& toHere) con
 @}
 
 \indexClassMethod{indexableText}{utf8FromToInLine}
-@d Implementation of class indexableText
+@d \classImplementation{indexableText}
 @{
-std::string indexableText::utf8FromToInLine(const range& fromTo) const {
+std::string nuweb::indexableText::utf8FromToInLine(const range& fromTo) const {
     if(fromTo.m_from.m_line != fromTo.m_to.m_line)
         throw std::runtime_error("Internal program error while trying to read indexableText[>"+ std::to_string(fromTo.m_from.m_line) + "," + std::to_string(fromTo.m_from.m_character) + "<" + std::to_string(fromTo.m_to.m_line) + "," + std::to_string(fromTo.m_to.m_character) + "] - this function is intended to be called with a range on one line!");
     std::string returnString;
@@ -207,9 +208,9 @@ std::string indexableText::utf8FromToInLine(const range& fromTo) const {
 @}
 
 \indexClassMethod{indexableText}{utf8}
-@d Implementation of class indexableText
+@d \classImplementation{indexableText}
 @{
-std::string indexableText::utf8(const range& fromTo) const {
+std::string nuweb::indexableText::utf8(const range& fromTo) const {
     unsigned int firstLine = fromTo.m_from.m_line;
     unsigned int lastLine = fromTo.m_to.m_line;
     std::string returnString;
@@ -236,9 +237,9 @@ std::string indexableText::utf8(const range& fromTo) const {
 Next we want to mark certain parts of the text with arbitrary UTF8 strings. This can be either filePositions in the text or ranges.
 \subsection{Interface}
 \indexClass{tagableText}
-@d Class declaration tagableText
+@d \classDeclaration{tagableText}
 @{
-@<Start of class @'tagableText@' base @'indexableText@'@>
+@<Start of class @'tagableText@' public @'indexableText@'@>
 private:
     std::vector<range> m_ranges;
     std::map<std::string, std::vector<range* > > m_features;
@@ -249,9 +250,9 @@ public:
 @}
 \subsection{Implementation}
 \indexClassMethod{tagableText}{addFeature}
-@d Implementation of class tagableText
+@d \classImplementation{tagableText}
 @{
-void tagableText::addFeature(const std::string& name, const range& l_range){
+void nuweb::tagableText::addFeature(const std::string& name, const range& l_range){
     m_ranges.push_back(l_range);
     if(m_features.find(name) != m_features.end())
         m_features[name].push_back(&m_ranges.back());
@@ -266,8 +267,8 @@ void tagableText::addFeature(const std::string& name, const range& l_range){
 \tododocument{Implementations missing}
 \tododocument{Adopt functionality for line length and conversion from example in utfcpp}
 
-\section{Files}
-\subsection{Header}
+\section{Class file}
+\subsection{Interface}
 \indexHeader{FILE}
 @O ../src/file.h -d
 @{
@@ -280,14 +281,14 @@ void tagableText::addFeature(const std::string& name, const range& l_range){
 #include <iostream>
 
 namespace nuweb {
-@<Class declaration indexableText@>
-@<Class declaration tagableText@>
+@<\classDeclaration{indexableText}@>
+@<\classDeclaration{tagableText}@>
 @}
 
 \indexClass{file}
 @O ../src/file.h -d
 @{
-@<Start of class @'file@' base @'indexableText@'@>
+@<Start of class @'file@' public @'indexableText@'@>
 public:
     file(std::string filename);
     static file* byName(const std::string& filename);
@@ -296,7 +297,7 @@ private:
     static std::map<std::string, file*> m_allFiles;
 @<End of class, namespace and header@>
 @}
-\subsection{Source}
+\subsection{Implementation}
 @O ../src/file.cpp -d
 @{
 #include "file.h"
@@ -305,11 +306,21 @@ private:
 #include <stdexcept>
 #include <iterator>
 
-using namespace nuweb;
+@<\classImplementation{file}@>
+@<\classImplementation{indexableText}@>
+@<\classImplementation{tagableText}@>
+@}
 
-std::map<std::string, file*> file::m_allFiles = {};
+@d \classImplementation{file}
+@{
+std::map<std::string, nuweb::file*> nuweb::file::m_allFiles = {};
+@| m_allFiles @}
 
-file::file(std::string filename) : m_filename(filename){
+\subsubsection{file}
+\indexClassMethod{file}{file}
+@d \classImplementation{file}
+@{
+nuweb::file::file(std::string filename) : m_filename(filename){
     std::ifstream fileStream(m_filename);
     if(!fileStream.is_open())
         throw std::runtime_error("Could not open file \"" + m_filename + "\"");
@@ -326,16 +337,15 @@ file::file(std::string filename) : m_filename(filename){
     }
     m_allFiles[filename] = this;
 }
-@}
+@| file @}
 
+\subsubsection{byName}
 \indexClassMethod{file}{byName}
 @O ../src/file.cpp -d
 @{
-file* file::byName(const std::string& filename){
+nuweb::file* nuweb::file::byName(const std::string& filename){
     return m_allFiles[filename];
 }
-@<Implementation of class indexableText@>
-@<Implementation of class tagableText@>
-@}
+@| file byName @}
 
 

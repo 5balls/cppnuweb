@@ -32,6 +32,8 @@
 
 @i parser.w
 
+@i ast.w
+
 \begin{appendix}
 
 @i infrastructure.w

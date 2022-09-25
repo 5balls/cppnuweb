@@ -31,7 +31,7 @@
 }
 
 \lstdefinelanguage{bisonflex}{
-  morekeywords={\%option, \%x, \%\{, \%\}, \%\%, \%require, \%language, \%code, requires, \%lex-param, \%parse-param, \%token, \%union, \%empty},
+  morekeywords={\%option, \%x, \%\{, \%\}, \%\%, \%require, \%language, \%code, requires, \%lex-param, \%parse-param, \%token, \%union, \%empty, \%type},
   alsoletter={\%\{\}-},
   morecomment=[l]{//},
   morecomment=[s]{/*}{*/},
@@ -49,19 +49,21 @@
 breaklines=true,
 extendedchars=true,
 literate={ä}{{\"a}}1 {ö}{{\"o}}1 {ü}{{\"u}}1 {é}{{\'e}}1 {—}{{-}}1
+  {continue}{\textbf{$\circlearrowleft{}$continue{}}}{10}
+  {return\ }{\textbf{$\hookleftarrow{}$return {}}}{8}
   {=}{$\overset{\operatorname{def}}{=}{}$}{1}
-  {==}{$\overset{?}{=}{}$}{1}
-  {+=}{$\overset{+}{=}{}$}{1}
-  {-=}{$\overset{-}{=}{}$}{1}
+  {==}{$\overset{?}{==}{}$\quad}{2}
+  {+=}{$\overset{\nearrow}{+=}{}$}{2}
+  {-=}{$\overset{\searrow}{-=}{}$}{2}
   {->}{$\rightarrow{}$}{1}
   {>>}{$\gg{}$}{2}
   {<<}{$\ll{}$}{2}
   {>=}{$\ge{}$}{2}
   {<=}{$\le{}$}{2}
   {::}{$::$}{1}
-  {!=}{$\ne{}$}{1}
-  {++}{$\uparrow{}$}{1}
-  {--}{$\downarrow{}$}{1}
+  {!=}{${}\ne{}$}{1}
+  {++}{$\overset{\nearrow}{++}{}$}{1}
+  {--}{$\overset{\searrow}{--}{}$}{1}
   {*}{$\ast{}$\quad}{1},
 }}
 \newcommand\codecmake{\lstset{language=CMake,breaklines=true}}
@@ -118,4 +120,6 @@ literate={ä}{{\"a}}1 {ö}{{\"o}}1 {ü}{{\"u}}1 {é}{{\'e}}1 {—}{{-}}1
 \newcommand{\indexStructure}[1]{\doubleLinkedIndexEntry{Structure definition}{#1}\codecpp}
 \newcommand{\indexFlexRule}[1]{\doubleLinkedIndexEntry{Flex rule}{#1}\codebisonflex}
 \newcommand{\indexBisonType}[1]{\doubleLinkedIndexEntry{Bison type}{#1}\codebisonflex}
-\newcommand{\indexBisonRuleUsesToken}[2]{\index{#2@@\textsl{#2}!Bison rule #1@@Bison rule \textsl{#1}}\codebisonflex}
+\newcommand{\indexBisonRuleUsesToken}[2]{\index{#2@@\textsl{#2}!Bison rules!#1@@\textsl{#1}}\index{#1@@\textsl{#1}!Terminals!#2@@\textsl{#2}}\codebisonflex}
+\newcommand{\classDeclaration}[1]{Declaration of \normalfont``\codecpp{\lstinline{class #1}}''}
+\newcommand{\classImplementation}[1]{Implementation of \normalfont``\codecpp{\lstinline{class #1}}''}

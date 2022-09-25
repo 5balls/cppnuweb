@@ -52,7 +52,7 @@ We try to use the Flex and Bison programs to create our parser.
 
 %%
  /* rules */
-<INITIAL>@@i[ ][^\n]+ { include_file(); return yy::parser::token::yytokentype::AT_I; }
+@<Lexer rule for including files@>
 <INITIAL,scrapContents,fragmentHeader>[@@][@@] { DSTRINGTOKEN(AT_AT) }
 <outputFileHeader>-d { DTOKEN(MINUS_D) }
 @<Lexer rules for text handling@>

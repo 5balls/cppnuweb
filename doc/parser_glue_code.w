@@ -67,7 +67,7 @@ We also need to pass a pointer to this \lstinline{helpLexer} object in the const
 
 So let's go ahead and write this helper class.
 
-\codecpp
+\indexClass{helpLexer}\codecpp
 @O ../src/helplexer.h -d
 @{
 @<Start of @'HELPLEXER@' header@>
@@ -86,46 +86,13 @@ So let's go ahead and write this helper class.
 #include "../../src/file.h"
 #include <iostream>
 
-@<Start of class @'helpLexer@' base @'yyFlexLexer@'@>
+@<Start of class @'helpLexer@' public @'yyFlexLexer@'@>
 private:
     yy::parser::semantic_type* yylvalue;
     std::vector<std::string> filenameStack;
     std::istringstream* utf8Stream;
     int yylex(void);
-    void include_file(){
-        // Get filename:
-        std::string filename = std::string(yytext, yyleng);
-        // Remove '@@i '
-        filename.erase(filename.begin(), filename.begin()+3);
-        // Return correct values later:
-        if(filenameStack.empty())
-            yylvalue->m_stringValue = new filePositionWithString("",lineno(),columno(),lineno_end(),columno_end(),filename); 
-        else
-            yylvalue->m_stringValue = new filePositionWithString(filenameStack.back(),lineno(),columno(),lineno_end(),columno_end(),filename); 
-        // Read file:
-        nuweb::file* currentFile = new nuweb::file(filename);
-        // Remember current file:
-        filenameStack.push_back(filename);
-        // Start new matcher:
-        utf8Stream = new std::istringstream(currentFile->utf8());
-        push_matcher(new_matcher(*utf8Stream));
-        if(!has_matcher())
-            std::cout << "  Current matcher not usable!\n";
-    }
-    bool end_of_file(){
-        pop_matcher();
-        if(utf8Stream){
-            delete utf8Stream;
-            utf8Stream = nullptr;
-        }
-        filenameStack.pop_back();
-        bool b_stackEmpty = filenameStack.empty();
-        if(b_stackEmpty){
-            push_matcher(new_matcher(""));
-            filenameStack.push_back("");
-        }
-        return b_stackEmpty;
-    }
+    @<Implementation of additional helpLexer functions@>
 public:
 
 #if defined(REFLEX)

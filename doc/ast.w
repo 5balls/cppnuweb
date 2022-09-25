@@ -15,10 +15,10 @@
 % You should have received a copy of the GNU Affero General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-\section{Abstract Syntax Tree}
+\chapter{Abstract Syntax Tree Classes}
 We define some classes for our Abstract Syntax Tree. This correspond mostly to the non terminal expressions in the Bison grammar and are used there to build up the tree.
 
-\subsection{document}
+\section{General definitions}
 \indexHeader{DEFINITIONS}
 @O ../src/definitions.h -d
 @{
@@ -73,39 +73,76 @@ namespace nuweb {
 @<End of header@>
 @}
 
-@O ../src/ast.h -d
+\section{Class document}
+\subsection{Interface}
+\indexHeader{DOCUMENT}
+@O ../src/document.h -d
 @{
-@<Start of @'AST@' header@>
-#include <vector>
-#include "document.h"
-#include "definitions.h"
+@<Start of @'DOCUMENT@' header@>
 
-namespace nuweb {
+#include "documentPart.h"
 
+@<Start of class @'document@' in namespace @'nuweb@'@>
+@<\classDeclaration{document}@>
+@<End of class, namespace and header@>
 @}
 
-@O ../src/ast.h -d
-@{
+\subsection{Implementation}
+See @{@<\classDeclaration{document}@>@}.
 
-@<Start of class @'fragmentNamePart@' base @'documentPart@'@>
-private:
-    std::string m_value;
-public:
-    fragmentNamePart(const filePosition& l_filePosition, const std::string& value) :
-        documentPart(l_filePosition), m_value(value){
-            std::cout << "fragmentNamePart\n";
-        };
+\section{Class documentPart and derived classes}
+\subsection{Interface}
+\indexHeader{DOCUMENT\_PART}@O ../src/documentPart.h -d
+@{
+@<Start of @'DOCUMENT_PART@' header@>
+
+#include <vector>
+#include "definitions.h"
+#include "file.h"
+
+@<Start of class @'documentPart@' in namespace @'nuweb@'@>
+@<\classDeclaration{documentPart}@>
 @<End of class@>
 
-@<Start of class @'fragmentNamePartArgument@' base @'fragmentNamePart@'@>
-private:
-    int m_counter;
-public:
-    fragmentNamePartArgument(const filePosition& l_filePosition, const std::string& argumentName, int counter):
-        fragmentNamePart(l_filePosition, argumentName), m_counter(counter){
-            std::cout << "fragmentNamePartArgument\n";
-        };
-@<End of class, namespace and header@>
+@<Start of class @'emptyDocumentPart@' public @'documentPart@'@>
+@<\classDeclaration{emptyDocumentPart}@>
+@<End of class@>
 
+@<Start of class @'outputFile@' public @'documentPart@'@>
+@<\classDeclaration{outputFile}@>
+@<End of class, namespace and header@>
 @}
+\subsection{Implementation}
+@d C++ files without main in path @'path@'
+@{@1documentPart.cpp
+@}
+
+@o ../src/documentPart.cpp -d
+@{
+#include "documentPart.h"
+
+@<\classImplementation{documentPart}@>
+@}
+
+\subsubsection{utf8}
+\indexClassMethod{documentPart}{utf8}
+@d \classImplementation{documentPart}
+@{
+std::string nuweb::documentPart::utf8(){
+    file* l_file = file::byName(m_filePosition.m_filename);
+    // Line numbers in lex start by one, internally we start at 0, so we
+    // have to substract one here:
+    return l_file->utf8({{m_filePosition.m_line-1,m_filePosition.m_column},
+            {m_filePosition.m_line_end-1,m_filePosition.m_column_end}});
+};
+@| utf8 @}
+
+\subsubsection{texUtf8}
+\indexClassMethod{documentPart}{texUtf8}
+@d \classImplementation{documentPart}
+@{
+std::string nuweb::documentPart::texUtf8(){
+    return utf8();
+};
+@| texUtf8 @}
 

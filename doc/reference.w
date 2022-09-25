@@ -17,12 +17,12 @@
 
 \chapter{Language Reference}
 
-This is an attempt to describe the nuweb grammar in a formal and consistent way. I'm not aware of any previous attempts so there may be and probably are some errors. In a ``webified'' style I attempt to do heavy reordering here for keeping fragments logical together which will go in completely different places.
+This is an attempt to describe the nuweb grammar in a formal and consistent way. I'm not aware of any previous attempts so there may be and probably are some errors. In a ``webified'' style I attempt to do heavy reordering here for keeping fragments logical together which will go in completely different places\footnote{I will however try to put the repetitive parts in the footnotes so they can be kept close when someone is interested but don't clutter up the text too much.}.
 
 The Bison program is used together with a Flex compatible program to generate a lexer and parser. The Bison code is basically the grammar in Backus-Naur form but with code fragments attached to the rules. To improve readability I write out the (sometimes simplified) Backus-Naur form seperately at the beginning of each section in this chapter. I shorten the Backus-Naur form by notating lists with zero or more elements with a ``*'' and lists with one or more elements with a ``+''.
 
 \section{Document structure}
-First, and probably obviously, each nuweb {\synshorts<document>} consists of a list of {\synshorts<documentPart>} and is delimited with an end of file marker (which we don't consider part of \lstinline{document}). {\synshorts<documentPart>} can be either {\synshorts<texCode>}, {\synshorts<nuwebExpression>} or {\synshorts<outputFile>}. This section is only about {\synshorts<document>} and the {\synshorts<documentPart>} are treated in \tododocument{Replace with reference to the sections when those sections are written}later sections.
+First, and probably obviously, each nuweb {\synshorts<document>} consists of a list of {\synshorts<documentPart>} and is delimited with an end of file marker\footnote{We don't consider this end of file marker to be part of the document structure, so we don't add it to our abstract syntax tree.}. {\synshorts<documentPart>} can be either {\synshorts<texCode>}, {\synshorts<nuwebExpression>} or {\synshorts<outputFile>}. This section is only about {\synshorts<document>} and the {\synshorts<documentPart>} are treated in \tododocument{Replace with reference to the sections when those sections are written}later sections.
 
 \indexBackusNaur{nuwebAstRoot}\indexBackusNaur{document}\indexBackusNaur{documentPart}\begin{figure}[ht]
 \begin{grammar}
@@ -37,15 +37,10 @@ First, and probably obviously, each nuweb {\synshorts<document>} consists of a l
 \caption{BNF for nuwebAstRoot, document and documentPart}
 \end{figure}
 
-We keep a pointer to the document structure in Bison
-
-\codebisonflex
-@D Bison parse parameters
+We keep a pointer to the document structure in the Bison parser\footnote{\begin{samepage}Pointer to an object of the document class:\codebisonflex@d Bison parse parameters
 @{
 %parse-param { document** l_document }
-@}
-
-and define the root of our abstract syntax tree as such:
+@}\end{samepage}} and define the root of our abstract syntax tree {\synshorts<nuwebAstRoot>}.
 
 \indexBisonRule{nuwebAstRoot}\indexBisonRuleUsesToken{nuwebAstRoot}{YYEOF}@d Bison rules
 @{
@@ -64,13 +59,13 @@ nuwebAstRoot
 @{<<EOF>> { if(end_of_file()) { TOKEN(YYEOF) } }
 @}
 
-\codecpp\lstinline{end_of_file()} is discussed later\tododocument{Insert reference here}. We have to tell Flex about the return value of the Flex rule \codebisonflex\lstinline{document}:
+\codecpp\lstinline{end_of_file()} is discussed later at section \ref{methodEndOfFile} on page \pageref{methodEndOfFile}. We have to tell Flex about the return value of the Flex rule \codebisonflex\lstinline{document}:
 
 \indexBisonType{document}
 @d Bison type definitions
 @{
 %type <m_document> document;
-@}
+@| document @}
 
 \lstinline{m_document} refers to a part of a union we define for passing values between Flex and Bison. Note that ``\codecpp\lstinline{document*}'' is a C++ class pointer named the same as the Flex rule ``\codebisonflex\lstinline{document}'':
 
@@ -78,7 +73,7 @@ nuwebAstRoot
 @d Bison union definitions
 @{
 document* m_document;
-@}
+@| document @}
 
 We will use the same name for any Flex rule and C++ class wherever we can, because from our view this is the same object. There are some Flex rules which wont need an C++ class though, because they are intermediate steps or the endpoint \codebisonflex\lstinline{nuwebAstRoot}.
 
@@ -104,13 +99,8 @@ document
 
 Now we have everything needed to define ``\codecpp\lstinline{class document}''. This class takes ownership of any instance of ``\lstinline{class documentPart}'', so we need to delete those instances in the destructor. ``\lstinline{document::addElement}'' adds those instances to an internal list.
 
-@O ../src/document.h -d
+@d \classDeclaration{document}
 @{
-@<Start of @'DOCUMENT@' header@>
-
-#include "documentPart.h"
-
-@<Start of class @'document@' in namespace @'nuweb@'@>
 private:
     std::vector<documentPart*> m_documentParts;
 public:
@@ -122,7 +112,7 @@ public:
     void addElement(documentPart* l_documentPart){
         m_documentParts.push_back(l_documentPart);
     }
-@<End of class, namespace and header@>@| document addElement @}\indexHeader{DOCUMENT}\indexClass{document}\indexClassMethod{document}{addElement}
+@| document addElement @}\indexClass{document}\indexClassMethod{document}{addElement}
 
 \section{Document parts}
 We have to keep track of the filename and the range we refer to when parsing our document, so let's define a structure for that:
@@ -177,166 +167,218 @@ documentPart* m_documentPart;
 
 This is all we need to define our ``\lstinline{class documentPart}''.
 
-\indexHeader{DOCUMENT\_PART}\indexClass{documentPart}\indexClassBaseOf{documentPart}{texCode}\indexClassBaseOf{documentPart}{includeFile}\indexClassBaseOf{documentPart}{outputFile}
-@O ../src/documentPart.h -d
+\indexClass{documentPart}\indexClassBaseOf{documentPart}{outputFile}\indexClassBaseOf{documentPart}{emptyDocumentPart}
+@d \classDeclaration{documentPart}
 @{
-@<Start of @'DOCUMENT_PART@' header@>
-
-#include <vector>
-#include "definitions.h"
-#include "file.h"
-
-@<Start of class @'documentPart@' in namespace @'nuweb@'@>
 private:
     filePosition m_filePosition;
 public:
     documentPart(const filePosition& l_filePosition) : m_filePosition(l_filePosition){
-        std::cout << "documentPart[" << m_filePosition.m_filename << ":" << m_filePosition.m_line << "," << m_filePosition.m_column << "|" << m_filePosition.m_line_end << "," << m_filePosition.m_column_end << ").";
+        //std::cout << "documentPart[" << m_filePosition.m_filename << ":" << m_filePosition.m_line << "," << m_filePosition.m_column << "|" << m_filePosition.m_line_end << "," << m_filePosition.m_column_end << ").";
     };
     std::string utf8();
     virtual std::string texUtf8();
-@<End of class@>@| documentPart utf8 texUtf8 @}
+@| documentPart utf8 texUtf8 @}
 
-@d C++ files without main in path @'path@'
-@{@1documentPart.cpp
-@}
+\subsection{\TeX{} code}
+``\lstinline{texCode}'' is any text that appears directly in the document and does not contain any ``@@'' character. As such ``\lstinline{TEXT_WITHOUT_AT}'' would be sufficient, but other rules may match before \todorefactor{Is that really the case? Check that}that. It does not hurt to have this additional rules here and ``\lstinline{WHITESPACE}'' and ``\lstinline{TEXT_WITHOUT_AT_OR_WHITESPACE}'' are needed later anyway.
 
-@o ../src/documentPart.cpp -d
-@{
-#include "documentPart.h"
+\indexBackusNaur{texCode}\begin{figure}[ht]
+\begin{grammar}
+<texCode> ::= TEXT_WITHOUT_AT
+\alt WHITESPACE
+\alt TEXT_WITHOUT_AT_OR_WHITESPACE
+\end{grammar}
+\caption{BNF for texCode}
+\end{figure}
 
-std::vector<nuweb::texCode*> nuweb::texCode::m_allTexCode = {};
+All of those are creating an \codecpp\lstinline{documentPart} object.
 
-@<Implementation of class documentPart@>
-@}
-
-\indexClassMethod{documentPart}{utf8}
-@d Implementation of class documentPart
-@{
-std::string nuweb::documentPart::utf8(){
-    file* l_file = file::byName(m_filePosition.m_filename);
-    // Line numbers in lex start by one, internally we start at 0, so we
-    // have to substract one here:
-    return l_file->utf8({{m_filePosition.m_line-1,m_filePosition.m_column},
-            {m_filePosition.m_line_end-1,m_filePosition.m_column_end}});
-};
-@| utf8 @}
-
-\indexClassMethod{documentPart}{texUtf8}
-@d Implementation of class documentPart
-@{
-std::string nuweb::documentPart::texUtf8(){
-    return utf8();
-};
-@| texUtf8 @}
-
-\subsection{texCode}
-\indexBisonRule{texCode}\indexBisonRuleUsesToken{texCode}{TEXT\_WITHOUT\_AT}\indexBisonRuleUsesToken{texCode}{WHITESPACE}\indexBisonRuleUsesToken{texCode}{TEXT\_WITHOUT\_AT\_OR\_WHITESPACE}
+\indexBisonRule{texCode}\indexBisonRuleUsesToken{texCode}{TEXT\_WITHOUT\_AT}\indexBisonRuleUsesToken{texCode}{WHITESPACE}\indexBisonRuleUsesToken{texCode}{TEXT\_\-WITHOUT\_\-AT\_\-OR\_\-WHITESPACE}
 @d Bison rules
 @{
 texCode
     : TEXT_WITHOUT_AT
     {
-        $$ = new texCode(*$TEXT_WITHOUT_AT);
-        try {
-            std::cout << "\n\n------------(" << $$->utf8() << ")--------------\n\n";
-        }
-        catch(const std::runtime_error& error){
-            throw std::runtime_error("Error while parsing TEXT_WITHOUT_AT in file \"" + $TEXT_WITHOUT_AT->m_filename + "\"[" + std::to_string($TEXT_WITHOUT_AT->m_line) + "," + std::to_string($TEXT_WITHOUT_AT->m_column) + "|" + std::to_string($TEXT_WITHOUT_AT->m_line_end) + "," + std::to_string($TEXT_WITHOUT_AT->m_column_end) + "]: " + error.what());
-        }
+        $$ = new documentPart(*$TEXT_WITHOUT_AT);
     }
     | WHITESPACE
     {
-        $$ = new texCode(*$WHITESPACE);
+        $$ = new documentPart(*$WHITESPACE);
     }
     | TEXT_WITHOUT_AT_OR_WHITESPACE
     {
-        $$ = new texCode(*$TEXT_WITHOUT_AT_OR_WHITESPACE);
+        $$ = new documentPart(*$TEXT_WITHOUT_AT_OR_WHITESPACE);
     }
 ;
 @| texCode @}
 
 We have the following Flex rules for this
 
-\indexFlexRule{WHITESPACE}\indexFlexRule{TEXT\_WITHOUT\_AT\_OR\_WHITESPACE}\indexFlexRule{TEXT\_WITHOUT\_AT}
+\indexFlexRule{WHITESPACE}\indexFlexRule{TEXT\_\-WITHOUT\_\-AT\_\-OR\_\-WHITESPACE}\indexFlexRule{TEXT\_WITHOUT\_AT}
 @d Lexer rules for text handling
-@{<outputFileHeader,userIdentifiers>[[:space:]]+  { DSTRINGTOKEN(WHITESPACE) }
-<outputFileHeader,userIdentifiers>[^@@[:space:]]+ { DSTRINGTOKEN(TEXT_WITHOUT_AT_OR_WHITESPACE) }
-<INITIAL,scrapContents,fragmentHeader,fragmentExpansion>[^@@]+ { DSTRINGTOKEN(TEXT_WITHOUT_AT) } @| WHITESPACE TEXT_WITHOUT_AT_OR_WHITESPACE TEXT_WITHOUT_AT @}
+@{<outputFileHeader,userIdentifiers>[[:space:]]+  { DTOKEN(WHITESPACE) }
+<outputFileHeader,userIdentifiers>[^@@[:space:]]+ { DTOKEN(TEXT_WITHOUT_AT_OR_WHITESPACE) }
+<INITIAL,scrapContents,fragmentHeader,fragmentExpansion>[^@@]+ { DTOKEN(TEXT_WITHOUT_AT) } @| WHITESPACE TEXT_WITHOUT_AT_OR_WHITESPACE TEXT_WITHOUT_AT @}
 
-\subsection{nuwebExpression}
-\indexBisonRule{nuwebExpression}\indexBisonRuleUsesToken{nuwebExpression}{AT\_I}\indexBisonRuleUsesToken{nuwebExpression}{AT\_SMALL\_F}\indexBisonRuleUsesToken{nuwebExpression}{NOT\_IMPLEMENTED}
-@d Bison rules
+and our type definitions\footnote{\begin{samepage}Types (note that \codecpp\lstinline{filePosition} is good enough here as we can get the string part from our internal file buffer list):@d Bison type definitions
+@{%type <m_filePosition> WHITESPACE;
+%type <m_filePosition> TEXT_WITHOUT_AT_OR_WHITESPACE;
+%type <m_filePosition> TEXT_WITHOUT_AT;
+@| WHITESPACE TEXT_WITHOUT_AT_OR_WHITESPACE TEXT_WITHOUT_AT @}\indexBisonType{WHITESPACE}\indexBisonType{TEXT_WITHOUT_AT_OR_WHITESPACE}\indexBisonType{TEXT_WITHOUT_AT}\end{samepage}} and tokens\footnote{\begin{samepage}Tokens:@d Bison token definitions
+@{%token TEXT_WITHOUT_AT_OR_WHITESPACE
+%token WHITESPACE
+%token TEXT_WITHOUT_AT
+@| WHITESPACE TEXT_WITHOUT_AT_OR_WHITESPACE TEXT_WITHOUT_AT @}\end{samepage}}.
+\subsection{Nuweb expression}
+A ``\lstinline{nuwebExpression}'' is basically every nuweb command\footnote{Anything that starts with an ``@@''} except for the output file commands ``@@o'' and ``@@O'' which have to be treated specially.
+
+\indexBackusNaur{nuwebExpression}\begin{figure}[ht]
+\begin{grammar}
+<nuwebExpression> ::= INCLUDE_FILE
+\alt AT_AT
+\alt <scrap>
+\alt <fragment>
+\alt AT_SMALL_F
+\alt NOT_IMPLEMENTED
+\end{grammar}
+\caption{BNF for nuwebExpression}
+\end{figure}
+
+\indexBisonRule{nuwebExpression}\indexBisonRuleUsesToken{nuwebExpression}{INCLUDE\_FILE}\indexBisonRuleUsesToken{nuwebExpression}{AT\_SMALL\_F}\indexBisonRuleUsesToken{nuwebExpression}{NOT\_IMPLEMENTED}
+@D Bison rules
 @{
 nuwebExpression
-    : AT_I
+    : INCLUDE_FILE
     {
-        $$ = new includeFile(*$AT_I);
+        $$ = new emptyDocumentPart(*$INCLUDE_FILE);
     }
-    | escapedchar
+    | AT_AT
     {
-        $$ = $escapedchar;
+        throw std::runtime_error($AT_AT->m_filename + ":" + std::to_string($AT_AT->m_line) + ": AT_AT not implemented\n");
     }
     | scrap
     {
-        std::cout << "scrap\n";
+        throw std::runtime_error("scrap not implemented\n");
     }
     | fragment
     {
-        std::cout << "fragment in nuwebExpression\n";
+        throw std::runtime_error("fragment in nuwebExpression not implemented\n");
     }
     | AT_SMALL_F
     {
-        std::cout << "@@f not implemented\n";
+        throw std::runtime_error("@@f not implemented\n");
     }
     | NOT_IMPLEMENTED
     {
-        std::cout << "  " << $NOT_IMPLEMENTED->m_filename << ":" << $NOT_IMPLEMENTED->m_line << ":" << $NOT_IMPLEMENTED->m_column << " command \"" << $NOT_IMPLEMENTED->m_value << "\" not implemented!\n";
+        throw std::runtime_error($NOT_IMPLEMENTED->m_filename + ":" + std::to_string($NOT_IMPLEMENTED->m_line) + ":" + std::to_string($NOT_IMPLEMENTED->m_column) + " command \"" + $NOT_IMPLEMENTED->m_value + "\" not implemented!\n");
     }
 ;
 @| nuwebExpression @}
 
-\indexClass{texCode}
-@O ../src/documentPart.h -d
-@{
-@<Start of class @'texCode@' base @'documentPart@'@>
-private:
-    std::string m_contents;
-    static std::vector<texCode*> m_allTexCode;
-public:
-    texCode(const filePositionWithString& l_filePosition) : documentPart(filePosition(l_filePosition.m_filename, l_filePosition.m_line, l_filePosition.m_column, l_filePosition.m_line_end, l_filePosition.m_column_end)), m_contents(l_filePosition.m_value){
-        m_allTexCode.push_back(this);
-        std::cout << "texCode\n";
-        //std::cout << "texCode(" << m_contents << ")";
-    }
-@<End of class@>
-@| texCode @}
+\subsubsection{Include file}
+Before going further let's define a ``\codecpp\lstinline{class emptyDocumentPart}''. This is a class which will return a empty string for the \TeX{} code. We don't want to have the include files in any form in the final document.
 
-\indexClass{includeFile}
-@O ../src/documentPart.h -d
+\indexClass{emptyDocumentPart}
+@d \classDeclaration{emptyDocumentPart}
 @{
-@<Start of class @'includeFile@' base @'documentPart@'@>
-private:
-    std::string m_filename;
 public:
-    includeFile(const filePositionWithString& l_filePosition) : documentPart(filePosition(l_filePosition.m_filename, l_filePosition.m_line, l_filePosition.m_column, l_filePosition.m_line_end, l_filePosition.m_column_end)), m_filename(l_filePosition.m_value){
-        //std::cout << "includeFile";
-        std::cout << "includeFile(" << m_filename << ")\n";
+    emptyDocumentPart(const filePosition& l_filePosition) : documentPart(l_filePosition){
     }
-@<End of class@>
-@| includeFile @}
+    virtual std::string texUtf8(void) override {
+        return "";
+    }
+@| emptyDocumentPart @}
 
+Treating include files is interesting, because we do it on the lexer level in the function \codecpp\lstinline{include_file()}. Bison does not need to know about much more than that we read a file here i.e. we got the string ``\lstinline{@@i <filename>}'' at some point and from now on Bison will get the tokens from that file.
+
+\indexFlexRule{INCLUDE_FILE}
+@d Lexer rule for including files
+@{
+<INITIAL>@@i[ ][^\n]+ { include_file(); return yy::parser::token::yytokentype::INCLUDE_FILE; }
+@| INCLUDE_FILE @}
+
+Token\footnote{\begin{samepage}\noindent Token:@d Bison token definitions
+@{%token INCLUDE_FILE
+@| INCLUDE_FILE @}\end{samepage}} and type\footnote{\begin{samepage}\noindent Type:@d Bison type definitions
+@{%type <m_filePosition> INCLUDE_FILE;
+@| INCLUDE_FILE @}\end{samepage}} are defined as usual.
+
+Now let's get to the magic function \codecpp\lstinline{include_file()}:
+
+\indexClassMethod{helpLexer}{include\_file}
+@D Implementation of additional helpLexer functions
+@{
+void include_file(){
+    // @xinclude_file_1@x Get filename:
+    std::string filename = std::string(yytext, yyleng);
+    // @xinclude_file_2@x Remove '@@i '
+    filename.erase(filename.begin(), filename.begin()+3);
+    // @xinclude_file_3@x Return correct values later:
+    if(filenameStack.empty())
+        yylvalue->m_filePosition = new filePosition("",lineno(),columno(),lineno_end(),columno_end()); 
+    else
+        yylvalue->m_filePosition = new filePosition(filenameStack.back(),lineno(),columno(),lineno_end(),columno_end()); 
+    // @xinclude_file_4@x Read file:
+    nuweb::file* currentFile = new nuweb::file(filename);
+    // @xinclude_file_5@x Remember current file:
+    filenameStack.push_back(filename);
+    // @xinclude_file_6@x Start new matcher:
+    utf8Stream = new std::istringstream(currentFile->utf8());
+    push_matcher(new_matcher(*utf8Stream));
+    if(!has_matcher())
+        std::cout << "  Current matcher not usable!\n";
+}
+@| include_file() @}
+
+This function does the following:
+\begin{itemize}
+\item [@xinclude_file_1@x] Read the filename from the lex value. This will be \lstinline{"@@i examplefile.w"} at this point.
+\item [@xinclude_file_2@x] Extract the filename part by removing the first three characters.
+\item [@xinclude_file_3@x] We keep a stack of the list of currently processed filenames here. When we close the file we will pop the filename from the stack, therefore this list is different from the static list of filenames kept in the file class itself. Note that we do some trickery when loading the first file (described next) so we give a file position with an empty string when we have an empty stack.
+\item [@xinclude_file_4@x] We read the file using our file class. This class will automatically keep a static list of all objects of this class.
+\item [@xinclude_file_5@x] Now we add the file to our list of filenames here.
+\item [@xinclude_file_6@x] We ask the lexer to continue reading from our just opened file. Bison will not know about this.
+\end{itemize}
+
+Of course once we are finished with reading this file we have to pop the last filename from the stack. This is done in the function \codecpp\lstinline{end_of_file()} called in the @{@<Lexer rule for end of file@>@}. Let's define this function here:
+
+\indexClassMethod{helpLexer}{end\_of\_file}
+@D Implementation of additional helpLexer functions
+@{
+bool end_of_file(){
+    // @xend_of_file1@x Return to the previous Matcher:
+    pop_matcher();
+    // @xend_of_file2@x Delete the istringstream allocated in include_file(): 
+    if(utf8Stream){
+        delete utf8Stream;
+        utf8Stream = nullptr;
+    }
+    // @xend_of_file3@x Pop the filename of the just closed file from the stack:
+    filenameStack.pop_back();
+    bool b_stackEmpty = filenameStack.empty();
+    // @xend_of_file4@x If the filename stack is empty add an empty filename to behave well:
+    if(b_stackEmpty){
+        push_matcher(new_matcher(""));
+        filenameStack.push_back("");
+    }
+    // @xend_of_file5@x But still finish the lexer when we reached the end
+    // of the bottom file (there is nothing more to parse then):
+    return b_stackEmpty;
+}
+@| end_of_file() @}
+\label{methodEndOfFile}
 \subsubsection{Fragment}
 @d Bison rules
 @{
 fragment
     : fragmentCommand fragmentName scrap
     {
-        std::cout << "fragment\n";
+        throw std::runtime_error("fragment\n");
     }
     | fragmentCommand fragmentName WHITESPACE scrap
     {
-        std::cout << "fragment whitespace\n";
+        throw std::runtime_error("fragment whitespace\n");
     }
 ;
 @| fragment @}
@@ -347,7 +389,7 @@ fragmentCommand
     : AT_SMALL_D
     | AT_LARGE_D
     {
-        std::cout << "large d\n";
+        throw std::runtime_error("large d\n");
     }
     | AT_SMALL_Q
 ;
@@ -358,27 +400,28 @@ fragmentCommand
 fragmentName
     : fragmentNameText
     {
-        std::cout << "fragmentNameText\n";
+        throw std::runtime_error("fragmentNameText\n");
     }
     | fragmentNameArgument
     {
-        std::cout << "fragmentNameArgument\n";
+        throw std::runtime_error("fragmentNameArgument\n");
     }
     | fragmentName fragmentNameText
     {
-        std::cout << "fragmentName fragmentNameText\n";
+        throw std::runtime_error("fragmentName fragmentNameText\n");
     }
     | fragmentName fragmentNameArgument
     {
-        std::cout << "fragmentName fragmentNameArgument\n";
+        throw std::runtime_error("fragmentName fragmentNameArgument\n");
     }
     | fragmentNameArgumentOld
     {
-        std::cout << "fragmentNameArgumentOld\n";
+        throw std::runtime_error("fragmentNameArgumentOld\n");
     }
 ;
 @| fragmentName @}
 
+\indexBisonRuleUsesToken{fragmentNameArgument}{TEXT\_WITHOUT\_AT}
 @d Bison rules
 @{
 fragmentNameArgument
@@ -388,6 +431,7 @@ fragmentNameArgument
 ;
 @| fragmentNameArgument @}
 
+\indexBisonRuleUsesToken{fragmentNameText}{TEXT\_WITHOUT\_AT}
 @d Bison rules
 @{
 fragmentNameText
@@ -412,6 +456,7 @@ commaSeparatedFragmentArguments
 ;
 @| commaSeparatedFragmentArguments @}
 
+\indexBisonRuleUsesToken{commaSeparatedFragmentArgument}{TEXT\_WITHOUT\_AT}
 @d Bison rules
 @{
 commaSeparatedFragmentArgument
@@ -424,7 +469,7 @@ commaSeparatedFragmentArgument
 fragmentExpansion
     : AT_ANGLE_BRACKET_OPEN fragmentName AT_ANGLE_BRACKET_CLOSE
     {
-        std::cout << "fragmentExpansion\n";
+        throw std::runtime_error("fragmentExpansion\n");
     }
 ;
 @| fragmentExpansion @}
@@ -432,29 +477,37 @@ fragmentExpansion
 \subsubsection{Scrap}
 A scrap can be typeset in three ways, as verbatim, as paragraph or as math:
 
+\indexBackusNaur{scrap}\indexBackusNaur{scrapElement}
 \begin{figure}[ht]
 \begin{grammar}
-<scrap> ::= '@@\{' <scrapElements> '@@\}'; verbatim
-\alt '@@[' <scrapElements> '@@]'; paragraph
-\alt '@@(' <scrapElements> '@@)'; math
+<scrap> ::= '@@\{' <scrapElement>+ '@@\}'; verbatim
+\alt '@@[' <scrapElement>+ '@@]'; paragraph
+\alt '@@(' <scrapElement>+ '@@)'; math
+
+<scrapElement> ::= TEXT\_WITHOUT\_AT;
+\alt AT\_AT;
+\alt WHITESPACE;
+\alt AT\_NUMBER;
+\alt <fragmentExpansion>;
 \end{grammar}
-\caption{BNF for scrap}
+\caption{BNF for scrap and scrapElement}
 \end{figure}
 
+\indexBisonRule{scrap}\indexBisonRuleUsesToken{scrap}{AT\_CURLY\_BRACKET\_OPEN}\indexBisonRuleUsesToken{scrap}{AT\_CURLY\_BRACKET\_CLOSE}\indexBisonRuleUsesToken{scrap}{AT\_SQUARE\_BRACKET\_OPEN}\indexBisonRuleUsesToken{scrap}{AT\_SQUARE\_BRACKET\_CLOSE}\indexBisonRuleUsesToken{scrap}{AT\_ROUND\_BRACKET\_OPEN}\indexBisonRuleUsesToken{scrap}{AT\_ROUND\_BRACKET\_CLOSE}
 @d Bison rules
 @{
 scrap
     : AT_CURLY_BRACKET_OPEN scrapContents AT_CURLY_BRACKET_CLOSE
     {
-        std::cout << "scrap (verbatim)\n";
+        throw std::runtime_error("scrap (verbatim)\n");
     }
     | AT_SQUARE_BRACKET_OPEN scrapContents AT_SQUARE_BRACKET_CLOSE
     {
-        std::cout << "scrap (paragraph)\n";
+        throw std::runtime_error("scrap (paragraph)\n");
     }
     | AT_ROUND_BRACKET_OPEN scrapContents AT_ROUND_BRACKET_CLOSE
     {
-        std::cout << "scrap (math)\n";
+        throw std::runtime_error("scrap (math)\n");
     }
 ;
 @| scrap @}
@@ -481,6 +534,14 @@ scrapContents
 
 The user identifiers do not allow any nuweb commands inside it, so we define a new start condition \lstinline{userIdentifiers} for it. This ends with \lstinline{AT_CURLY_BRACKET_CLOSE} or similar, so we are fine here.
 
+@d Bison rules
+@{
+userIdentifiers
+    : WHITESPACE TEXT_WITHOUT_AT_OR_WHITESPACE WHITESPACE
+    | userIdentifiers TEXT_WITHOUT_AT_OR_WHITESPACE WHITESPACE
+;
+@| userIdentifiers @}
+
 @d Lexer start conditions
 @{
 %x userIdentifiers
@@ -491,61 +552,45 @@ The user identifiers do not allow any nuweb commands inside it, so we define a n
 %token AT_PIPE
 @| AT_PIPE @}
 
-@d Bison rules
-@{
-userIdentifiers
-    : WHITESPACE TEXT_WITHOUT_AT_OR_WHITESPACE WHITESPACE
-    | userIdentifiers TEXT_WITHOUT_AT_OR_WHITESPACE WHITESPACE
-;
-@| userIdentifiers @}
+
 
 @d Bison rules
 @{
 scrapElements
     : scrapElement
     {
-        std::cout << "scrapElement\n";
+        throw std::runtime_error("scrapElement\n");
     }
     | scrapElements scrapElement
 ;
 @| scrapElements @}
 
+\indexBisonRuleUsesToken{scrapElement}{TEXT\_WITHOUT\_AT}
 @d Bison rules
 @{
 scrapElement
     : TEXT_WITHOUT_AT
     {
-        std::cout << "TEXT_WITHOUT_AT\n";
+        throw std::runtime_error("TEXT_WITHOUT_AT\n");
     }
     | AT_AT
     {
-        std::cout << "AT_AT\n";
+        throw std::runtime_error("AT_AT\n");
     }
     | WHITESPACE
     {
-        std::cout << "WHITESPACE\n";
+        throw std::runtime_error("WHITESPACE\n");
     }
     | AT_NUMBER
     {
-        std::cout << "AT_NUMBER\n";
+        throw std::runtime_error("AT_NUMBER\n");
     }
     | fragmentExpansion
     {
-        std::cout << "fragmentExpansion\n";
+        throw std::runtime_error("fragmentExpansion\n");
     }
 ;
 @| scrapElement @}
-
-@d Bison rules
-@{
-escapedchar
-    : AT_AT
-    {
-        //$$ = new atAt();
-        throw std::runtime_error("AT_AT not implemented\n");
-    }
-;
-@| escapedchar @}
 
 \subsection{Output file}
 @d Bison rules
@@ -553,14 +598,18 @@ escapedchar
 outputFile
     : outputCommand WHITESPACE outputFilename WHITESPACE scrap
     {
-        std::cout << "outputCommand\n";
+        throw std::runtime_error("outputCommand\n");
     }
     | outputCommand WHITESPACE outputFilename WHITESPACE outputFlags WHITESPACE scrap
     {
-        std::cout << "outputCommand with filename \"" << $outputFilename->m_value << "\" and flags\n";
+        throw std::runtime_error("outputCommand with filename <hidden in file class somewhere> and flags\n");
     }
 ;
 @| outputFile @}
+
+@d Bison type definitions
+@{%type <m_filePosition> outputFilename;
+@| outputFilename @}
 
 @d Bison rules
 @{
@@ -585,9 +634,8 @@ outputFlags
 @| outputFlags @}
 
 \indexClass{outputFile}\todoimplement{Output function for file contents}
-@O ../src/documentPart.h -d
+@d \classDeclaration{outputFile}
 @{
-@<Start of class @'outputFile@' base @'documentPart@'@>
 private:
     std::string m_filename;
 public:
@@ -595,5 +643,4 @@ public:
         //std::cout << "outputFile";
         std::cout << "outputFile(" << m_filename << ")\n";
     }
-@<End of class, namespace and header@>
 @| outputFile @}

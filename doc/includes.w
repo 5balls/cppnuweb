@@ -30,6 +30,7 @@
 \usepackage{tocbibind}
 \usepackage{amssymb}
 \usepackage{amsmath}
+\usepackage{bigfoot}
 \setlength{\grammarparsep}{10pt} % increase separation between rules
 \setlength{\grammarindent}{12em} % increase separation between LHS/RHS 
 
@@ -38,4 +39,12 @@
 \patchcmd{\@@makeschapterhead}{\vspace*{50\p@@}}{}{}{}% Removes space above \chapter* head
 \makeatother
 \usepackage[colorlinks=true]{hyperref}
+% The following fixes a bigfoot bug that makes the footnotes appear on an page
+% earlier than the reference
+% Fix found at
+% https://tex.stackexchange.com/questions/471379/footnote-marks-missplaced-with-bigfoot/472710#472710
+\usepackage{xpatch}
+\makeatletter
+\patchcmd\FN@@allmarks{266}{256}{}{\fail}
+\makeatother
 \makeindex[options=-s ./index]

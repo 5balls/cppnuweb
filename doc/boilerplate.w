@@ -31,7 +31,7 @@
 
 \subsection{Classfiles}
 \codecpp
-@d Start of class @'classname@' base @'baseclass@'
+@d Start of class @'classname@' public @'baseclass@'
 @{
 class @1 : public @2
 {

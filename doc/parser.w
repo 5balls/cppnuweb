@@ -50,5 +50,3 @@ The following rules are used to create the parser for nuweb. They also define a 
 @<Function definition for int yylex(yy::parser::semantic_type* yylvalue);@>
 @}
 
-
-@i ast.w
