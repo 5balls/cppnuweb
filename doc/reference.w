@@ -178,7 +178,7 @@ public:
     documentPart(const filePosition& l_filePosition) : m_filePosition(l_filePosition){
         //std::cout << "documentPart[" << m_filePosition.m_filename << ":" << m_filePosition.m_line << "," << m_filePosition.m_column << "|" << m_filePosition.m_line_end << "," << m_filePosition.m_column_end << ").";
     };
-    std::string utf8();
+    virtual std::string utf8();
     virtual std::string texUtf8();
 @| documentPart utf8 texUtf8 @}
 
@@ -571,7 +571,7 @@ public:
             returnString += documentPart->texUtf8();
         return returnString;
     }
-    virtual std::string utf8(void){
+    virtual std::string utf8(void) override{
         std::string returnString;
         for(auto documentPart: *this)
             returnString += documentPart->utf8();
