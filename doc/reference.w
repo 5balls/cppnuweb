@@ -169,15 +169,21 @@ This is all we need to define our ``\lstinline{class documentPart}''.
 
 \indexClass{documentPart}\indexClassBaseOf{documentPart}{outputFile}\indexClassBaseOf{documentPart}{emptyDocumentPart}
 @d \classDeclaration{documentPart}
-@{
+@{@%
+class documentPart: public std::vector<documentPart*> {
 private:
-    filePosition m_filePosition;
+    filePosition* m_filePosition = nullptr;
 public:
-    documentPart() : m_filePosition("",0,0,0,0){
-    };
-    documentPart(const filePosition& l_filePosition) : m_filePosition(l_filePosition){
+    documentPart(const documentPart&) = delete;
+    documentPart(void) : std::vector<documentPart*>({}) {
+    }
+    documentPart(documentPart&& l_documentPart) : m_filePosition(l_documentPart.m_filePosition), std::vector<documentPart*>(std::move(l_documentPart)) {
+    }
+    documentPart(documentPart* l_documentPart) : documentPart(std::move(*l_documentPart)){
+    }
+    documentPart(filePosition* l_filePosition) : m_filePosition(l_filePosition){
         //std::cout << "documentPart[" << m_filePosition.m_filename << ":" << m_filePosition.m_line << "," << m_filePosition.m_column << "|" << m_filePosition.m_line_end << "," << m_filePosition.m_column_end << ").";
-    };
+    }
     virtual std::string utf8();
     virtual std::string texUtf8();
 @| documentPart utf8 texUtf8 @}
@@ -202,15 +208,15 @@ All of those are creating an \codecpp\lstinline{documentPart} object.
 texCode
     : TEXT_WITHOUT_AT
     {
-        $$ = new documentPart(*$TEXT_WITHOUT_AT);
+        $$ = new documentPart($TEXT_WITHOUT_AT);
     }
     | WHITESPACE
     {
-        $$ = new documentPart(*$WHITESPACE);
+        $$ = new documentPart($WHITESPACE);
     }
     | TEXT_WITHOUT_AT_OR_WHITESPACE
     {
-        $$ = new documentPart(*$TEXT_WITHOUT_AT_OR_WHITESPACE);
+        $$ = new documentPart($TEXT_WITHOUT_AT_OR_WHITESPACE);
     }
 ;
 @| texCode @}
@@ -253,11 +259,11 @@ A ``\lstinline{nuwebExpression}'' is basically every nuweb command\footnote{Anyt
 nuwebExpression
     : INCLUDE_FILE
     {
-        $$ = new emptyDocumentPart(*$INCLUDE_FILE);
+        $$ = new emptyDocumentPart($INCLUDE_FILE);
     }
     | AT_AT
     {
-        $$ = new escapeCharacterDocumentPart(*$AT_AT);
+        $$ = new escapeCharacterDocumentPart($AT_AT);
     }
     | scrap
     {
@@ -286,7 +292,7 @@ Before going further let's define a ``\codecpp\lstinline{class emptyDocumentPart
 @d \classDeclaration{emptyDocumentPart}
 @{
 public:
-    emptyDocumentPart(const filePosition& l_filePosition) : documentPart(l_filePosition){
+    emptyDocumentPart(filePosition* l_filePosition) : documentPart(l_filePosition){
     }
     virtual std::string texUtf8(void) override {
         return "";
@@ -383,7 +389,7 @@ bool end_of_file(){
 private:
     static std::string m_escapementString;
 public:
-    escapeCharacterDocumentPart(const filePosition& l_filePosition) : documentPart(l_filePosition){
+    escapeCharacterDocumentPart(filePosition* l_filePosition) : documentPart(l_filePosition){
     }
     void setEscapeCharacter(const std::string& escape_Character){
         m_escapementString = escape_Character;
@@ -406,7 +412,7 @@ std::string nuweb::escapeCharacterDocumentPart::m_escapementString = "@@";
 fragment
     : fragmentCommand fragmentName scrap
     {
-        throw std::runtime_error("fragment\n");
+        throw std::runtime_error("fragment not implemented\n");
     }
     | fragmentCommand fragmentName WHITESPACE scrap
     {
@@ -459,7 +465,7 @@ fragmentNameArgument
 fragmentNameText
     : TEXT_WITHOUT_AT 
     {
-        $$ = new documentPart(*$TEXT_WITHOUT_AT);
+        $$ = new documentPart($TEXT_WITHOUT_AT);
     }
     | AT_AT
     {
@@ -539,7 +545,7 @@ A scrap can be typeset in three ways, as verbatim, as paragraph or as math:
 scrap
     : AT_CURLY_BRACKET_OPEN scrapContents AT_CURLY_BRACKET_CLOSE
     {
-        throw std::runtime_error("scrap (verbatim) not implemented\n");
+        $$ = new scrapVerbatim($scrapContents);
     }
     | AT_SQUARE_BRACKET_OPEN scrapContents AT_SQUARE_BRACKET_CLOSE
     {
@@ -556,34 +562,26 @@ scrap
 @{%type <m_documentPart> scrap
 @}
 
-@d \classDeclaration{documentParts}
-@{
-class documentParts: public documentPart, public std::vector<documentPart*> 
-{
-public:
-    documentParts(void) : std::vector<documentPart*>({}){
-    }
-    documentParts(const std::vector<documentPart*>& l_documentParts) : std::vector<documentPart*>(l_documentParts){
-    }
-    virtual std::string texUtf8(void) override{
-        std::string returnString;
-        for(auto documentPart: *this)
-            returnString += documentPart->texUtf8();
-        return returnString;
-    }
-    virtual std::string utf8(void) override{
-        std::string returnString;
-        for(auto documentPart: *this)
-            returnString += documentPart->utf8();
-        return returnString;
-    }
-};
-@}
-
 @d \classDeclaration{scrapVerbatim}
 @{
+public:
+    scrapVerbatim(scrapVerbatim&& l_scrapVerbatim) : documentPart(std::move(l_scrapVerbatim)) {
+    }
+
+    scrapVerbatim(documentPart* l_documentPart) : documentPart(l_documentPart){
+    }
+    virtual std::string texUtf8(void) override {
+        std::stringstream documentLines(documentPart::texUtf8());
+        std::string documentLine;
+        std::string returnString;
+        while(std::getline(documentLines,documentLine))
+            returnString += "\\lstinline@@" + documentLine + "@@\n";
+        return returnString;
+    }
 @}
 
+
+\todoimplement{Move constructors for documentPart}
 Some commands are only valid inside a scrap, so we define a specific start condition for scraps:
 
 @d Lexer start conditions
@@ -647,7 +645,7 @@ userIdentifiers
 scrapElements
     : scrapElement
     {
-        $$ = new documentParts();
+        $$ = new documentPart();
         $$->push_back($scrapElement);
     }
     | scrapElements[l_scrapElements] scrapElement
@@ -659,11 +657,7 @@ scrapElements
 @| scrapElements @}
 
 @d Bison type definitions
-@{%type <m_documentParts> scrapElements
-@}
-
-@d Bison union definitions
-@{documentParts* m_documentParts;
+@{%type <m_documentPart> scrapElements
 @}
 
 \indexBisonRuleUsesToken{scrapElement}{TEXT\_WITHOUT\_AT}
@@ -672,7 +666,7 @@ scrapElements
 scrapElement
     : TEXT_WITHOUT_AT
     {
-        $$ = new documentPart(*$TEXT_WITHOUT_AT);
+        $$ = new documentPart($TEXT_WITHOUT_AT);
     }
     | AT_AT
     {
@@ -744,7 +738,7 @@ outputFlags
 private:
     std::string m_filename;
 public:
-    outputFile(const filePosition& l_filePosition, std::string filename) : documentPart(l_filePosition), m_filename(filename){
+    outputFile(filePosition* l_filePosition, std::string filename) : documentPart(l_filePosition), m_filename(filename){
         //std::cout << "outputFile";
         std::cout << "outputFile(" << m_filename << ")\n";
     }

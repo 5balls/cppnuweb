@@ -44,9 +44,9 @@ namespace nuweb {
                 unsigned int line_end, unsigned int column_end,
                 int value):
             filePosition(filename,line,column,line_end,column_end),
-            m_value(value){
+            mn_value(value){
             };
-        int m_value;
+        int mn_value;
     };
 @}
 
@@ -100,11 +100,9 @@ See @{@<\classDeclaration{document}@>@}.
 #include "definitions.h"
 #include "file.h"
 
-@<Start of class @'documentPart@' in namespace @'nuweb@'@>
+namespace nuweb {
 @<\classDeclaration{documentPart}@>
 @<End of class@>
-
-@<\classDeclaration{documentParts}@>
 
 @<Start of class @'emptyDocumentPart@' public @'documentPart@'@>
 @<\classDeclaration{emptyDocumentPart}@>
@@ -116,6 +114,10 @@ See @{@<\classDeclaration{document}@>@}.
 
 @<Start of class @'escapeCharacterDocumentPart@' public @'documentPart@'@>
 @<\classDeclaration{escapeCharacterDocumentPart}@>
+@<End of class@>
+
+@<Start of class @'scrapVerbatim@' public @'documentPart@'@>
+@<\classDeclaration{scrapVerbatim}@>
 @<End of class, namespace and header@>
 @}
 
@@ -136,14 +138,22 @@ See @{@<\classDeclaration{document}@>@}.
 \subsubsection{utf8}
 \indexClassMethod{documentPart}{utf8}
 @d \classImplementation{documentPart}
-@{
-std::string nuweb::documentPart::utf8(){
-    file* l_file = file::byName(m_filePosition.m_filename);
-    // Line numbers in lex start by one, internally we start at 0, so we
-    // have to substract one here:
-    return l_file->utf8({{m_filePosition.m_line-1,m_filePosition.m_column},
-            {m_filePosition.m_line_end-1,m_filePosition.m_column_end}});
-};
+@{@%
+std::string nuweb::documentPart::utf8(void){
+    if(empty()){
+        // Line numbers in lex start by one, internally we start at 0, so we
+        // have to substract one here:
+        file* l_file = file::byName(m_filePosition->m_filename);
+        return l_file->utf8({{m_filePosition->m_line-1,m_filePosition->m_column},
+                {m_filePosition->m_line_end-1,m_filePosition->m_column_end}});
+    }
+    else{
+        std::string returnString;
+        for(auto documentPart: *this)
+            returnString += documentPart->utf8();
+        return returnString;
+    }
+}
 @| utf8 @}
 
 \subsubsection{texUtf8}

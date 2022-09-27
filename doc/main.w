@@ -24,7 +24,6 @@
 #include <iostream>
 #include "file.h"
 #include "helplexer.h"
-#include "ast.h"
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)

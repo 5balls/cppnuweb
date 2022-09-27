@@ -25,7 +25,8 @@ Apparently there is some glue code needed so that Bison and Flex can talk to eac
 %code requires {
     #include <iostream>
     #include "parser.hpp"
-    #include "../../src/ast.h"
+    #include "../../src/definitions.h"
+    #include "../../src/document.h"
     using namespace nuweb;
     class helpLexer;
 }
