@@ -38,7 +38,13 @@ outputFile
 @{
 outputCommand
     : AT_SMALL_O
+    {
+        throw std::runtime_error("AT_SMALL_O not implemented!\n");
+    }
     | AT_LARGE_O
+    {
+        throw std::runtime_error("AT_LARGE_O not implemented!\n");
+    }
 ;
 @| outputCommand @}
 
@@ -46,6 +52,9 @@ outputCommand
 @{
 outputFilename
     : TEXT_WITHOUT_AT_OR_WHITESPACE
+    {
+        throw std::runtime_error("TEXT_WITHOUT_AT_OR_WHITESPACE not implemented!\n");
+    }
 ;
 @| outputFilename @}
 
@@ -53,6 +62,9 @@ outputFilename
 @{
 outputFlags
     : MINUS_D
+    {
+        throw std::runtime_error("MINUS_D not implemented!\n");
+    }
 ;
 @| outputFlags @}
 

@@ -56,8 +56,7 @@ We try to use the Flex and Bison programs to create our parser.
 @<Lexer rule for escape character@>
 <outputFileHeader>-d { DTOKEN(MINUS_D) }
 @<Lexer rules for text handling@>
-<INITIAL>@@d { start(fragmentHeader); DTOKEN(AT_SMALL_D) }
-<INITIAL>@@D { start(fragmentHeader); DTOKEN(AT_LARGE_D) }
+@<Lexer rules for fragment commands@>
 <INITIAL>@@o { start(outputFileHeader); DTOKEN(AT_SMALL_O) }
 <INITIAL>@@O { start(outputFileHeader); DTOKEN(AT_LARGE_O) }
 <INITIAL>@@f { DTOKEN(AT_SMALL_F) }

@@ -33,6 +33,7 @@ namespace nuweb {
 @O ../src/definitions.h -d
 @{
 @<C++ structure definitions in namespace nuweb@>
+@<C++ enum class definitions in namespace nuweb@>
 @}
 
 \indexStructure{filePositionWithInt}
