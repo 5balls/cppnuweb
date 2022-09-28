@@ -85,8 +85,8 @@ public:
     documentPart(filePosition* l_filePosition) : m_filePosition(l_filePosition){
         //std::cout << "documentPart[" << m_filePosition.m_filename << ":" << m_filePosition.m_line << "," << m_filePosition.m_column << "|" << m_filePosition.m_line_end << "," << m_filePosition.m_column_end << ").";
     }
-    virtual std::string utf8();
-    virtual std::string texUtf8();
+    virtual std::string utf8() const;
+    virtual std::string texUtf8() const;
 @| documentPart utf8 texUtf8 @}
 
 @i reference_documentparts_texcode.w

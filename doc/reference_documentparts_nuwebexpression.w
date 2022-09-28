@@ -23,7 +23,7 @@ A ``\lstinline{nuwebExpression}'' is basically every nuweb command\footnote{Anyt
 <nuwebExpression> ::= INCLUDE_FILE
 \alt AT_AT
 \alt <scrap>
-\alt <fragment>
+\alt <fragmentDefinition>
 \alt AT_SMALL_F
 \alt NOT_IMPLEMENTED
 \end{grammar}
@@ -46,9 +46,9 @@ nuwebExpression
     {
         throw std::runtime_error("scrap not implemented\n");
     }
-    | fragment
+    | fragmentDefinition
     {
-        throw std::runtime_error("fragment in nuwebExpression not implemented\n");
+        throw std::runtime_error("fragmentDefinition in nuwebExpression not implemented\n");
     }
     | AT_SMALL_F
     {
@@ -60,7 +60,6 @@ nuwebExpression
     }
 ;
 @| nuwebExpression @}
-
 
 @i reference_documentparts_nuwebexpression_includefile.w
 

@@ -119,6 +119,10 @@ namespace nuweb {
 
 @<Start of class @'scrapVerbatim@' public @'documentPart@'@>
 @<\classDeclaration{scrapVerbatim}@>
+@<End of class@>
+
+@<Start of class @'fragmentNamePartDefinition@' public @'documentPart@'@>
+@<\classDeclaration{fragmentNamePartDefinition}@>
 @<End of class, namespace and header@>
 @}
 
@@ -132,6 +136,7 @@ namespace nuweb {
 #include "documentPart.h"
 
 @<\staticDefinitions{escapeCharacterDocumentPart}@>
+@<\staticDefinitions{fragmentNamePartDefinition}@>
 
 @<\classImplementation{documentPart}@>
 @}
@@ -140,7 +145,7 @@ namespace nuweb {
 \indexClassMethod{documentPart}{utf8}
 @d \classImplementation{documentPart}
 @{@%
-std::string nuweb::documentPart::utf8(void){
+std::string nuweb::documentPart::utf8(void) const{
     if(empty()){
         // Line numbers in lex start by one, internally we start at 0, so we
         // have to substract one here:
@@ -161,7 +166,7 @@ std::string nuweb::documentPart::utf8(void){
 \indexClassMethod{documentPart}{texUtf8}
 @d \classImplementation{documentPart}
 @{
-std::string nuweb::documentPart::texUtf8(){
+std::string nuweb::documentPart::texUtf8() const{
     return utf8();
 };
 @| texUtf8 @}

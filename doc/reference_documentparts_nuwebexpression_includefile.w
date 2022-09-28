@@ -24,7 +24,7 @@ Before going further let's define a ``\codecpp\lstinline{class emptyDocumentPart
 public:
     emptyDocumentPart(filePosition* l_filePosition) : documentPart(l_filePosition){
     }
-    virtual std::string texUtf8(void) override {
+    virtual std::string texUtf8(void) const override {
         return "";
     }
 @| emptyDocumentPart @}

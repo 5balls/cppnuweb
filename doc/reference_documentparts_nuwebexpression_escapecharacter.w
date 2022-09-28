@@ -31,7 +31,7 @@ public:
     void setEscapeCharacter(const std::string& escape_Character){
         m_escapementString = escape_Character;
     };
-    virtual std::string texUtf8(void) override {
+    virtual std::string texUtf8(void) const override {
         return m_escapementString;
     }
 @}

@@ -49,7 +49,6 @@
 @<Bison type definitions@>
 %type <m_documentPart> texCode;
 %type <m_documentPart> nuwebExpression;
-%type <m_documentPart> fragment;
 %type <m_documentPart> outputFile;
 %type <m_filePosition> AT_AT;
 %type <m_stringValue> NOT_IMPLEMENTED;

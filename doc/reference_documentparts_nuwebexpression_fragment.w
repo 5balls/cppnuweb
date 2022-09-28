@@ -18,17 +18,17 @@
 \subsubsection{Fragment}
 @d Bison rules
 @{
-fragment
-    : fragmentCommand fragmentName scrap
+fragmentDefinition
+    : fragmentCommand fragmentNameDefinition scrap
     {
         throw std::runtime_error("fragment not implemented\n");
     }
-    | fragmentCommand fragmentName WHITESPACE scrap
+    | fragmentCommand fragmentNameDefinition WHITESPACE scrap
     {
         throw std::runtime_error("fragment whitespace\n");
     }
 ;
-@| fragment @}
+@| fragmentDefinition @}
 
 @d Bison rules
 @{
@@ -82,31 +82,64 @@ enum fragmentType m_fragmentType;
 
 @d Bison rules
 @{
-fragmentName
-    : fragmentNamePart
+fragmentNameDefinition
+    : fragmentNamePartDefinition
     {
         throw std::runtime_error("fragmentNamePart not implemented!\n");
     }
-    | fragmentName fragmentNamePart
+    | fragmentNameDefinition fragmentNamePartDefinition
     {
         throw std::runtime_error("fragmentName fragmentNamePart not implemented!\n");
     }
 ;
-@| fragmentName @}
+@| fragmentNameDefinition @}
 
 @d Bison rules
 @{
-fragmentNamePart
+fragmentNamePartDefinition
     : fragmentNameText
     {
-        throw std::runtime_error("fragmentNameText not implemented!\n");
+        $$ = new fragmentNamePartDefinition($fragmentNameText, false);
     }
     | fragmentNameArgument
     {
         throw std::runtime_error("fragmentNameArgument not implemented!\n");
     }
 ;
+@| fragmentNamePartDefinition @}
+
+@d Bison type definitions
+@{@%
+%type <m_documentPart> fragmentNamePartDefinition
+@| fragmentNamePartDefinition @}
+
+@d \classDeclaration{fragmentNamePartDefinition}
+@{@%
+private:
+    bool m_isArgument = false;
+    static std::vector<fragmentNamePartDefinition*> m_allFragmentPartDefinitions;
+public:
+    fragmentNamePartDefinition(filePosition* l_filePosition, bool isArgument) : documentPart(l_filePosition), m_isArgument(isArgument) {
+        m_allFragmentPartDefinitions.push_back(this);
+    }
+    fragmentNamePartDefinition(documentPart&& l_documentPart, bool isArgument) : documentPart(std::move(l_documentPart)), m_isArgument(isArgument) {
+        m_allFragmentPartDefinitions.push_back(this);
+    }
+    bool operator==(const fragmentNamePartDefinition& toCompareWith){
+        if(m_isArgument && toCompareWith.m_isArgument)
+            return m_isArgument == toCompareWith.m_isArgument;
+        else
+            if(m_isArgument != toCompareWith.m_isArgument)
+                return false;
+            else
+                return utf8() == toCompareWith.utf8();
+    }
 @| fragmentNamePart @}
+
+@d \staticDefinitions{fragmentNamePartDefinition}
+@{@%
+std::vector<nuweb::fragmentNamePartDefinition*> nuweb::fragmentNamePartDefinition::m_allFragmentPartDefinitions = {};
+@| m_allFragmentPartDefinitions @}
 
 \indexBisonRuleUsesToken{fragmentNameArgument}{TEXT\_WITHOUT\_AT}\indexBisonRuleUsesToken{fragmentNameArgument}{AT\_TICK}\indexBisonRuleUsesToken{fragmentNameArgument}{TEXT\_WITHOUT\_AT\_OR\_WHITESPACE}
 @d Bison rules
@@ -137,11 +170,11 @@ fragmentNameText
     }
     | AT_AT
     {
-        throw std::runtime_error("AT_AT in fragmentNameText not implemented!\n");
+        $$ = new escapeCharacterDocumentPart($AT_AT);
     }
     | TEXT_WITHOUT_AT_OR_WHITESPACE
     {
-        throw std::runtime_error("TEXT_WITHOUT_AT_OR_WHITESPACE in fragmentNameText not implemented!\n");
+        $$ = new documentPart($TEXT_WITHOUT_AT_OR_WHITESPACE);
     }
 ;
 @| fragmentNameText @}
@@ -187,16 +220,24 @@ commaSeparatedFragmentArgument
 @| commaSeparatedFragmentArgument @}
 
 @d Bison rules
-@{
+@{@%
 fragmentExpansion
-    : AT_ANGLE_BRACKET_OPEN fragmentName AT_ANGLE_BRACKET_CLOSE
+    : AT_ANGLE_BRACKET_OPEN fragmentNameExpansion AT_ANGLE_BRACKET_CLOSE
     {
         throw std::runtime_error("fragmentExpansion not implemented\n");
     }
-    | AT_ANGLE_BRACKET_OPEN fragmentName fragmentNameArgumentOld AT_ANGLE_BRACKET_CLOSE
+    | AT_ANGLE_BRACKET_OPEN fragmentNameExpansion fragmentNameArgumentOld AT_ANGLE_BRACKET_CLOSE
     {
         throw std::runtime_error("fragmentExpansion with old arguments not implemented\n");
     }
 ;
 @| fragmentExpansion @}
 
+@d Bison rules
+@{@%
+fragmentNameExpansion
+    : %empty
+    {
+        throw std::runtime_error("fragmentNameExpansion not implemented\n");
+    }
+@| fragmentNameExpansion @}
