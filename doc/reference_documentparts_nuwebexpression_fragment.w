@@ -21,13 +21,38 @@
 fragmentDefinition
     : fragmentCommand fragmentNameDefinition scrap
     {
-        throw std::runtime_error("fragment not implemented\n");
+        switch($fragmentCommand){
+            case fragmentType::DEFINITION:
+                throw std::runtime_error("fragmentType::DEFINITION not implemented\n");
+                break;
+            case fragmentType::DEFINITION_PAGEBREAK:
+                throw std::runtime_error("fragmentType::DEFINITION_PAGEBREAK not implemented\n");
+                break;
+            case fragmentType::QUOTED:
+                throw std::runtime_error("fragmentType::QUOTED not implemented\n");
+                break;
+            case fragmentType::QUOTED_PAGEBREAK:
+                throw std::runtime_error("fragmentType::QUOTED_PAGEBREAK not implemented\n");
+                break;
+            default:
+                throw std::runtime_error("Unknown fragmentType in fragmentDefinition!\n");
+                break;
+        }
     }
     | fragmentCommand fragmentNameDefinition WHITESPACE scrap
     {
-        throw std::runtime_error("fragment whitespace\n");
+        throw std::runtime_error("fragmentDefinition whitespace\n");
     }
 ;
+@| fragmentDefinition @}
+
+@d \classDeclaration{fragmentDefinition}
+@{@%
+class fragmentDefinition : public documentPart {
+private:
+public:
+fragmentDefinition(
+};
 @| fragmentDefinition @}
 
 @d Bison rules
@@ -85,7 +110,7 @@ enum fragmentType m_fragmentType;
 fragmentNameDefinition
     : fragmentNamePartDefinition
     {
-        throw std::runtime_error("fragmentNamePart not implemented!\n");
+        $$ = $fragmentNamePartDefinition;
     }
     | fragmentNameDefinition fragmentNamePartDefinition
     {
@@ -93,6 +118,12 @@ fragmentNameDefinition
     }
 ;
 @| fragmentNameDefinition @}
+
+@d Bison type definitions
+@{@%
+%type <m_documentPart> fragmentNameDefinition
+@}
+
 
 @d Bison rules
 @{
@@ -133,6 +164,12 @@ public:
                 return false;
             else
                 return utf8() == toCompareWith.utf8();
+    }
+    virtual std::string texUtf8() const override {
+        if(m_isArgument)
+            return "\\hbox{\\slshape\\sffamily " + utf8() + "\\/}";
+        else
+            return utf8();
     }
 @| fragmentNamePart @}
 
