@@ -23,8 +23,7 @@ fragmentDefinition
     {
         switch($fragmentCommand){
             case fragmentType::DEFINITION:
-                throw std::runtime_error("fragmentType::DEFINITION not implemented\n");
-                break;
+                $$ = new fragmentDefinition($fragmentNameDefinition, $scrap);                break;
             case fragmentType::DEFINITION_PAGEBREAK:
                 throw std::runtime_error("fragmentType::DEFINITION_PAGEBREAK not implemented\n");
                 break;
@@ -46,12 +45,25 @@ fragmentDefinition
 ;
 @| fragmentDefinition @}
 
+@d Bison type definitions
+@{@%
+%type <m_documentPart> fragmentDefinition
+@}
+
 @d \classDeclaration{fragmentDefinition}
 @{@%
 class fragmentDefinition : public documentPart {
 private:
+    documentPart* m_fragmentName; 
+    documentPart* m_scrap;
 public:
-fragmentDefinition(
+    fragmentDefinition(documentPart* l_fragmentName, documentPart* l_scrap) : m_fragmentName(l_fragmentName), m_scrap(l_scrap){
+    }
+    virtual std::string texUtf8(void) const override {
+        std::string returnString;
+        throw std::runtime_error("fragmentDefinition::texUtf8() not implemented!\n");
+        return returnString;
+    }
 };
 @| fragmentDefinition @}
 
@@ -110,11 +122,13 @@ enum fragmentType m_fragmentType;
 fragmentNameDefinition
     : fragmentNamePartDefinition
     {
-        $$ = $fragmentNamePartDefinition;
+        $$ = new documentPart();
+        $$->push_back($fragmentNamePartDefinition);
     }
-    | fragmentNameDefinition fragmentNamePartDefinition
+    | fragmentNameDefinition[l_fragmentNameDefinition] fragmentNamePartDefinition
     {
-        throw std::runtime_error("fragmentName fragmentNamePart not implemented!\n");
+        $l_fragmentNameDefinition->push_back($fragmentNamePartDefinition);
+        $$ = $l_fragmentNameDefinition;
     }
 ;
 @| fragmentNameDefinition @}

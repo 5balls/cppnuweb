@@ -23,6 +23,7 @@
 
 @d \classDeclaration{escapeCharacterDocumentPart}
 @{
+class escapeCharacterDocumentPart : public documentPart {
 private:
     static std::string m_escapementString;
 public:
@@ -34,6 +35,7 @@ public:
     virtual std::string texUtf8(void) const override {
         return m_escapementString;
     }
+};
 @}
 
 @d \staticDefinitions{escapeCharacterDocumentPart}

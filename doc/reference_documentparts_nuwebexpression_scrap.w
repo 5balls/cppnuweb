@@ -53,18 +53,36 @@ scrap
 ;
 @| scrap @}
 
+@d \classDeclaration{scrap}
+@{@%
+class scrap : public documentPart {
+public:
+    scrap(const scrap&) = delete;
+    scrap(scrap&& l_scrap) : documentPart(std::move(l_scrap)){
+    }
+    scrap(documentPart* l_documentPart) : documentPart(l_documentPart){
+    }
+};
+@| scrap @}
+
+@d Bison union definitions
+@{@%
+scrap* m_scrap;
+@| m_scrap @}
+
 @d Bison type definitions
-@{%type <m_documentPart> scrap
+@{@%
+%type <m_scrap> scrap
 @}
 
 @d \classDeclaration{scrapVerbatim}
-@{
+@{@%
+class scrapVerbatim : public scrap {
 public:
     scrapVerbatim(const scrapVerbatim&) = delete;
-    scrapVerbatim(scrapVerbatim&& l_scrapVerbatim) : documentPart(std::move(l_scrapVerbatim)) {
+    scrapVerbatim(scrapVerbatim&& l_scrapVerbatim) : scrap(std::move(l_scrapVerbatim)) {
     }
-
-    scrapVerbatim(documentPart* l_documentPart) : documentPart(l_documentPart){
+    scrapVerbatim(documentPart* l_documentPart) : scrap(l_documentPart) {
     }
     virtual std::string texUtf8(void) const override {
         std::stringstream documentLines(documentPart::texUtf8());
@@ -74,6 +92,7 @@ public:
             returnString += "\\lstinline@@" + documentLine + "@@\n";
         return returnString;
     }
+};
 @}
 
 

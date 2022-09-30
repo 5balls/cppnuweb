@@ -113,13 +113,11 @@ namespace nuweb {
 @<\classDeclaration{outputFile}@>
 @<End of class@>
 
-@<Start of class @'escapeCharacterDocumentPart@' public @'documentPart@'@>
 @<\classDeclaration{escapeCharacterDocumentPart}@>
-@<End of class@>
-
-@<Start of class @'scrapVerbatim@' public @'documentPart@'@>
+@<\classDeclaration{scrap}@>
 @<\classDeclaration{scrapVerbatim}@>
-@<End of class@>
+
+@<\classDeclaration{fragmentDefinition}@>
 
 @<Start of class @'fragmentNamePartDefinition@' public @'documentPart@'@>
 @<\classDeclaration{fragmentNamePartDefinition}@>
