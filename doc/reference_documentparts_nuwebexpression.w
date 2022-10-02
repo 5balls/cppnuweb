@@ -48,7 +48,7 @@ nuwebExpression
     }
     | fragmentDefinition
     {
-        throw std::runtime_error("fragmentDefinition in nuwebExpression not implemented\n");
+        $$ = $fragmentDefinition;
     }
     | AT_SMALL_F
     {

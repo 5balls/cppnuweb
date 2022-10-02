@@ -90,7 +90,7 @@ So let's go ahead and write this helper class.
 @<Start of class @'helpLexer@' public @'yyFlexLexer@'@>
 private:
     yy::parser::semantic_type* yylvalue;
-    std::vector<std::string> filenameStack;
+    std::vector<std::string> filenameStack = {};
     std::istringstream* utf8Stream;
     int yylex(void);
     @<Implementation of additional helpLexer functions@>

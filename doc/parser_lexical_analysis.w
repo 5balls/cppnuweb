@@ -30,11 +30,11 @@ We try to use the Flex and Bison programs to create our parser.
 #include "../../src/file.h"
 
 #define DDEBUG_LEXER(X) std::cout << X << "[" << filenameStack.back() << ":" << lineno() << "," << columno() << "](" << str() << "){" << file::byName(filenameStack.back())->utf8() << "}"; std::cout.flush();
-#define DEBUG_LEXER(X) std::cout << X << "[" << filenameStack.back() << ":" << lineno() << "," << columno() << "](" << str() << ")"; std::cout.flush();
+#define DEBUG_LEXER(X) std::string filename = filenameStack.empty() > 0 ? filenameStack.back() : ""; return 0;//std::cout << X << "[" << filename << ":" << lineno() << "," << columno() << "](" << str() << ")"; std::cout.flush();
 #define TOKEN(X) yylvalue->m_filePosition = new filePosition(filenameStack.back(),lineno(),columno(),lineno_end(),columno_end()); return yy::parser::token::yytokentype::X;
-#define DTOKEN(X) DEBUG_LEXER(#X) yylvalue->m_filePosition = new filePosition(filenameStack.back(),lineno(),columno(),lineno_end(),columno_end()); return yy::parser::token::yytokentype::X;
+#define DTOKEN(X) DEBUG_LEXER(#X) return 0;//yylvalue->m_filePosition = new filePosition(filenameStack.back(),lineno(),columno(),lineno_end(),columno_end()); return yy::parser::token::yytokentype::X;
 #define STRINGTOKEN(X) yylvalue->m_stringValue = new filePositionWithString(std::string(filenameStack.back()),lineno(),columno(),lineno_end(),columno_end(),str()); return yy::parser::token::yytokentype::X;
-#define DSTRINGTOKEN(X) DEBUG_LEXER(#X) yylvalue->m_stringValue = new filePositionWithString(std::string(filenameStack.back()),lineno(),columno(),lineno_end(),columno_end(),str()); return yy::parser::token::yytokentype::X;
+#define DSTRINGTOKEN(X) DEBUG_LEXER(#X) return 0;//yylvalue->m_stringValue = new filePositionWithString(std::string(filenameStack.back()),lineno(),columno(),lineno_end(),columno_end(),str()); return yy::parser::token::yytokentype::X;
 #define DDSTRINGTOKEN(X) DDEBUG_LEXER(#X) yylvalue->m_stringValue = new filePositionWithString(std::string(filenameStack.back()),lineno(),columno(),lineno_end(),columno_end(),str()); return yy::parser::token::yytokentype::X;
 #define INTTOKEN(X,Y) yylvalue->m_intValue = new filePositionWithInt(std::string(filenameStack.back()),lineno(),columno(),lineno_end(),columno_end(),Y); return yy::parser::token::yytokentype::X;
 #define DINTTOKEN(X,Y) DEBUG_LEXER(#X) INTTOKEN(X,Y)

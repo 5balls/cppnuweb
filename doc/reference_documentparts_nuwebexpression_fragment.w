@@ -202,6 +202,7 @@ fragmentNameArgument
     }
     | AT_TICK TEXT_WITHOUT_AT AT_TICK
     {
+        std::cout << "Bison fragmentNameArgument:TEXT_WITHOUT_AT\n" << std::flush;
         throw std::runtime_error("AT_TICK TEXT_WITHOUT_AT AT_TICK not implemented!\n");
     }
     | AT_TICK TEXT_WITHOUT_AT_OR_WHITESPACE AT_TICK
@@ -217,6 +218,7 @@ fragmentNameArgument
 fragmentNameText
     : TEXT_WITHOUT_AT 
     {
+        std::cout << "Bison fragmentNameText:TEXT_WITHOUT_AT\n" << std::flush;
         $$ = new documentPart($TEXT_WITHOUT_AT);
     }
     | AT_AT
