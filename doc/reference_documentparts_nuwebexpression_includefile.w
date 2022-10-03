@@ -34,7 +34,7 @@ Treating include files is interesting, because we do it on the lexer level in th
 \indexFlexRule{INCLUDE_FILE}
 @d Lexer rule for including files
 @{@%
-@@i[ ][^\n]+ { DEBUG_LEXER("INCLUDE_FILE") include_file(); return yy::parser::token::yytokentype::INCLUDE_FILE; }@| INCLUDE_FILE @}
+@@i[ ][^\n]+ { include_file(); return yy::parser::token::yytokentype::INCLUDE_FILE; }@| INCLUDE_FILE @}
 
 Token\footnote{\begin{samepage}\noindent Token:@d Bison token definitions
 @{%token INCLUDE_FILE
