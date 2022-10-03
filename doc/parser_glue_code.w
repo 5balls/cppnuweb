@@ -90,6 +90,8 @@ private:
 public:
     helpLexer(std::istream* inputStream, std::ostream* outputStream) : yyFlexLexer(inputStream, outputStream) {
     }
+    helpLexer(std::istream* inputStream) : yyFlexLexer(inputStream) {
+    }
     helpLexer(std::string inputString) : yyFlexLexer(inputString) {
     }
     int yylex(yy::parser::semantic_type& yylval) override;

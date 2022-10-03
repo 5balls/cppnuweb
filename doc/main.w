@@ -48,7 +48,8 @@ int main(int argc, char *argv[])
         std::cout << "Entry string \"" << entryString << "\"" <<  std::endl;
         document* nuwebAstEntry = nullptr;
 #ifdef REFLEX
-        helpLexer* lexer = new helpLexer(entryString); 
+        std::stringstream entryStream(entryString);
+        helpLexer* lexer = new helpLexer(&entryStream);
         std::cout << "Lexer " << lexer << std::endl;
 #else
         helpLexer* lexer = new helpLexer(std::stringstream(entryString), std::cout); 
