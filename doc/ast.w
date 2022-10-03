@@ -137,9 +137,14 @@ std::string nuweb::documentPart::utf8(void) const{
     if(empty()){
         // Line numbers in lex start by one, internally we start at 0, so we
         // have to substract one here:
-        file* l_file = file::byName(m_filePosition->m_filename);
-        return l_file->utf8({{m_filePosition->m_line-1,m_filePosition->m_column},
-                {m_filePosition->m_line_end-1,m_filePosition->m_column_end}});
+        std::string filename = m_filePosition->m_filename;
+        if(filename.empty())
+            return "";
+        else {
+            file* l_file = file::byName(filename);
+            return l_file->utf8({{m_filePosition->m_line-1,m_filePosition->m_column},
+                    {m_filePosition->m_line_end-1,m_filePosition->m_column_end}});
+        }
     }
     else{
         std::string returnString;
@@ -155,7 +160,15 @@ std::string nuweb::documentPart::utf8(void) const{
 @d \classImplementation{documentPart}
 @{
 std::string nuweb::documentPart::texUtf8() const{
-    return utf8();
+    std::cout << "documentPart::texUtf8\n";
+    if(empty())
+        return utf8();
+    else{
+        std::string returnString;
+        for(auto& documentPart: *this)
+            returnString += documentPart->texUtf8();
+        return returnString;
+    }
 };
 @| texUtf8 @}
 

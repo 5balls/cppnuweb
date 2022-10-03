@@ -54,9 +54,11 @@ int main(int argc, char *argv[])
 #endif
         yy::parser* parser = new yy::parser(lexer,&nuwebAstEntry);
         int parserReturnValue = parser->parse();
-        std::cout << "Parser returned " << parserReturnValue << std::endl;
         delete parser;
         delete lexer;
+
+        std::cout << "Document contains " << std::to_string(nuwebAstEntry->size()) << " parts\n";
+        std::cout << "\"" + nuwebAstEntry->texUtf8() + "\"\n";
         return EXIT_SUCCESS;
     }    
     catch(std::runtime_error& e){

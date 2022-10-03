@@ -60,6 +60,7 @@ public:
     fragmentDefinition(documentPart* l_fragmentName, documentPart* l_scrap) : m_fragmentName(l_fragmentName), m_scrap(l_scrap){
     }
     virtual std::string texUtf8(void) const override {
+        std::cout << "fragmentDefinition::texUtf8\n";
         std::string returnString;
         throw std::runtime_error("fragmentDefinition::texUtf8() not implemented!\n");
         return returnString;
@@ -181,6 +182,7 @@ public:
                 return utf8() == toCompareWith.utf8();
     }
     virtual std::string texUtf8() const override {
+        std::cout << "fragmentNamePartDefinition::texUtf8\n";
         if(m_isArgument)
             return "\\hbox{\\slshape\\sffamily " + utf8() + "\\/}";
         else

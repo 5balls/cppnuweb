@@ -85,6 +85,7 @@ public:
     scrapVerbatim(documentPart* l_documentPart) : scrap(l_documentPart) {
     }
     virtual std::string texUtf8(void) const override {
+        std::cout << "scrapVerbatim::texUtf8\n";
         std::stringstream documentLines(documentPart::texUtf8());
         std::string documentLine;
         std::string returnString;
