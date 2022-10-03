@@ -236,7 +236,6 @@ fragmentNameText
 @{%type <m_documentPart> fragmentNameText;
 @} 
 
-
 @d Bison rules
 @{
 fragmentNameArgumentOld

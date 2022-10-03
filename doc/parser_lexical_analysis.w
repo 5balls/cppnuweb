@@ -23,14 +23,18 @@ We try to use the Flex and Bison programs to create our parser.
 \codebisonflex
 @O ../src/nuweb.l
 @{
-%{
+%top{
 #include <iostream>
-#include "../../src/helplexer.h"
-#include "parser.hpp"
-#include "../../src/file.h"
+#include "parser.h"
+#include "file.h"
+}
+
+%{
+
+#include "helplexer.h"
 
 #define DDEBUG_LEXER(X) std::cout << X << "[" << filenameStack.back() << ":" << lineno() << "," << columno() << "](" << str() << "){" << file::byName(filenameStack.back())->utf8() << "}"; std::cout.flush();
-#define DEBUG_LEXER(X) std::string filename = filenameStack.empty() > 0 ? filenameStack.back() : ""; return 0;//std::cout << X << "[" << filename << ":" << lineno() << "," << columno() << "](" << str() << ")"; std::cout.flush();
+#define DEBUG_LEXER(X) std::cout << X << ": \"" << str() << "\"\n"; return 0;std::string filename = filenameStack.empty() > 0 ? filenameStack.back() : ""; return 0;//std::cout << X << "[" << filename << ":" << lineno() << "," << columno() << "](" << str() << ")"; std::cout.flush();
 #define TOKEN(X) yylvalue->m_filePosition = new filePosition(filenameStack.back(),lineno(),columno(),lineno_end(),columno_end()); return yy::parser::token::yytokentype::X;
 #define DTOKEN(X) DEBUG_LEXER(#X) return 0;//yylvalue->m_filePosition = new filePosition(filenameStack.back(),lineno(),columno(),lineno_end(),columno_end()); return yy::parser::token::yytokentype::X;
 #define STRINGTOKEN(X) yylvalue->m_stringValue = new filePositionWithString(std::string(filenameStack.back()),lineno(),columno(),lineno_end(),columno_end(),str()); return yy::parser::token::yytokentype::X;

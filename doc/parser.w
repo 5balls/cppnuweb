@@ -47,6 +47,5 @@ The following rules are used to create the parser for nuweb. They also define a 
 @<Bison rules@>
 %%
  /* code */
-@<Function definition for int yylex(yy::parser::semantic_type* yylvalue);@>
 @}
 

@@ -3,4 +3,5 @@
 *.l
 *.y
 *.swp
+*.output
 CMakeLists.txt

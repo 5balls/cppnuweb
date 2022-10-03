@@ -33,9 +33,8 @@ Treating include files is interesting, because we do it on the lexer level in th
 
 \indexFlexRule{INCLUDE_FILE}
 @d Lexer rule for including files
-@{
-<INITIAL>@@i[ ][^\n]+ { include_file(); return yy::parser::token::yytokentype::INCLUDE_FILE; }
-@| INCLUDE_FILE @}
+@{@%
+@@i[ ][^\n]+ { DEBUG_LEXER("INCLUDE_FILE") include_file(); return yy::parser::token::yytokentype::INCLUDE_FILE; }@| INCLUDE_FILE @}
 
 Token\footnote{\begin{samepage}\noindent Token:@d Bison token definitions
 @{%token INCLUDE_FILE
@@ -49,6 +48,7 @@ Now let's get to the magic function \codecpp\lstinline{include_file()}:
 @D Implementation of additional helpLexer functions
 @{
 void include_file(){
+    std::cout << "helpLexer::include_file\n" << std::flush;
     // @xinclude_file_1@x Get filename:
     std::string filename = std::string(yytext, yyleng);
     // @xinclude_file_2@x Remove '@@i '
@@ -86,6 +86,7 @@ Of course once we are finished with reading this file we have to pop the last fi
 @D Implementation of additional helpLexer functions
 @{
 bool end_of_file(){
+    std::cout << "helpLexer::end_of_file\n" << std::flush;
     // @xend_of_file1@x Return to the previous Matcher:
     pop_matcher();
     // @xend_of_file2@x Delete the istringstream allocated in include_file(): 
@@ -94,7 +95,10 @@ bool end_of_file(){
         utf8Stream = nullptr;
     }
     // @xend_of_file3@x Pop the filename of the just closed file from the stack:
-    filenameStack.pop_back();
+    if(!filenameStack.empty())
+    {
+        filenameStack.pop_back();
+    }
     bool b_stackEmpty = filenameStack.empty();
     // @xend_of_file4@x If the filename stack is empty add an empty filename to behave well:
     if(b_stackEmpty){

@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     }
     try{
         std::string entryString = "@@i " + std::string(argv[argc-1]);
-        std::cout << "Entry string " << entryString << std::endl;
+        std::cout << "Entry string \"" << entryString << "\"" <<  std::endl;
         document* nuwebAstEntry = nullptr;
 #ifdef REFLEX
         helpLexer* lexer = new helpLexer(entryString); 

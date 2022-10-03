@@ -99,17 +99,18 @@ add_definitions(
 @{
 @<Requirements for CMakeLists.txt@>
 
-BISON_TARGET(MyParser nuweb.y ${CMAKE_CURRENT_BINARY_DIR}/parser.cpp
+BISON_TARGET(MyParser nuweb.y ${CMAKE_CURRENT_BINARY_DIR}/../../src/parser.cpp
+        DEFINES_FILE ${CMAKE_CURRENT_BINARY_DIR}/../../src/parser.h
         COMPILE_FLAGS "-v -Wcounterexamples")
 if(REFLEX)
-  set(FLEX_MyLexer_OUTPUTS ${CMAKE_CURRENT_BINARY_DIR}/lexer.cpp)
+  set(FLEX_MyLexer_OUTPUTS ${CMAKE_CURRENT_BINARY_DIR}/../../src/lexer.cpp)
   add_custom_command(OUTPUT ${FLEX_MyLexer_OUTPUTS}
-    COMMAND reflex -o lexer.cpp ../../src/nuweb.l --header-file
-    MAIN_DEPENDENCY ../../src/nuweb.l
+    COMMAND reflex --bison-cc -o ${CMAKE_CURRENT_BINARY_DIR}/../../src/lexer.cpp ${CMAKE_CURRENT_BINARY_DIR}/../../src/nuweb.l --header-file=${CMAKE_CURRENT_BINARY_DIR}/../../src/lexer.h
+    MAIN_DEPENDENCY ${CMAKE_CURRENT_BINARY_DIR}/../../src/nuweb.l
     COMMENT "[REFLEX] Building lexer..."
   )
 else()
-  FLEX_TARGET(MyLexer nuweb.l ${CMAKE_CURRENT_BINARY_DIR}/lexer.cpp)
+  FLEX_TARGET(MyLexer nuweb.l ${CMAKE_CURRENT_BINARY_DIR}/../../src/lexer.cpp)
   ADD_FLEX_BISON_DEPENDENCY(MyLexer MyParser)
 endif()
 
