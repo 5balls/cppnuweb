@@ -105,6 +105,27 @@ class document : public documentPart {
 public:
     document(void) : documentPart() {
     }
+    std::string texUtf8(void) const override {
+        std::cout << "document::texUtf8\n";
+        std::string returnString = R"definitions(\newcommand{\NWtarget}[2]{#2}
+\newcommand{\NWlink}[2]{#2}
+\newcommand{\NWtxtMacroDefBy}{Fragment defined by}
+\newcommand{\NWtxtMacroRefIn}{Fragment referenced in}
+\newcommand{\NWtxtMacroNoRef}{Fragment never referenced}
+\newcommand{\NWtxtDefBy}{Defined by}
+\newcommand{\NWtxtRefIn}{Referenced in}
+\newcommand{\NWtxtNoRef}{Not referenced}
+\newcommand{\NWtxtFileDefBy}{File defined by}
+\newcommand{\NWtxtIdentsUsed}{Uses:}
+\newcommand{\NWtxtIdentsNotUsed}{Never used}
+\newcommand{\NWtxtIdentsDefed}{Defines:}
+\newcommand{\NWsep}{${\diamond}$}
+\newcommand{\NWnotglobal}{(not defined globally)}
+\newcommand{\NWuseHyperlinks}{}
+)definitions";
+        returnString += documentPart::texUtf8();
+        return returnString;
+    }
 };
 @| document addElement @}\indexClass{document}\indexClassMethod{document}{addElement}
 

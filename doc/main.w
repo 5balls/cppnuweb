@@ -22,7 +22,7 @@
 @{
 @<Start of @'MAIN@' header@>
 #include <iostream>
-#include "file.h"
+#include <fstream>
 #include "helplexer.h"
 
 #define STRINGIFY(x) #x
@@ -44,21 +44,23 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
     try{
-        std::string entryString = "@@i " + std::string(argv[argc-1]);
+        std::string filename = std::string(argv[argc-1]);
         document* nuwebAstEntry = nullptr;
-#ifdef REFLEX
-        std::stringstream entryStream(entryString);
+        std::stringstream entryStream("@@i " + filename);
         helpLexer* lexer = new helpLexer(&entryStream);
-#else
-        helpLexer* lexer = new helpLexer(std::stringstream(entryString), std::cout); 
-#endif
         yy::parser* parser = new yy::parser(lexer,&nuwebAstEntry);
         int parserReturnValue = parser->parse();
         delete parser;
         delete lexer;
 
         std::cout << "Document contains " << std::to_string(nuwebAstEntry->size()) << " parts\n";
-        std::cout << "\"" + nuwebAstEntry->texUtf8() + "\"\n";
+        std::ofstream texFile;
+        std::string texFileName = filename.substr(0,filename.find_last_of('.')) + "_dbg.tex";
+        texFile.open(texFileName);
+        std::string texContent = nuwebAstEntry->texUtf8();
+        texFile  << texContent + "\n";
+        texFile.close();
+        std::cout << "Wrote \"" + texContent + "\" to file\n";
         return EXIT_SUCCESS;
     }    
     catch(std::runtime_error& e){

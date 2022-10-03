@@ -35,14 +35,17 @@ All of those are creating an \codecpp\lstinline{documentPart} object.
 texCode
     : TEXT_WITHOUT_AT
     {
+        std::cout << "Bison texCode::TEXT_WITHOUT_AT\n";
         $$ = new documentPart($TEXT_WITHOUT_AT);
     }
     | WHITESPACE
     {
+        std::cout << "Bison texCode::WHITESPACE\n";
         $$ = new documentPart($WHITESPACE);
     }
     | TEXT_WITHOUT_AT_OR_WHITESPACE
     {
+        std::cout << "Bison texCode::TEXT_WITHOUT_AT_OR_WHITESPACE\n";
         $$ = new documentPart($TEXT_WITHOUT_AT_OR_WHITESPACE);
     }
 ;

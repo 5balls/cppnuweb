@@ -54,19 +54,46 @@ fragmentDefinition
 @{@%
 class fragmentDefinition : public documentPart {
 private:
+    static unsigned int m_scrapNumber;
     documentPart* m_fragmentName; 
     documentPart* m_scrap;
+    unsigned int m_currentScrapNumber;
 public:
-    fragmentDefinition(documentPart* l_fragmentName, documentPart* l_scrap) : m_fragmentName(l_fragmentName), m_scrap(l_scrap){
+    fragmentDefinition(documentPart* l_fragmentName, documentPart* l_scrap) : m_fragmentName(l_fragmentName), m_scrap(l_scrap), m_currentScrapNumber(++m_scrapNumber){
     }
     virtual std::string texUtf8(void) const override {
         std::cout << "fragmentDefinition::texUtf8\n";
-        std::string returnString;
-        throw std::runtime_error("fragmentDefinition::texUtf8() not implemented!\n");
+        std::string returnString = R"fragmentStart(\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap)fragmentStart";
+        returnString += std::to_string(m_currentScrapNumber) + "}\\raggedright\\small\n";
+        returnString += "\\NWtarget{nuweb?}{} $\\langle\\,${\\itshape ";
+        returnString += m_fragmentName->texUtf8();
+        returnString += "}\\nobreak\\ {\\footnotesize {?}}$\\,\\rangle\\equiv$\n";
+        returnString += "\\vspace{-1ex}\n";
+        returnString += "\\begin{list}{}{} \\item\n";
+        std::stringstream scrapContents = std::stringstream(m_scrap->utf8());
+        std::string lineString;
+        while(std::getline(scrapContents, lineString))
+            returnString += "\\mbox{}\\verb@@" + lineString + "@@\\\\\n";
+        returnString += "\\end{list}\n";
+        returnString += "\\vspace{-1.5ex}\n";
+        returnString += "\\footnotesize\n";
+        returnString += "\\begin{list}{}{\\setlength{\\itemsep}{-\\parsep}\\setlength{\\itemindent}{-\\leftmargin}}\n";
+        returnString += "\\item {\\NWtxtMacroNoRef}.\n\n";
+        returnString += "\\item{}\n";
+        returnString += "\\end{list}\n";
+        returnString += R"fragmentEnd(\end{minipage}\vspace{4ex}
+\end{flushleft})fragmentEnd";
         return returnString;
     }
 };
 @| fragmentDefinition @}
+
+
+@d \staticDefinitions{fragmentDefinition}
+@{@%
+unsigned int nuweb::fragmentDefinition::m_scrapNumber = 0;
+@}
 
 @d Bison rules
 @{

@@ -26,7 +26,7 @@ public:
     emptyDocumentPart(filePosition* l_filePosition) : documentPart(l_filePosition){
     }
     virtual std::string texUtf8(void) const override {
-        std::cout << "emptyDocumentPart::texUtf8\n";
+        std::cout << "emptyDocumentPart::texUtf8 \"\"\n";
         return "";
     }
 };

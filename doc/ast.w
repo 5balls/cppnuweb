@@ -124,6 +124,7 @@ namespace nuweb {
 #include "documentPart.h"
 
 @<\staticDefinitions{escapeCharacterDocumentPart}@>
+@<\staticDefinitions{fragmentDefinition}@>
 @<\staticDefinitions{fragmentNamePartDefinition}@>
 
 @<\classImplementation{documentPart}@>
@@ -160,13 +161,15 @@ std::string nuweb::documentPart::utf8(void) const{
 @d \classImplementation{documentPart}
 @{
 std::string nuweb::documentPart::texUtf8() const{
-    std::cout << "documentPart::texUtf8\n";
-    if(empty())
+    if(empty()){
+        std::cout << "documentPart::texUtf8 \"" + utf8() + "\"\n";
         return utf8();
+    }
     else{
         std::string returnString;
         for(auto& documentPart: *this)
             returnString += documentPart->texUtf8();
+        std::cout << ">documentPart::texUtf8 \"" + returnString + "\"\n";
         return returnString;
     }
 };

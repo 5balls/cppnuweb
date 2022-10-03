@@ -32,7 +32,7 @@ public:
         m_escapementString = escape_Character;
     };
     virtual std::string texUtf8(void) const override {
-        std::cout << "escapeCharacterDocumentPart::texUtf8 " + m_escapementString + "\n";
+        std::cout << "escapeCharacterDocumentPart::texUtf8 \"" + m_escapementString + "\"\n";
         return m_escapementString;
     }
 };

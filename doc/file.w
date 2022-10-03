@@ -138,6 +138,7 @@ std::string nuweb::indexableText::utf8TillLineEnd(const filePosition& fromHere) 
     try {
         std::string returnString;
         std::string lineString = m_utf8Content.at(fromHere.m_line);
+        if(lineString.empty()) return "";
         std::string::iterator currentStringPosition = lineString.begin();
         std::string::iterator endStringPosition = lineString.end();
         utf8::advance(currentStringPosition, fromHere.m_character, endStringPosition);
@@ -159,11 +160,12 @@ std::string nuweb::indexableText::utf8TillLineEnd(const filePosition& fromHere) 
 std::string nuweb::indexableText::utf8FromLineBeginning(const filePosition& toHere) const {
     std::string returnString;
     std::string lineString = m_utf8Content.at(toHere.m_line);
+    if(lineString.empty()) return "";
     std::string::iterator endStringPosition = lineString.end();
     std::string::iterator currentStringPosition = lineString.begin();
     unsigned int currentCharIndex = 0;
     try {
-       while(currentCharIndex != toHere.m_character){
+       while(currentCharIndex < toHere.m_character){
             uint32_t currentChar = utf8::next(currentStringPosition, endStringPosition);
             utf8::append(currentChar, std::back_inserter(returnString));
             currentCharIndex++;
