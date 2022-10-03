@@ -40,7 +40,6 @@ Here we need to fix a problem. Bison wants to call a function of type ``\lstinli
 %code {
     #include "helplexer.h"
     int yylex(yy::parser::semantic_type* yylvalue, helpLexer* lexer){
-        std::cout << "helpLexer::yylex " << yylvalue << " \n" << std::flush;
         return lexer->yylex(yylvalue);
     };
     void yy::parser::error(const std::string& s){
@@ -96,7 +95,6 @@ public:
     helpLexer(std::string inputString) : yyFlexLexer(inputString) {
     }
     int yylex(yy::parser::semantic_type& yylval) override;
-    /*int yylex(yy::parser::semantic_type& yylvalue);*/
     int yylex(yy::parser::semantic_type* yylvalue) override{
         this->yylvalue = yylvalue;
         return yylex(*yylvalue);

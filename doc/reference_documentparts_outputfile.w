@@ -71,6 +71,7 @@ outputFlags
 \indexClass{outputFile}\todoimplement{Output function for file contents}
 @d \classDeclaration{outputFile}
 @{
+class outputFile: public documentPart {
 private:
     std::string m_filename;
 public:
@@ -78,4 +79,5 @@ public:
         //std::cout << "outputFile";
         std::cout << "outputFile(" << m_filename << ")\n";
     }
+};
 @| outputFile @}

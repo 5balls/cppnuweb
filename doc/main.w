@@ -45,17 +45,14 @@ int main(int argc, char *argv[])
     }
     try{
         std::string entryString = "@@i " + std::string(argv[argc-1]);
-        std::cout << "Entry string \"" << entryString << "\"" <<  std::endl;
         document* nuwebAstEntry = nullptr;
 #ifdef REFLEX
         std::stringstream entryStream(entryString);
         helpLexer* lexer = new helpLexer(&entryStream);
-        std::cout << "Lexer " << lexer << std::endl;
 #else
         helpLexer* lexer = new helpLexer(std::stringstream(entryString), std::cout); 
 #endif
         yy::parser* parser = new yy::parser(lexer,&nuwebAstEntry);
-        std::cout << "Parser " << parser << std::endl;
         int parserReturnValue = parser->parse();
         std::cout << "Parser returned " << parserReturnValue << std::endl;
         delete parser;

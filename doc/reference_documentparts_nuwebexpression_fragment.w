@@ -160,6 +160,7 @@ fragmentNamePartDefinition
 
 @d \classDeclaration{fragmentNamePartDefinition}
 @{@%
+class fragmentNamePartDefinition : public documentPart {
 private:
     bool m_isArgument = false;
     static std::vector<fragmentNamePartDefinition*> m_allFragmentPartDefinitions;
@@ -185,6 +186,7 @@ public:
         else
             return utf8();
     }
+};
 @| fragmentNamePart @}
 
 @d \staticDefinitions{fragmentNamePartDefinition}

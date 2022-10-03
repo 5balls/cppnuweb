@@ -83,9 +83,10 @@ namespace nuweb {
 
 #include "documentPart.h"
 
-@<Start of class @'document@' in namespace @'nuweb@'@>
+namespace nuweb {
 @<\classDeclaration{document}@>
-@<End of class, namespace and header@>
+}
+@<End of header@>
 @}
 
 \subsection{Implementation}
@@ -94,34 +95,23 @@ See @{@<\classDeclaration{document}@>@}.
 \section{Class documentPart and derived classes}
 \subsection{Interface}
 \indexHeader{DOCUMENT\_PART}@O ../src/documentPart.h -d
-@{
+@{@%
 @<Start of @'DOCUMENT_PART@' header@>
-
 #include <vector>
 #include "definitions.h"
 #include "file.h"
 
 namespace nuweb {
 @<\classDeclaration{documentPart}@>
-@<End of class@>
-
-@<Start of class @'emptyDocumentPart@' public @'documentPart@'@>
 @<\classDeclaration{emptyDocumentPart}@>
-@<End of class@>
-
-@<Start of class @'outputFile@' public @'documentPart@'@>
 @<\classDeclaration{outputFile}@>
-@<End of class@>
-
 @<\classDeclaration{escapeCharacterDocumentPart}@>
 @<\classDeclaration{scrap}@>
 @<\classDeclaration{scrapVerbatim}@>
-
 @<\classDeclaration{fragmentDefinition}@>
-
-@<Start of class @'fragmentNamePartDefinition@' public @'documentPart@'@>
 @<\classDeclaration{fragmentNamePartDefinition}@>
-@<End of class, namespace and header@>
+}
+@<End of header@>
 @}
 
 \subsection{Implementation}

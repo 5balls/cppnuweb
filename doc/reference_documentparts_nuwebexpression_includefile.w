@@ -20,13 +20,15 @@ Before going further let's define a ``\codecpp\lstinline{class emptyDocumentPart
 
 \indexClass{emptyDocumentPart}
 @d \classDeclaration{emptyDocumentPart}
-@{
+@{@%
+class emptyDocumentPart : public documentPart {
 public:
     emptyDocumentPart(filePosition* l_filePosition) : documentPart(l_filePosition){
     }
     virtual std::string texUtf8(void) const override {
         return "";
     }
+};
 @| emptyDocumentPart @}
 
 Treating include files is interesting, because we do it on the lexer level in the function \codecpp\lstinline{include_file()}. Bison does not need to know about much more than that we read a file here i.e. we got the string ``\lstinline{@@i <filename>}'' at some point and from now on Bison will get the tokens from that file.
@@ -48,7 +50,6 @@ Now let's get to the magic function \codecpp\lstinline{include_file()}:
 @D Implementation of additional helpLexer functions
 @{
 void include_file(){
-    std::cout << "helpLexer::include_file\n" << std::flush;
     // @xinclude_file_1@x Get filename:
     std::string filename = std::string(yytext, yyleng);
     // @xinclude_file_2@x Remove '@@i '
@@ -86,7 +87,6 @@ Of course once we are finished with reading this file we have to pop the last fi
 @D Implementation of additional helpLexer functions
 @{
 bool end_of_file(){
-    std::cout << "helpLexer::end_of_file\n" << std::flush;
     // @xend_of_file1@x Return to the previous Matcher:
     pop_matcher();
     // @xend_of_file2@x Delete the istringstream allocated in include_file(): 

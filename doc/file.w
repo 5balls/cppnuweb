@@ -48,7 +48,7 @@ Maybe we need the constructor after all:
 @{
 public:
     indexableText() : m_utf8Content({}), m_utf16Content({}){
-        std::cout << "indexableText()\n";
+        //std::cout << "indexableText()\n";
     };
 @}
 

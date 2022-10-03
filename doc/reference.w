@@ -91,7 +91,7 @@ document
     }
     | document[l_document] documentPart
     {
-        $l_document->addElement($documentPart);
+        $l_document->push_back($documentPart);
         $$ = $l_document;
     }
 ;
@@ -101,17 +101,11 @@ Now we have everything needed to define ``\codecpp\lstinline{class document}''. 
 
 @d \classDeclaration{document}
 @{
-private:
-    std::vector<documentPart*> m_documentParts;
+class document : public documentPart {
 public:
-    ~document(void){
-        for(auto* documentPart: m_documentParts)
-            delete documentPart;
-        m_documentParts.clear();
+    document(void) : documentPart() {
     }
-    void addElement(documentPart* l_documentPart){
-        m_documentParts.push_back(l_documentPart);
-    }
+};
 @| document addElement @}\indexClass{document}\indexClassMethod{document}{addElement}
 
 @i reference_documentparts.w

@@ -87,6 +87,7 @@ public:
     }
     virtual std::string utf8() const;
     virtual std::string texUtf8() const;
+};
 @| documentPart utf8 texUtf8 @}
 
 @i reference_documentparts_texcode.w
