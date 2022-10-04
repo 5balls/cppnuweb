@@ -42,6 +42,10 @@ scrap
     {
         $$ = new scrapVerbatim($scrapContents);
     }
+    | AT_CURLY_BRACKET_OPEN scrapContents AT_CURLY_BRACKET_CLOSE WHITESPACE
+    {
+        $$ = new scrapVerbatim($scrapContents);
+    }
     | AT_SQUARE_BRACKET_OPEN scrapContents AT_SQUARE_BRACKET_CLOSE
     {
         throw std::runtime_error("scrap (paragraph)\n");

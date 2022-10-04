@@ -158,6 +158,7 @@ std::string nuweb::indexableText::utf8TillLineEnd(const filePosition& fromHere) 
 @d \classImplementation{indexableText}
 @{
 std::string nuweb::indexableText::utf8FromLineBeginning(const filePosition& toHere) const {
+    if(toHere.m_character == 0) return "";
     std::string returnString;
     std::string lineString = m_utf8Content.at(toHere.m_line);
     if(lineString.empty()) return "";
@@ -165,7 +166,7 @@ std::string nuweb::indexableText::utf8FromLineBeginning(const filePosition& toHe
     std::string::iterator currentStringPosition = lineString.begin();
     unsigned int currentCharIndex = 0;
     try {
-       while(currentCharIndex < toHere.m_character){
+       while(currentCharIndex <= toHere.m_character){
             uint32_t currentChar = utf8::next(currentStringPosition, endStringPosition);
             utf8::append(currentChar, std::back_inserter(returnString));
             currentCharIndex++;
@@ -217,16 +218,21 @@ std::string nuweb::indexableText::utf8(const range& fromTo) const {
     unsigned int lastLine = fromTo.m_to.m_line;
     std::string returnString;
     for(unsigned int lineNumber = firstLine; lineNumber <= lastLine; lineNumber++){
-        if(firstLine == lastLine)
+        if(firstLine == lastLine){
+            std::cout << "1: " << utf8FromToInLine(fromTo) << "\n";
             return utf8FromToInLine(fromTo);
+        }
         if((lineNumber == firstLine) && (fromTo.m_from.m_character > 0)){
+            std::cout << "2: " << utf8TillLineEnd(fromTo.m_from) << "\n";
             returnString += utf8TillLineEnd(fromTo.m_from) + "\n";
             continue;
         }
         if(lineNumber == lastLine){
+            std::cout << "3: " << utf8FromLineBeginning(fromTo.m_to) << "\n";
             returnString += utf8FromLineBeginning(fromTo.m_to) + "\n";
             continue;
         }
+        std::cout << "4: " << m_utf8Content.at(lineNumber) << "\n";
         returnString += m_utf8Content.at(lineNumber) + "\n";
     }
     returnString.pop_back();

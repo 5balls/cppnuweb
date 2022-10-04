@@ -73,8 +73,18 @@ public:
         returnString += "\\begin{list}{}{} \\item\n";
         std::stringstream scrapContents = std::stringstream(m_scrap->utf8());
         std::string lineString;
-        while(std::getline(scrapContents, lineString))
+        bool b_readUntilEnd = false;
+        while(std::getline(scrapContents, lineString)){
             returnString += "\\mbox{}\\verb@@" + lineString + "@@\\\\\n";
+            b_readUntilEnd = (scrapContents.rdstate() == std::ios_base::eofbit);
+        }
+        if(!b_readUntilEnd){
+            returnString += "\\mbox{}\\verb@@@@\\\\\n";
+        }
+        returnString.pop_back();
+        returnString.pop_back();
+        returnString.pop_back();
+        returnString += "{\\NWsep}\n";
         returnString += "\\end{list}\n";
         returnString += "\\vspace{-1.5ex}\n";
         returnString += "\\footnotesize\n";
@@ -139,10 +149,10 @@ enum fragmentType m_fragmentType;
 @| m_fragmentType @}}. We have some simple rules for the fragment commands:
 @d Lexer rules for fragment commands
 @{@%
-<INITIAL>@@d { start(fragmentHeader); DTOKEN(AT_SMALL_D) }
-<INITIAL>@@D { start(fragmentHeader); DTOKEN(AT_LARGE_D) }
-<INITIAL>@@q { start(fragmentHeader); DTOKEN(AT_SMALL_Q) }
-<INITIAL>@@Q { start(fragmentHeader); DTOKEN(AT_LARGE_Q) }
+<INITIAL>@@d[ ] { start(fragmentHeader); DTOKEN(AT_SMALL_D) }
+<INITIAL>@@D[ ] { start(fragmentHeader); DTOKEN(AT_LARGE_D) }
+<INITIAL>@@q[ ] { start(fragmentHeader); DTOKEN(AT_SMALL_Q) }
+<INITIAL>@@Q[ ] { start(fragmentHeader); DTOKEN(AT_LARGE_Q) }
 @| AT_SMALL_D AT_LARGE_D AT_SMALL_Q AT_LARGE_Q @}
 
 @d Bison rules
@@ -247,18 +257,14 @@ fragmentNameArgument
 @d Bison rules
 @{
 fragmentNameText
-    : TEXT_WITHOUT_AT 
+    : TEXT_WITHOUT_AT_OR_NEWLINE 
     {
-        std::cout << "Bison fragmentNameText:TEXT_WITHOUT_AT\n" << std::flush;
-        $$ = new documentPart($TEXT_WITHOUT_AT);
+        std::cout << "Bison fragmentNameText:TEXT_WITHOUT_AT_OR_NEWLINE\n" << std::flush;
+        $$ = new documentPart($TEXT_WITHOUT_AT_OR_NEWLINE);
     }
     | AT_AT
     {
         $$ = new escapeCharacterDocumentPart($AT_AT);
-    }
-    | TEXT_WITHOUT_AT_OR_WHITESPACE
-    {
-        $$ = new documentPart($TEXT_WITHOUT_AT_OR_WHITESPACE);
     }
 ;
 @| fragmentNameText @}

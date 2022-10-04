@@ -38,11 +38,6 @@ texCode
         std::cout << "Bison texCode::TEXT_WITHOUT_AT\n";
         $$ = new documentPart($TEXT_WITHOUT_AT);
     }
-    | WHITESPACE
-    {
-        std::cout << "Bison texCode::WHITESPACE\n";
-        $$ = new documentPart($WHITESPACE);
-    }
     | TEXT_WITHOUT_AT_OR_WHITESPACE
     {
         std::cout << "Bison texCode::TEXT_WITHOUT_AT_OR_WHITESPACE\n";
@@ -57,15 +52,18 @@ We have the following Flex rules for this
 @d Lexer rules for text handling
 @{<outputFileHeader,userIdentifiers>[[:space:]]+  { DTOKEN(WHITESPACE) }
 <outputFileHeader,userIdentifiers>[^@@[:space:]]+ { DTOKEN(TEXT_WITHOUT_AT_OR_WHITESPACE) }
-<INITIAL,scrapContents,fragmentHeader,fragmentExpansion>[^@@]+ { DTOKEN(TEXT_WITHOUT_AT) } @| WHITESPACE TEXT_WITHOUT_AT_OR_WHITESPACE TEXT_WITHOUT_AT @}
+<fragmentHeader>[^@@\n]+ { DTOKEN(TEXT_WITHOUT_AT_OR_NEWLINE) }
+<INITIAL,scrapContents,fragmentExpansion>[^@@]+ { DTOKEN(TEXT_WITHOUT_AT) } @| WHITESPACE TEXT_WITHOUT_AT_OR_WHITESPACE TEXT_WITHOUT_AT TEXT_WITHOUT_AT_OR_NEWLINE @}
 
 and our type definitions\footnote{\begin{samepage}Types (note that \codecpp\lstinline{filePosition} is good enough here as we can get the string part from our internal file buffer list):@d Bison type definitions
 @{%type <m_filePosition> WHITESPACE;
 %type <m_filePosition> TEXT_WITHOUT_AT_OR_WHITESPACE;
+%type <m_filePosition> TEXT_WITHOUT_AT_OR_NEWLINE;
 %type <m_filePosition> TEXT_WITHOUT_AT;
-@| WHITESPACE TEXT_WITHOUT_AT_OR_WHITESPACE TEXT_WITHOUT_AT @}\indexBisonType{WHITESPACE}\indexBisonType{TEXT_WITHOUT_AT_OR_WHITESPACE}\indexBisonType{TEXT_WITHOUT_AT}\end{samepage}} and tokens\footnote{\begin{samepage}Tokens:@d Bison token definitions
+@| WHITESPACE TEXT_WITHOUT_AT_OR_WHITESPACE TEXT_WITHOUT_AT TEXT_WITHOUT_AT_OR_NEWLINE @}\indexBisonType{WHITESPACE}\indexBisonType{TEXT_WITHOUT_AT_OR_WHITESPACE}\indexBisonType{TEXT_WITHOUT_AT}\end{samepage}} and tokens\footnote{\begin{samepage}Tokens:@d Bison token definitions
 @{%token TEXT_WITHOUT_AT_OR_WHITESPACE
 %token WHITESPACE
 %token TEXT_WITHOUT_AT
-@| WHITESPACE TEXT_WITHOUT_AT_OR_WHITESPACE TEXT_WITHOUT_AT @}\end{samepage}}.
+%token TEXT_WITHOUT_AT_OR_NEWLINE
+@| WHITESPACE TEXT_WITHOUT_AT_OR_WHITESPACE TEXT_WITHOUT_AT TEXT_WITHOUT_AT_OR_NEWLINE @}\end{samepage}}.
 
