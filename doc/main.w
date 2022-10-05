@@ -24,6 +24,7 @@
 #include <iostream>
 #include <fstream>
 #include "helplexer.h"
+#include "auxfile.h"
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
@@ -56,6 +57,14 @@ int main(int argc, char *argv[])
         std::cout << "Document contains " << std::to_string(nuwebAstEntry->size()) << " parts\n";
         std::ofstream texFile;
         std::string texFileName = filename.substr(0,filename.find_last_of('.')) + "_dbg.tex";
+        try{
+            std::string auxFileName = filename.substr(0,filename.find_last_of('.')) + "_dbg.aux";
+            nuweb::auxFile l_auxFile(auxFileName);
+        }
+        catch(std::runtime_error& e){
+            std::cout << e.what() << "\n";
+            std::cout << "You'll need to rerun nuweb after running latex\n";
+        }
         texFile.open(texFileName);
         std::string texContent = nuwebAstEntry->texUtf8();
         texFile  << texContent + "\n";

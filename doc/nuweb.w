@@ -30,6 +30,8 @@
 
 @i file.w
 
+@i aux.w
+
 @i parser.w
 
 @i ast.w
