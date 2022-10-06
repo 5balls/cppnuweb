@@ -70,7 +70,7 @@ We try to use the Flex and Bison programs to create our parser.
 <fragmentHeader,fragmentExpansion>@@' {  DTOKEN(AT_TICK) }
 <fragmentHeader,scrapContents>@@[1-9] { DINTTOKEN(AT_NUMBER, std::stoi(std::string(yytext+1, yyleng-1))) }
 <INITIAL,outputFileHeader,fragmentHeader>[@@][{] { start(scrapContents); DTOKEN(AT_CURLY_BRACKET_OPEN) }
-<scrapContents,userIdentifiers>[@@][}] { start(INITIAL); DTOKEN(AT_CURLY_BRACKET_CLOSE) }
+<scrapContents,userIdentifiers>[@@][}][[:space:]]* { start(INITIAL); DTOKEN(AT_CURLY_BRACKET_CLOSE) }
 @| AT_AT MINUS_D AT_SMALL_D AT_LARGE_D AT_SMALL_O AT_LARGE_O AT_SMALL_F AT_ANGLE_BRACKET_OPEN AT_ANGLE_BRACKET_CLOSE AT_TICK AT_NUMBER AT_CURLY_BRACKET_OPEN AT_CURLY_BRACKET_CLOSE @}
 
 @O ../src/nuweb.l

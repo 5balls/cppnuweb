@@ -94,6 +94,7 @@ public:
         returnString += "\\end{list}\n";
         returnString += R"fragmentEnd(\end{minipage}\vspace{4ex}
 \end{flushleft})fragmentEnd";
+        returnString += "\n";
         return returnString;
     }
 };
