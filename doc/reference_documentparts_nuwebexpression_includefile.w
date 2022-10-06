@@ -37,7 +37,7 @@ Treating include files is interesting, because we do it on the lexer level in th
 \indexFlexRule{INCLUDE_FILE}
 @d Lexer rule for including files
 @{@%
-@@i[ ][^\n]+ { include_file(); return yy::parser::token::yytokentype::INCLUDE_FILE; }@| INCLUDE_FILE @}
+@@i[ ][^\n]+[[:space:]]* { include_file(); return yy::parser::token::yytokentype::INCLUDE_FILE; }@| INCLUDE_FILE @}
 
 Token\footnote{\begin{samepage}\noindent Token:@d Bison token definitions
 @{%token INCLUDE_FILE
@@ -55,6 +55,9 @@ void include_file(){
     std::string filename = std::string(yytext, yyleng);
     // @xinclude_file_2@x Remove '@@i '
     filename.erase(filename.begin(), filename.begin()+3);
+    // @xinclude_file_2b@x Remove whitespace
+    std::string whiteSpace = "\n \t\r";
+    while(whiteSpace.find(filename.back()) != std::string::npos) filename.pop_back();
     // @xinclude_file_3@x Return correct values later:
     if(filenameStack.empty())
         yylvalue->m_filePosition = new filePosition("",lineno(),columno(),lineno_end(),columno_end()); 
@@ -76,6 +79,7 @@ This function does the following:
 \begin{itemize}
 \item [@xinclude_file_1@x] Read the filename from the lex value. This will be \lstinline{"@@i examplefile.w"} at this point.
 \item [@xinclude_file_2@x] Extract the filename part by removing the first three characters.
+\item [@xinclude_file_2b@x] Remove the whitespace at the end of the filename.
 \item [@xinclude_file_3@x] We keep a stack of the list of currently processed filenames here. When we close the file we will pop the filename from the stack, therefore this list is different from the static list of filenames kept in the file class itself. Note that we do some trickery when loading the first file (described next) so we give a file position with an empty string when we have an empty stack.
 \item [@xinclude_file_4@x] We read the file using our file class. This class will automatically keep a static list of all objects of this class.
 \item [@xinclude_file_5@x] Now we add the file to our list of filenames here.
