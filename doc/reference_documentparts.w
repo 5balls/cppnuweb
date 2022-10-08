@@ -76,6 +76,7 @@ private:
     filePosition* m_filePosition = nullptr;
     static bool auxFileParsed;
     static bool m_listingsPackageEnabled;
+    static bool m_hyperlinksEnabled;
 public:
     documentPart(const documentPart&) = delete;
     documentPart(void) : std::vector<documentPart*>({}) {
@@ -108,6 +109,12 @@ public:
     static bool listingsPackageEnabled(void){
         return m_listingsPackageEnabled;
     }
+    void setHyperlinksEnabled(bool hyperlinksEnabled){
+        m_hyperlinksEnabled = hyperlinksEnabled;
+    }
+    static bool hyperlinksEnabled(void){
+        return m_hyperlinksEnabled;
+    }
 };
 @| documentPart utf8 texUtf8 @}
 
@@ -115,6 +122,7 @@ public:
 @{@%
 bool nuweb::documentPart::auxFileParsed = false;
 bool nuweb::documentPart::m_listingsPackageEnabled = false;
+bool nuweb::documentPart::m_hyperlinksEnabled = false;
 @}
 
 @i reference_documentparts_texcode.w

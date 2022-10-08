@@ -54,8 +54,8 @@ int main(int argc, char *argv[])
     /*auto versionOption = l_optionParser.add<popl::Value<std::string> >("V","","Provide string as the replacement for the @@v operation.");
     auto suppressScrapList = l_optionParser.add<popl::Switch>("s","","Don’t print list of scraps making up a file at end of each scrap.");
     auto includeCrossReference = l_optionParser.add<popl::Switch>("x","","Include cross-reference numbers in the comments of scraps.");
-    auto hyperrefOptions = l_optionParser.add<popl::Value<std::string> >("h","","Provide options for the hyperref package.");
-    auto hyperLinks = l_optionParser.add<popl::Switch>("r","","Turn on hyperlinks. You must include the —usepackage— options in the text");*/
+    auto hyperrefOptions = l_optionParser.add<popl::Value<std::string> >("h","","Provide options for the hyperref package.");*/
+    auto hyperLinks = l_optionParser.add<popl::Switch>("r","","Turn on hyperlinks. You must include the —usepackage— options in the text");
     l_optionParser.parse(argc, argv);
     if(l_optionParser.non_option_args().size() != 1){
         std::cout << l_optionParser;
@@ -82,6 +82,7 @@ int main(int argc, char *argv[])
     }
     // Set some command line options
     nuwebAstEntry->setListingsPackageEnabled(listingsPackage->is_set());
+    nuwebAstEntry->setHyperlinksEnabled(hyperLinks->is_set());
     // Parse aux file
     try{
         std::string auxFileName = filename.substr(0,filename.find_last_of('.')) + "_dbg.aux";

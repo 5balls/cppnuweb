@@ -107,9 +107,16 @@ public:
     }
     std::string texUtf8(void) const override {
         std::cout << "document::texUtf8\n";
-        std::string returnString = R"definitions(\newcommand{\NWtarget}[2]{#2}
+        std::string returnString;
+        if(hyperlinksEnabled())
+            returnString = R"definitions(\newcommand{\NWtarget}[2]{\hypertarget{#1}{#2}}
+\newcommand{\NWlink}[2]{\hyperlink{#1}{#2}}
+)definitions";
+        else
+            returnString = R"definitions(\newcommand{\NWtarget}[2]{#2}
 \newcommand{\NWlink}[2]{#2}
-\newcommand{\NWtxtMacroDefBy}{Fragment defined by}
+)definitions";
+        returnString += R"definitions(\newcommand{\NWtxtMacroDefBy}{Fragment defined by}
 \newcommand{\NWtxtMacroRefIn}{Fragment referenced in}
 \newcommand{\NWtxtMacroNoRef}{Fragment never referenced}
 \newcommand{\NWtxtDefBy}{Defined by}
