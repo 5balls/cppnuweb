@@ -21,7 +21,15 @@
 outputFile
     : outputCommand WHITESPACE outputFilename WHITESPACE scrap
     {
-        $$ = new outputFile(new documentPart($outputFilename), $scrap);
+        switch($outputCommand){
+            case fragmentType::OUTPUT_FILE:
+                $$ = new outputFile(new documentPart($outputFilename), $scrap);
+                break;
+            case fragmentType::OUTPUT_FILE_PAGEBREAK:
+            default:
+                $$ = new outputFile(new documentPart($outputFilename), $scrap, true);
+                break;
+        }
     }
     | outputCommand WHITESPACE outputFilename WHITESPACE outputFlags WHITESPACE scrap
     {
