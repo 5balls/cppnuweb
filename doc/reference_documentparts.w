@@ -75,6 +75,7 @@ class documentPart: public std::vector<documentPart*> {
 private:
     filePosition* m_filePosition = nullptr;
     static bool auxFileParsed;
+    static bool m_listingsPackageEnabled;
 public:
     documentPart(const documentPart&) = delete;
     documentPart(void) : std::vector<documentPart*>({}) {
@@ -101,12 +102,19 @@ public:
     static bool auxFileWasParsed(void){
         return auxFileParsed;
     }
+    void setListingsPackageEnabled(bool listingsPackageEnabled){
+        m_listingsPackageEnabled = listingsPackageEnabled;
+    }
+    static bool listingsPackageEnabled(void){
+        return m_listingsPackageEnabled;
+    }
 };
 @| documentPart utf8 texUtf8 @}
 
 @d \staticDefinitions{documentPart}
 @{@%
 bool nuweb::documentPart::auxFileParsed = false;
+bool nuweb::documentPart::m_listingsPackageEnabled = false;
 @}
 
 @i reference_documentparts_texcode.w

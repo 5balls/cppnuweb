@@ -89,13 +89,31 @@ public:
     scrapVerbatim(documentPart* l_documentPart) : scrap(l_documentPart) {
     }
     virtual std::string texUtf8(void) const override {
-        std::cout << "scrapVerbatim::texUtf8\n";
         std::stringstream documentLines(documentPart::texUtf8());
         std::string documentLine;
         std::string returnString;
-        //while(std::getline(documentLines,documentLine))
-        //    returnString += "\\lstinline@@" + documentLine + "@@\n";
-        return documentPart::texUtf8();
+        bool b_readUntilEnd = false;
+        if(listingsPackageEnabled()){
+            while(std::getline(documentLines,documentLine)){
+                returnString += "\\mbox{}\\lstinline@@" + documentLine + "@@\\\\\n";
+                b_readUntilEnd = (documentLines.rdstate() == std::ios_base::eofbit);
+            }
+            if(!b_readUntilEnd)
+                returnString += "\\mbox{}\\lstinline@@@@\\\\\n";
+        }
+        else{
+            while(std::getline(documentLines,documentLine)){
+                returnString += "\\mbox{}\\verb@@" + documentLine + "@@\\\\\n";
+                b_readUntilEnd = (documentLines.rdstate() == std::ios_base::eofbit);
+            }
+            if(!b_readUntilEnd)
+                returnString += "\\mbox{}\\verb@@@@\\\\\n";
+        }
+        returnString.pop_back();
+        returnString.pop_back();
+        returnString.pop_back();
+        returnString += "{\\NWsep}\n";
+        return returnString;
     }
 };
 @}

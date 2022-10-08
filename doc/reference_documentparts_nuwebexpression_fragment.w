@@ -156,20 +156,7 @@ public:
         returnString += "}}$\\,\\rangle\\equiv$\n";
         returnString += "\\vspace{-1ex}\n";
         returnString += "\\begin{list}{}{} \\item\n";
-        std::stringstream scrapContents = std::stringstream(m_scrap->texUtf8());
-        std::string lineString;
-        bool b_readUntilEnd = false;
-        while(std::getline(scrapContents, lineString)){
-            returnString += "\\mbox{}\\verb@@" + lineString + "@@\\\\\n";
-            b_readUntilEnd = (scrapContents.rdstate() == std::ios_base::eofbit);
-        }
-        if(!b_readUntilEnd){
-            returnString += "\\mbox{}\\verb@@@@\\\\\n";
-        }
-        returnString.pop_back();
-        returnString.pop_back();
-        returnString.pop_back();
-        returnString += "{\\NWsep}\n";
+        returnString += m_scrap->texUtf8();
         returnString += "\\end{list}\n";
         returnString += "\\vspace{-1.5ex}\n";
         returnString += "\\footnotesize\n";
@@ -511,7 +498,10 @@ public:
         else
             std::cout << "No aux file yet, need to run Latex again!\n" << std::flush;
         returnString += scrapNumber + "}{" + scrapNumber;
-        returnString += "}}$\\,\\rangle$}\\verb@@";
+        if(listingsPackageEnabled())
+            returnString += "}}$\\,\\rangle$}\\lstinline@@";
+        else
+            returnString += "}}$\\,\\rangle$}\\verb@@";
         return returnString;
     }
 };
