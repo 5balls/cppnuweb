@@ -21,7 +21,7 @@
 outputFile
     : outputCommand WHITESPACE outputFilename WHITESPACE scrap
     {
-        throw std::runtime_error("outputCommand\n");
+        $$ = new outputFile(new documentPart($outputFilename), $scrap);
     }
     | outputCommand WHITESPACE outputFilename WHITESPACE outputFlags WHITESPACE scrap
     {
@@ -39,13 +39,18 @@ outputFile
 outputCommand
     : AT_SMALL_O
     {
-        throw std::runtime_error("AT_SMALL_O not implemented!\n");
+        $$ = fragmentType::OUTPUT_FILE;
     }
     | AT_LARGE_O
     {
-        throw std::runtime_error("AT_LARGE_O not implemented!\n");
+        $$ = fragmentType::OUTPUT_FILE_PAGEBREAK;
     }
 ;
+@| outputCommand @}
+
+@d Bison type definitions
+@{@%
+%type <m_fragmentType> outputCommand
 @| outputCommand @}
 
 @d Bison rules
@@ -53,7 +58,7 @@ outputCommand
 outputFilename
     : TEXT_WITHOUT_AT_OR_WHITESPACE
     {
-        throw std::runtime_error("TEXT_WITHOUT_AT_OR_WHITESPACE not implemented!\n");
+        $$ = $TEXT_WITHOUT_AT_OR_WHITESPACE;
     }
 ;
 @| outputFilename @}
@@ -71,13 +76,28 @@ outputFlags
 \indexClass{outputFile}\todoimplement{Output function for file contents}
 @d \classDeclaration{outputFile}
 @{
-class outputFile: public documentPart {
+class outputFile: public fragmentDefinition {
 private:
     std::string m_filename;
 public:
-    outputFile(filePosition* l_filePosition, std::string&& filename) : documentPart(l_filePosition), m_filename(std::move(filename)){
-        //std::cout << "outputFile";
-        std::cout << "outputFile(" << m_filename << ")\n";
+    outputFile(documentPart* l_fileName, documentPart* l_scrap, bool pageBreak = false) : fragmentDefinition(l_fileName, l_scrap, pageBreak) {
+        m_filename = l_fileName->utf8();
+    }
+    virtual std::string headerTexUtf8(void) const override {
+        std::string scrapId = "?";
+        if(documentPart::auxFileWasParsed())
+            scrapId = nuweb::auxFile::scrapId(m_currentScrapNumber);
+        std::string returnString = "\\NWtarget{nuweb";
+        returnString += scrapId;
+        returnString += "}{} \\verb@@\"";
+        returnString += m_fragmentName->texUtf8();
+        returnString += "\"@@\\nobreak\\ {\\footnotesize {";
+        returnString += scrapId;
+        returnString += "}}$\\equiv$\n";
+        return returnString;
+    }
+    virtual std::string referencesTexUtf8(void) const override {
+        return "";
     }
 };
 @| outputFile @}

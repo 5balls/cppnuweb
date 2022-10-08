@@ -105,13 +105,13 @@ See @{@<\classDeclaration{document}@>@}.
 
 namespace nuweb {
 @<\classDeclaration{documentPart}@>
-@<\classDeclaration{outputFile}@>
 @<\classDeclaration{escapeCharacterDocumentPart}@>
 @<\classDeclaration{scrap}@>
 @<\classDeclaration{scrapVerbatim}@>
 @<\classDeclaration{fragmentDefinition}@>
 @<\classDeclaration{fragmentNamePartDefinition}@>
 @<\classDeclaration{fragmentReference}@>
+@<\classDeclaration{outputFile}@>
 @<\classDeclaration{emptyDocumentPart}@>
 }
 @<End of header@>
@@ -168,14 +168,12 @@ std::string nuweb::documentPart::utf8(void) const{
 @{
 std::string nuweb::documentPart::texUtf8() const{
     if(empty()){
-        std::cout << "documentPart::texUtf8 \"" + utf8() + "\"\n";
         return utf8();
     }
     else{
         std::string returnString;
         for(auto& documentPart: *this)
             returnString += documentPart->texUtf8();
-        std::cout << ">documentPart::texUtf8 \"" + returnString + "\"\n";
         return returnString;
     }
 };

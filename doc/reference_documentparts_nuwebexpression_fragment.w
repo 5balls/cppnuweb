@@ -110,7 +110,7 @@ fragmentDefinition
 @d \classDeclaration{fragmentDefinition}
 @{@%
 class fragmentDefinition : public documentPart {
-private:
+protected:
     static unsigned int m_scrapNumber;
     static std::map<unsigned int, fragmentDefinition*> fragmentDefinitions;
     documentPart* m_fragmentName; 
@@ -140,29 +140,21 @@ public:
     documentPart* scrap(void) {
         return m_scrap;
     }
-    virtual std::string texUtf8(void) const override {
+    virtual std::string headerTexUtf8(void) const {
         std::string scrapId = "?";
         if(documentPart::auxFileWasParsed())
             scrapId = nuweb::auxFile::scrapId(m_currentScrapNumber);
-        std::string returnString = "\\begin{flushleft} \\small";
-        if(!m_pageBreak)
-            returnString += "\n\\begin{minipage}{\\linewidth}";
-        returnString += "\\label{scrap";
-        returnString += std::to_string(m_currentScrapNumber) + "}\\raggedright\\small\n";
-        returnString += "\\NWtarget{nuweb";
+        std::string returnString = "\\NWtarget{nuweb";
         returnString += scrapId;
         returnString += "}{} $\\langle\\,${\\itshape ";
         returnString += m_fragmentName->texUtf8();
         returnString += "}\\nobreak\\ {\\footnotesize {";
         returnString += scrapId;
         returnString += "}}$\\,\\rangle\\equiv$\n";
-        returnString += "\\vspace{-1ex}\n";
-        returnString += "\\begin{list}{}{} \\item\n";
-        returnString += m_scrap->texUtf8();
-        returnString += "\\end{list}\n";
-        returnString += "\\vspace{-1.5ex}\n";
-        returnString += "\\footnotesize\n";
-        returnString += "\\begin{list}{}{\\setlength{\\itemsep}{-\\parsep}\\setlength{\\itemindent}{-\\leftmargin}}\n";
+        return returnString;
+    }
+    virtual std::string referencesTexUtf8(void) const {
+        std::string returnString;
         returnString += "\\item ";
         if(m_referencesInScraps.empty())
             returnString += "{\\NWtxtMacroNoRef}";
@@ -187,8 +179,25 @@ public:
                 lastPage = currentPage;
             }
         }
-        returnString += ".\n\n";
-        returnString += "\\item{}\n";
+        returnString += ".\n";
+        return returnString;
+    }
+    virtual std::string texUtf8(void) const override {
+        std::string returnString = "\\begin{flushleft} \\small";
+        if(!m_pageBreak)
+            returnString += "\n\\begin{minipage}{\\linewidth}";
+        returnString += "\\label{scrap";
+        returnString += std::to_string(m_currentScrapNumber) + "}\\raggedright\\small\n";
+        returnString += headerTexUtf8();
+        returnString += "\\vspace{-1ex}\n";
+        returnString += "\\begin{list}{}{} \\item\n";
+        returnString += m_scrap->texUtf8();
+        returnString += "\\end{list}\n";
+        returnString += "\\vspace{-1.5ex}\n";
+        returnString += "\\footnotesize\n";
+        returnString += "\\begin{list}{}{\\setlength{\\itemsep}{-\\parsep}\\setlength{\\itemindent}{-\\leftmargin}}\n";
+        returnString += referencesTexUtf8();
+        returnString += "\n\\item{}\n";
         returnString += "\\end{list}\n";
         if(!m_pageBreak)
             returnString += "\\end{minipage}";
