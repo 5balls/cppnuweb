@@ -29,7 +29,7 @@ A scrap can be typeset in three ways, as verbatim, as paragraph or as math:
 \alt AT\_AT;
 \alt WHITESPACE;
 \alt AT\_NUMBER;
-\alt <fragmentExpansion>;
+\alt <fragmentReference>;
 \end{grammar}
 \caption{BNF for scrap and scrapElement}
 \end{figure}
@@ -93,9 +93,9 @@ public:
         std::stringstream documentLines(documentPart::texUtf8());
         std::string documentLine;
         std::string returnString;
-        while(std::getline(documentLines,documentLine))
-            returnString += "\\lstinline@@" + documentLine + "@@\n";
-        return returnString;
+        //while(std::getline(documentLines,documentLine))
+        //    returnString += "\\lstinline@@" + documentLine + "@@\n";
+        return documentPart::texUtf8();
     }
 };
 @}
@@ -200,9 +200,9 @@ scrapElement
     {
         throw std::runtime_error("AT_NUMBER\n");
     }
-    | fragmentExpansion
+    | fragmentReference
     {
-        throw std::runtime_error("fragmentExpansion\n");
+        $$ = $fragmentReference;
     }
 ;
 @| scrapElement @}

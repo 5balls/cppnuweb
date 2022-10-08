@@ -16,14 +16,71 @@
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 \subsubsection{Fragment}
+\indexBackusNaur{fragmentDefinition}\indexBackusNaur{fragmentCommand}\begin{figure}[ht]
+\begin{grammar}
+<fragmentDefinition> ::= <fragmentCommand> <fragmentNameDefinition> <scrap>;
+\alt <fragmentCommand> <fragmentNameDefinition> WHITESPACE <scrap>;
+
+<fragmentCommand> ::= '@@d ';
+\alt '@@D ';
+\alt '@@q ';
+\alt '@@Q ';
+\end{grammar}
+\caption{BNF for fragmentDefinition and fragmentCommand}
+\end{figure}
+
+\indexBackusNaur{fragmentNameDefinition}\indexBackusNaur{fragmentNamePartDefinition}\indexBackusNaur{fragmentNameText}\indexBackusNaur{fragmentNameArgument}\begin{figure}[ht]
+\begin{grammar}
+<fragmentNameDefinition> ::=  <fragmentNamePartDefinition>+
+
+<fragmentNamePartDefinition> ::= <fragmentNameText>
+\alt <fragmentNameArgument>
+
+<fragmentNameText> ::= TEXT_WITHOUT_AT_OR_NEWLINE
+\alt '@@'
+
+<fragmentNameArgument> ::= '@@\'{}' [TEXT_WITHOUT_AT_OR_NEWLINE] '@@\'{}'
+\end{grammar}
+\caption{BNF for fragmentNameDefinition, fragmentNamePartDefinition, fragmentNameText and fragmentNameArgument}
+\end{figure}
+
+We have the following bison rules for fragments:
 @d Bison rules
+@{@%
+@<\bisonRule{fragmentDefinition}@>
+@<\bisonRule{fragmentCommand}@>
+@<\bisonRule{fragmentNameDefinition}@>
+@<\bisonRule{fragmentNamePartDefinition}@>
+@<\bisonRule{fragmentNameArgument}@>
+@<\bisonRule{fragmentNameText}@>
+@<\bisonRule{fragmentNameArgumentOld}@>
+@<\bisonRule{commaSeparatedFragmentArguments}@>
+@<\bisonRule{commaSeparatedFragmentArgument}@>
+@<\bisonRule{fragmentReference}@>
+@<\bisonRule{fragmentNameReference}@>
+@}
+
+And the following bison type definitions:
+@d Bison type definitions
+@{@%
+@<\bisonTypeDefinition{fragmentDefinition}@>
+@<\bisonTypeDefinition{fragmentNameDefinition}@>
+@<\bisonTypeDefinition{fragmentNamePartDefinition}@>
+@<\bisonTypeDefinition{fragmentCommand}@>
+@<\bisonTypeDefinition{fragmentNameText}@>
+@<\bisonTypeDefinition{fragmentNameReference}@>
+@<\bisonTypeDefinition{fragmentReference}@>
+@}
+
+@d \bisonRule{fragmentDefinition}
 @{
 fragmentDefinition
     : fragmentCommand fragmentNameDefinition scrap
     {
         switch($fragmentCommand){
             case fragmentType::DEFINITION:
-                $$ = new fragmentDefinition($fragmentNameDefinition, $scrap);                break;
+                $$ = new fragmentDefinition($fragmentNameDefinition, $scrap);
+                break;
             case fragmentType::DEFINITION_PAGEBREAK:
                 throw std::runtime_error("fragmentType::DEFINITION_PAGEBREAK not implemented\n");
                 break;
@@ -45,7 +102,7 @@ fragmentDefinition
 ;
 @| fragmentDefinition @}
 
-@d Bison type definitions
+@d \bisonTypeDefinition{fragmentDefinition}
 @{@%
 %type <m_documentPart> fragmentDefinition
 @}
@@ -55,14 +112,35 @@ fragmentDefinition
 class fragmentDefinition : public documentPart {
 private:
     static unsigned int m_scrapNumber;
+    static std::map<unsigned int, fragmentDefinition*> fragmentDefinitions;
     documentPart* m_fragmentName; 
+    unsigned int m_fragmentNameSize;
     documentPart* m_scrap;
     unsigned int m_currentScrapNumber;
+    std::vector<unsigned int> m_referencesInScraps;
 public:
-    fragmentDefinition(documentPart* l_fragmentName, documentPart* l_scrap) : m_fragmentName(l_fragmentName), m_scrap(l_scrap), m_currentScrapNumber(++m_scrapNumber){
+    fragmentDefinition(documentPart* l_fragmentName, documentPart* l_scrap) : m_fragmentName(l_fragmentName), m_scrap(l_scrap), m_currentScrapNumber(++m_scrapNumber), m_fragmentNameSize(m_fragmentName->size()){
+        std::cout << "fragmentDefinition::fragmentDefinition::m_scrapNumber " << m_scrapNumber << "\n";
+        fragmentDefinitions[m_currentScrapNumber] = this;
+    }
+    void addReferenceScrapNumber(unsigned int scrapNumber){
+        if(std::find(m_referencesInScraps.begin(), m_referencesInScraps.end(), scrapNumber) == m_referencesInScraps.end()) 
+            m_referencesInScraps.push_back(scrapNumber);
+        std::sort(m_referencesInScraps.begin(), m_referencesInScraps.end());
+    }
+    static unsigned int totalNumberOfScraps(void) {
+        return m_scrapNumber;
+    }
+    unsigned int scrapNumber(void) {
+        return m_currentScrapNumber;
+    }
+    std::string name(void) {
+        return m_fragmentName->texUtf8();
+    }
+    documentPart* scrap(void) {
+        return m_scrap;
     }
     virtual std::string texUtf8(void) const override {
-        std::cout << "fragmentDefinition::texUtf8\n";
         std::string scrapId = "?";
         if(documentPart::auxFileWasParsed())
             scrapId = nuweb::auxFile::scrapId(m_currentScrapNumber);
@@ -78,7 +156,7 @@ public:
         returnString += "}}$\\,\\rangle\\equiv$\n";
         returnString += "\\vspace{-1ex}\n";
         returnString += "\\begin{list}{}{} \\item\n";
-        std::stringstream scrapContents = std::stringstream(m_scrap->utf8());
+        std::stringstream scrapContents = std::stringstream(m_scrap->texUtf8());
         std::string lineString;
         bool b_readUntilEnd = false;
         while(std::getline(scrapContents, lineString)){
@@ -96,13 +174,57 @@ public:
         returnString += "\\vspace{-1.5ex}\n";
         returnString += "\\footnotesize\n";
         returnString += "\\begin{list}{}{\\setlength{\\itemsep}{-\\parsep}\\setlength{\\itemindent}{-\\leftmargin}}\n";
-        returnString += "\\item {\\NWtxtMacroNoRef}.\n\n";
+        returnString += "\\item ";
+        if(m_referencesInScraps.empty())
+            returnString += "{\\NWtxtMacroNoRef}";
+        else{
+            returnString += "\\NWtxtMacroRefIn\\ ";
+            unsigned int lastPage = 0;
+            for(const auto & referenceInScrap: m_referencesInScraps){
+                std::string scrapId = auxFile::scrapId(referenceInScrap);
+                unsigned int currentPage = auxFile::scrapPage(referenceInScrap);
+                returnString += "\\NWlink{nuweb" + scrapId + "}{";
+                if(lastPage == 0){
+                    returnString += scrapId + "}";
+                    lastPage = currentPage;
+                    continue;
+                }
+                if(currentPage != lastPage){
+                    returnString += ", " + scrapId + "}";
+                    lastPage = currentPage;
+                    continue;
+                }
+                returnString += std::string(1, auxFile::scrapLetter(referenceInScrap)) + "}";
+                lastPage = currentPage;
+            }
+        }
+        returnString += ".\n\n";
         returnString += "\\item{}\n";
         returnString += "\\end{list}\n";
         returnString += R"fragmentEnd(\end{minipage}\vspace{4ex}
 \end{flushleft})fragmentEnd";
         returnString += "\n";
         return returnString;
+    }
+    static fragmentDefinition* fragmentFromFragmentName(const documentPart* fragmentName){
+        std::cout << "fragmentDefinition::fragmentFromFragmentName Trying to resolve \"" << fragmentName->utf8() << "\"";
+        unsigned int fragmentNameSize = fragmentName->size();
+        if(fragmentNameSize == 0) return 0;
+        for(const auto& [currentScrapNumber, fragmentDefinition]: fragmentDefinitions){
+            if(fragmentDefinition->m_fragmentNameSize != fragmentNameSize) continue;
+            bool fragmentNamesIdentical = true;
+            for(unsigned int fragmentNamePart = 0; fragmentNamePart < fragmentNameSize; fragmentNamePart++){
+                if(fragmentDefinition->m_fragmentName->at(fragmentNamePart)->utf8().compare(fragmentName->at(fragmentNamePart)->utf8()) != 0){
+                    fragmentNamesIdentical = false;
+                    break;
+                }
+            }
+            if(!fragmentNamesIdentical) continue;
+            // If we reach here we found the corresponding fragment:
+            return fragmentDefinition;
+        }
+        std::cout << "fragmentDefinition::fragmentFromFragmentName Could not resolve \"" << fragmentName->utf8() << "\"";
+        return nullptr;
     }
 };
 @| fragmentDefinition @}
@@ -111,9 +233,10 @@ public:
 @d \staticDefinitions{fragmentDefinition}
 @{@%
 unsigned int nuweb::fragmentDefinition::m_scrapNumber = 0;
+std::map<unsigned int, nuweb::fragmentDefinition*> nuweb::fragmentDefinition::fragmentDefinitions = {};
 @}
 
-@d Bison rules
+@d \bisonRule{fragmentCommand}
 @{
 fragmentCommand
     : AT_SMALL_D
@@ -148,7 +271,7 @@ enum class fragmentType {
 @| fragmentType @}} for fragmentCommand and the tokens\footnote{Tokens:@d Bison token definitions
 @{@%
 %token AT_SMALL_D AT_LARGE_D AT_SMALL_Q AT_LARGE_Q
-@| AT_SMALL_D AT_LARGE_D AT_SMALL_Q AT_LARGE_Q @}}, the type\footnote{Type:@d Bison type definitions
+@| AT_SMALL_D AT_LARGE_D AT_SMALL_Q AT_LARGE_Q @}}, the type\footnote{Type:@d \bisonTypeDefinition{fragmentCommand}
 @{@%
 %type <m_fragmentType> fragmentCommand
 @| fragmentCommand @}} and the union\footnote{Union:@d Bison union definitions
@@ -163,7 +286,7 @@ enum fragmentType m_fragmentType;
 <INITIAL>@@Q[ ] { start(fragmentHeader); DTOKEN(AT_LARGE_Q) }
 @| AT_SMALL_D AT_LARGE_D AT_SMALL_Q AT_LARGE_Q @}
 
-@d Bison rules
+@d \bisonRule{fragmentNameDefinition}
 @{
 fragmentNameDefinition
     : fragmentNamePartDefinition
@@ -179,13 +302,12 @@ fragmentNameDefinition
 ;
 @| fragmentNameDefinition @}
 
-@d Bison type definitions
+@d \bisonTypeDefinition{fragmentNameDefinition}
 @{@%
 %type <m_documentPart> fragmentNameDefinition
 @}
 
-
-@d Bison rules
+@d \bisonRule{fragmentNamePartDefinition}
 @{
 fragmentNamePartDefinition
     : fragmentNameText
@@ -199,7 +321,7 @@ fragmentNamePartDefinition
 ;
 @| fragmentNamePartDefinition @}
 
-@d Bison type definitions
+@d \bisonTypeDefinition{fragmentNamePartDefinition}
 @{@%
 %type <m_documentPart> fragmentNamePartDefinition
 @| fragmentNamePartDefinition @}
@@ -242,32 +364,27 @@ std::vector<nuweb::fragmentNamePartDefinition*> nuweb::fragmentNamePartDefinitio
 @| m_allFragmentPartDefinitions @}
 
 \indexBisonRuleUsesToken{fragmentNameArgument}{TEXT\_WITHOUT\_AT}\indexBisonRuleUsesToken{fragmentNameArgument}{AT\_TICK}\indexBisonRuleUsesToken{fragmentNameArgument}{TEXT\_WITHOUT\_AT\_OR\_WHITESPACE}
-@d Bison rules
+@d \bisonRule{fragmentNameArgument}
 @{
 fragmentNameArgument
     : AT_TICK AT_TICK
     {
         throw std::runtime_error("AT_TICK AT_TICK not implemented!\n");
     }
-    | AT_TICK TEXT_WITHOUT_AT AT_TICK
+    | AT_TICK TEXT_WITHOUT_AT_OR_NEWLINE AT_TICK
     {
-        std::cout << "Bison fragmentNameArgument:TEXT_WITHOUT_AT\n" << std::flush;
-        throw std::runtime_error("AT_TICK TEXT_WITHOUT_AT AT_TICK not implemented!\n");
-    }
-    | AT_TICK TEXT_WITHOUT_AT_OR_WHITESPACE AT_TICK
-    {
-        throw std::runtime_error("AT_TICK TEXT_WITHOUT_AT_OR_WHITESPACE AT_TICK not implemented!\n");
+        std::cout << "Bison fragmentNameArgument:TEXT_WITHOUT_AT_OR_NEWLINE\n" << std::flush;
+        throw std::runtime_error("AT_TICK TEXT_WITHOUT_AT_OR_NEWLINE AT_TICK not implemented!\n");
     }
 ;
 @| fragmentNameArgument @}
 
 \indexBisonRuleUsesToken{fragmentNameText}{TEXT\_WITHOUT\_AT}\indexBisonRuleUsesToken{fragmentNameText}{AT\_AT}\indexBisonRuleUsesToken{fragmentNameText}{TEXT\_WITHOUT\_AT\_OR\_WHITESPACE}
-@d Bison rules
+@d \bisonRule{fragmentNameText}
 @{
 fragmentNameText
     : TEXT_WITHOUT_AT_OR_NEWLINE 
     {
-        std::cout << "Bison fragmentNameText:TEXT_WITHOUT_AT_OR_NEWLINE\n" << std::flush;
         $$ = new documentPart($TEXT_WITHOUT_AT_OR_NEWLINE);
     }
     | AT_AT
@@ -277,11 +394,11 @@ fragmentNameText
 ;
 @| fragmentNameText @}
 
-@d Bison type definitions
+@d \bisonTypeDefinition{fragmentNameText}
 @{%type <m_documentPart> fragmentNameText;
 @} 
 
-@d Bison rules
+@d \bisonRule{fragmentNameArgumentOld}
 @{
 fragmentNameArgumentOld
     : AT_ROUND_BRACKET_OPEN commaSeparatedFragmentArguments AT_ROUND_BRACKET_CLOSE
@@ -291,7 +408,7 @@ fragmentNameArgumentOld
 ;
 @| fragmentNameArgumentOld @}
 
-@d Bison rules
+@d \bisonRule{commaSeparatedFragmentArguments}
 @{
 commaSeparatedFragmentArguments
     : commaSeparatedFragmentArgument
@@ -306,7 +423,7 @@ commaSeparatedFragmentArguments
 @| commaSeparatedFragmentArguments @}
 
 \indexBisonRuleUsesToken{commaSeparatedFragmentArgument}{TEXT\_WITHOUT\_AT}
-@d Bison rules
+@d \bisonRule{commaSeparatedFragmentArgument}
 @{
 commaSeparatedFragmentArgument
     : TEXT_WITHOUT_AT
@@ -316,25 +433,86 @@ commaSeparatedFragmentArgument
 ;
 @| commaSeparatedFragmentArgument @}
 
-@d Bison rules
+@d \bisonRule{fragmentReference}
 @{@%
-fragmentExpansion
-    : AT_ANGLE_BRACKET_OPEN fragmentNameExpansion AT_ANGLE_BRACKET_CLOSE
+fragmentReference
+    : AT_ANGLE_BRACKET_OPEN fragmentNameReference AT_ANGLE_BRACKET_CLOSE
     {
-        throw std::runtime_error("fragmentExpansion not implemented\n");
+        $$ = $fragmentNameReference;
     }
-    | AT_ANGLE_BRACKET_OPEN fragmentNameExpansion fragmentNameArgumentOld AT_ANGLE_BRACKET_CLOSE
+    | AT_ANGLE_BRACKET_OPEN fragmentNameReference fragmentNameArgumentOld AT_ANGLE_BRACKET_CLOSE
     {
-        throw std::runtime_error("fragmentExpansion with old arguments not implemented\n");
+        throw std::runtime_error("fragmentReference with old arguments not implemented\n");
     }
 ;
-@| fragmentExpansion @}
+@| fragmentReference @}
 
-@d Bison rules
+
+@d Lexer rules for fragment headers and references
 @{@%
-fragmentNameExpansion
-    : %empty
+<scrapContents>@@< { start(fragmentReference); DTOKEN(AT_ANGLE_BRACKET_OPEN) }
+<fragmentReference>@@> { start(scrapContents); DTOKEN(AT_ANGLE_BRACKET_CLOSE) }
+<fragmentHeader,fragmentReference>@@' {  DTOKEN(AT_TICK) }
+<fragmentHeader,scrapContents>@@[1-9] { DINTTOKEN(AT_NUMBER, std::stoi(std::string(yytext+1, yyleng-1))) }
+@}
+
+@d \bisonRule{fragmentNameReference}
+@{@%
+fragmentNameReference
+    : fragmentNameDefinition
     {
-        throw std::runtime_error("fragmentNameExpansion not implemented\n");
+        $$ = new fragmentReference($fragmentNameDefinition);
     }
-@| fragmentNameExpansion @}
+@| fragmentNameReference @}
+
+@d \bisonTypeDefinition{fragmentNameReference}
+@{@%
+%type <m_documentPart> fragmentNameReference
+@}
+
+@d \bisonTypeDefinition{fragmentReference}
+@{@%
+%type <m_documentPart> fragmentReference
+@}
+
+
+@d \classDeclaration{fragmentReference}
+@{@%
+class fragmentReference : public documentPart {
+private:
+    fragmentDefinition* m_fragment;
+    documentPart* m_unresolvedFragmentName;
+    unsigned int m_scrapNumber;
+public:
+    fragmentReference(documentPart* fragmentName) : m_unresolvedFragmentName(nullptr){
+        m_fragment = fragmentDefinition::fragmentFromFragmentName(fragmentName);
+        if(!m_fragment) m_unresolvedFragmentName = fragmentName;
+        m_scrapNumber = fragmentDefinition::totalNumberOfScraps() + 1;
+        if(m_fragment) m_fragment->addReferenceScrapNumber(m_scrapNumber);
+    }
+    virtual std::string utf8(void) const override {
+        fragmentDefinition* fragment = m_fragment;
+        if(!fragment) fragment = fragmentDefinition::fragmentFromFragmentName(m_unresolvedFragmentName);
+        if(!fragment) throw std::runtime_error("Could not resolve fragment \"" + m_unresolvedFragmentName->texUtf8() + "\" in file " + m_unresolvedFragmentName->filePositionString());
+        fragment->addReferenceScrapNumber(m_scrapNumber);
+        return fragment->utf8();
+    }
+    virtual std::string texUtf8(void) const override {
+        fragmentDefinition* fragment = m_fragment;
+        if(!fragment) fragment = fragmentDefinition::fragmentFromFragmentName(m_unresolvedFragmentName);
+        if(!fragment) throw std::runtime_error("Could not resolve fragment \"" + m_unresolvedFragmentName->texUtf8() + "\" in file " + m_unresolvedFragmentName->filePositionString());
+        fragment->addReferenceScrapNumber(m_scrapNumber);
+        std::string returnString = "@@\\hbox{$\\langle\\,${\\itshape ";
+        returnString += fragment->name();
+        returnString += "}\\nobreak\\ {\\footnotesize \\NWlink{nuweb";
+        std::string scrapNumber = "?";
+        if(documentPart::auxFileWasParsed())
+            scrapNumber = auxFile::scrapId(fragment->scrapNumber());
+        else
+            std::cout << "No aux file yet, need to run Latex again!\n" << std::flush;
+        returnString += scrapNumber + "}{" + scrapNumber;
+        returnString += "}}$\\,\\rangle$}\\verb@@";
+        return returnString;
+    }
+};
+@}

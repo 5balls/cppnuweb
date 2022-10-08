@@ -219,20 +219,20 @@ std::string nuweb::indexableText::utf8(const range& fromTo) const {
     std::string returnString;
     for(unsigned int lineNumber = firstLine; lineNumber <= lastLine; lineNumber++){
         if(firstLine == lastLine){
-            std::cout << "1: " << utf8FromToInLine(fromTo) << "\n";
+            //std::cout << "1: " << utf8FromToInLine(fromTo) << "\n";
             return utf8FromToInLine(fromTo);
         }
         if((lineNumber == firstLine) && (fromTo.m_from.m_character > 0)){
-            std::cout << "2: " << utf8TillLineEnd(fromTo.m_from) << "\n";
+            //std::cout << "2: " << utf8TillLineEnd(fromTo.m_from) << "\n";
             returnString += utf8TillLineEnd(fromTo.m_from) + "\n";
             continue;
         }
         if(lineNumber == lastLine){
-            std::cout << "3: " << utf8FromLineBeginning(fromTo.m_to) << "\n";
+            //std::cout << "3: " << utf8FromLineBeginning(fromTo.m_to) << "\n";
             returnString += utf8FromLineBeginning(fromTo.m_to) + "\n";
             continue;
         }
-        std::cout << "4: " << m_utf8Content.at(lineNumber) << "\n";
+        //std::cout << "4: " << m_utf8Content.at(lineNumber) << "\n";
         returnString += m_utf8Content.at(lineNumber) + "\n";
     }
     returnString.pop_back();

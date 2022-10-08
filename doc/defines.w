@@ -123,4 +123,7 @@ literate={ä}{{\"a}}1 {ö}{{\"o}}1 {ü}{{\"u}}1 {é}{{\'e}}1 {—}{{-}}1
 \newcommand{\indexBisonRuleUsesToken}[2]{\index{#2@@\textsl{#2}!Bison rules!#1@@\textsl{#1}}\index{#1@@\textsl{#1}!Terminals!#2@@\textsl{#2}}\codebisonflex}
 \newcommand{\classDeclaration}[1]{Declaration of \normalfont``\codecpp{\lstinline{class #1}}''}
 \newcommand{\classImplementation}[1]{Implementation of \normalfont``\codecpp{\lstinline{class #1}}''}
+\newcommand{\functionPartImplementation}[1]{{\normalfont\codecpp{\lstinline{#1}(...)}}}
 \newcommand{\staticDefinitions}[1]{Static definitions for \normalfont``\codecpp{\lstinline{class #1}}''}
+\newcommand{\bisonRule}[1]{Bison rule for \normalfont``\codebisonflex{\lstinline{#1}}''}
+\newcommand{\bisonTypeDefinition}[1]{Bison type definition for \normalfont``\codebisonflex{\lstinline{#1}}''}

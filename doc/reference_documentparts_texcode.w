@@ -52,8 +52,8 @@ We have the following Flex rules for this
 @d Lexer rules for text handling
 @{<outputFileHeader,userIdentifiers>[[:space:]]+  { DTOKEN(WHITESPACE) }
 <outputFileHeader,userIdentifiers>[^@@[:space:]]+ { DTOKEN(TEXT_WITHOUT_AT_OR_WHITESPACE) }
-<fragmentHeader>[^@@\n]+ { DTOKEN(TEXT_WITHOUT_AT_OR_NEWLINE) }
-<INITIAL,scrapContents,fragmentExpansion>[^@@]+ { DTOKEN(TEXT_WITHOUT_AT) } @| WHITESPACE TEXT_WITHOUT_AT_OR_WHITESPACE TEXT_WITHOUT_AT TEXT_WITHOUT_AT_OR_NEWLINE @}
+<fragmentHeader,fragmentReference>[^@@\n]+ { DTOKEN(TEXT_WITHOUT_AT_OR_NEWLINE) }
+<INITIAL,scrapContents>[^@@]+ { DTOKEN(TEXT_WITHOUT_AT) } @| WHITESPACE TEXT_WITHOUT_AT_OR_WHITESPACE TEXT_WITHOUT_AT TEXT_WITHOUT_AT_OR_NEWLINE @}
 
 and our type definitions\footnote{\begin{samepage}Types (note that \codecpp\lstinline{filePosition} is good enough here as we can get the string part from our internal file buffer list):@d Bison type definitions
 @{%type <m_filePosition> WHITESPACE;

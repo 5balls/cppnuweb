@@ -86,6 +86,13 @@ public:
     documentPart(filePosition* l_filePosition) : m_filePosition(l_filePosition){
         //std::cout << "documentPart[" << m_filePosition.m_filename << ":" << m_filePosition.m_line << "," << m_filePosition.m_column << "|" << m_filePosition.m_line_end << "," << m_filePosition.m_column_end << ").";
     }
+    std::string filePositionString() const {
+        if(empty())
+            return "[" + m_filePosition->m_filename + ":" + std::to_string(m_filePosition->m_line) + "," + std::to_string(m_filePosition->m_column) + "|" + std::to_string(m_filePosition->m_line_end) + "," + std::to_string(m_filePosition->m_column_end) + "]";
+        else{
+            return "[" + this->front()->m_filePosition->m_filename + ":" + std::to_string(this->front()->m_filePosition->m_line) + "," + std::to_string(this->front()->m_filePosition->m_column) + "|" + std::to_string(this->back()->m_filePosition->m_line_end) + "," + std::to_string(this->back()->m_filePosition->m_column_end) + "]";
+        }
+    }
     virtual std::string utf8() const;
     virtual std::string texUtf8() const;
     void setAuxFileParsed(bool wasParsed){

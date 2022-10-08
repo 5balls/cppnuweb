@@ -98,6 +98,7 @@ See @{@<\classDeclaration{document}@>@}.
 @{@%
 @<Start of @'DOCUMENT_PART@' header@>
 #include <vector>
+#include <algorithm>
 #include "definitions.h"
 #include "file.h"
 #include "auxfile.h"
@@ -111,6 +112,7 @@ namespace nuweb {
 @<\classDeclaration{scrapVerbatim}@>
 @<\classDeclaration{fragmentDefinition}@>
 @<\classDeclaration{fragmentNamePartDefinition}@>
+@<\classDeclaration{fragmentReference}@>
 }
 @<End of header@>
 @}
@@ -140,12 +142,13 @@ std::string nuweb::documentPart::utf8(void) const{
     if(empty()){
         // Line numbers in lex start by one, internally we start at 0, so we
         // have to substract one here:
+        if(!m_filePosition) throw std::runtime_error("Internal error: documentPart without file pointer!");
         std::string filename = m_filePosition->m_filename;
         if(filename.empty())
             return "";
         else {
             file* l_file = file::byName(filename);
-            std::cout << "File access in \"" << m_filePosition->m_filename << "\": " << m_filePosition->m_line-1 << "," << m_filePosition->m_column << " " << m_filePosition->m_line_end-1 << "," << m_filePosition->m_column_end << "\n";
+            //std::cout << "File access in \"" << m_filePosition->m_filename << "\": " << m_filePosition->m_line-1 << "," << m_filePosition->m_column << " " << m_filePosition->m_line_end-1 << "," << m_filePosition->m_column_end << "\n";
             return l_file->utf8({{m_filePosition->m_line-1,m_filePosition->m_column},
                     {m_filePosition->m_line_end-1,m_filePosition->m_column_end}});
         }
