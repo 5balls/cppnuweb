@@ -22,16 +22,16 @@ The aux file is created by \LaTeX.
 @{
 class auxFile : public file {
 private:
-    static std::map<unsigned int, unsigned int> m_scrapPages;
+    static std::map<unsigned int, std::string> m_scrapIds;
 public:
     auxFile(std::string filename);
-    static unsigned int scrapPage(unsigned int scrapNumber);
+    static std::string scrapId(unsigned int scrapNumber);
 };
 @}
 
 @d \staticDefinitions{auxFile}
 @{@%
-std::map<unsigned int, unsigned int> nuweb::auxFile::m_scrapPages = {};
+    std::map<unsigned int, std::string> nuweb::auxFile::m_scrapIds = {};
 @}
 
 @d \classImplementation{auxFile}
@@ -42,6 +42,8 @@ nuweb::auxFile::auxFile(std::string filename) : nuweb::file(filename) {
     const size_t startStringSize = startString.size();
     const std::string middleString = "}{{";
     const size_t middleStringSize = middleString.size();
+    std::map<unsigned int, unsigned int> scrapPages;
+    std::map<unsigned int, char> scrapLetters;
     for(unsigned int lineNumber = 0; lineNumber < numberOfLines(); lineNumber++)
     {
         std::string line = utf8(lineNumber);
@@ -65,18 +67,34 @@ nuweb::auxFile::auxFile(std::string filename) : nuweb::file(filename) {
         size_t pageNumberEndPosition = line.find_first_not_of(numberCharacters, pageNumberStartPosition);
         if(pageNumberEndPosition == std::string::npos) continue;
         unsigned int pageNumber = std::stoi(line.substr(pageNumberStartPosition, pageNumberEndPosition - pageNumberStartPosition));
-        m_scrapPages[scrapNumber] = pageNumber;
+        scrapPages[scrapNumber] = pageNumber;
+        if((scrapPages.find(scrapNumber-1) != scrapPages.end()) && scrapPages[scrapNumber-1] == pageNumber){
+            if(scrapLetters[scrapNumber-1]=='\0'){
+                scrapLetters[scrapNumber-1] = 'a';
+                m_scrapIds[scrapNumber-1] = std::to_string(scrapPages[scrapNumber]) + 'a'; 
+            }
+            else if(scrapLetters[scrapNumber-1]=='z')
+                throw std::runtime_error("Ran out of scrap letters for page " + std::to_string(scrapPages[scrapNumber]) + "!");
+            scrapLetters[scrapNumber] = scrapLetters[scrapNumber-1] + 1;
+        }
+        else{
+            scrapLetters[scrapNumber] = '\0';
+        }
+        if(scrapLetters[scrapNumber] == '\0')
+            m_scrapIds[scrapNumber] = std::to_string(scrapPages[scrapNumber]);
+        else
+            m_scrapIds[scrapNumber] = std::to_string(scrapPages[scrapNumber]) + scrapLetters[scrapNumber];
     }
 }
 @}
 
 @d \classImplementation{auxFile}
 @{@%
-    unsigned int nuweb::auxFile::scrapPage(unsigned int scrapNumber){
-        if(m_scrapPages.find(scrapNumber) != m_scrapPages.end())
-            return m_scrapPages[scrapNumber];
+    std::string nuweb::auxFile::scrapId(unsigned int scrapNumber){
+        if(m_scrapIds.find(scrapNumber) != m_scrapIds.end())
+            return m_scrapIds[scrapNumber];
         else
-            return 0;
+            return "";
     }
 @}
 
@@ -91,7 +109,7 @@ namespace nuweb {
 @<End of header@>
 @}
 
-@o ../src/auxfile.cpp
+@o ../src/auxfile.cpp -d
 @{@%
 #include "auxfile.h"
 @<\staticDefinitions{auxFile}@>

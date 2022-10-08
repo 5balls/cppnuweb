@@ -78,7 +78,7 @@ namespace nuweb {
 \subsection{Interface}
 \indexHeader{DOCUMENT}
 @O ../src/document.h -d
-@{
+@{@%
 @<Start of @'DOCUMENT@' header@>
 
 #include "documentPart.h"
@@ -100,6 +100,7 @@ See @{@<\classDeclaration{document}@>@}.
 #include <vector>
 #include "definitions.h"
 #include "file.h"
+#include "auxfile.h"
 
 namespace nuweb {
 @<\classDeclaration{documentPart}@>
@@ -123,6 +124,7 @@ namespace nuweb {
 @{
 #include "documentPart.h"
 
+@<\staticDefinitions{documentPart}@>
 @<\staticDefinitions{escapeCharacterDocumentPart}@>
 @<\staticDefinitions{fragmentDefinition}@>
 @<\staticDefinitions{fragmentNamePartDefinition}@>

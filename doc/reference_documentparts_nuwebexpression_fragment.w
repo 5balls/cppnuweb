@@ -63,12 +63,19 @@ public:
     }
     virtual std::string texUtf8(void) const override {
         std::cout << "fragmentDefinition::texUtf8\n";
+        std::string scrapId = "?";
+        if(documentPart::auxFileWasParsed())
+            scrapId = nuweb::auxFile::scrapId(m_currentScrapNumber);
         std::string returnString = R"fragmentStart(\begin{flushleft} \small
 \begin{minipage}{\linewidth}\label{scrap)fragmentStart";
         returnString += std::to_string(m_currentScrapNumber) + "}\\raggedright\\small\n";
-        returnString += "\\NWtarget{nuweb?}{} $\\langle\\,${\\itshape ";
+        returnString += "\\NWtarget{nuweb";
+        returnString += scrapId;
+        returnString += "}{} $\\langle\\,${\\itshape ";
         returnString += m_fragmentName->texUtf8();
-        returnString += "}\\nobreak\\ {\\footnotesize {?}}$\\,\\rangle\\equiv$\n";
+        returnString += "}\\nobreak\\ {\\footnotesize {";
+        returnString += scrapId;
+        returnString += "}}$\\,\\rangle\\equiv$\n";
         returnString += "\\vspace{-1ex}\n";
         returnString += "\\begin{list}{}{} \\item\n";
         std::stringstream scrapContents = std::stringstream(m_scrap->utf8());

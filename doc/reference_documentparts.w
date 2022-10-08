@@ -74,6 +74,7 @@ This is all we need to define our ``\lstinline{class documentPart}''.
 class documentPart: public std::vector<documentPart*> {
 private:
     filePosition* m_filePosition = nullptr;
+    static bool auxFileParsed;
 public:
     documentPart(const documentPart&) = delete;
     documentPart(void) : std::vector<documentPart*>({}) {
@@ -87,8 +88,19 @@ public:
     }
     virtual std::string utf8() const;
     virtual std::string texUtf8() const;
+    void setAuxFileParsed(bool wasParsed){
+        auxFileParsed = wasParsed;
+    }
+    static bool auxFileWasParsed(void){
+        return auxFileParsed;
+    }
 };
 @| documentPart utf8 texUtf8 @}
+
+@d \staticDefinitions{documentPart}
+@{@%
+bool nuweb::documentPart::auxFileParsed = false;
+@}
 
 @i reference_documentparts_texcode.w
 

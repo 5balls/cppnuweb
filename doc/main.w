@@ -60,6 +60,7 @@ int main(int argc, char *argv[])
         try{
             std::string auxFileName = filename.substr(0,filename.find_last_of('.')) + "_dbg.aux";
             nuweb::auxFile l_auxFile(auxFileName);
+            nuwebAstEntry->setAuxFileParsed(true);
         }
         catch(std::runtime_error& e){
             std::cout << e.what() << "\n";
