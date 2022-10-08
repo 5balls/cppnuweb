@@ -38,7 +38,11 @@ A scrap can be typeset in three ways, as verbatim, as paragraph or as math:
 @d Bison rules
 @{
 scrap
-    : AT_CURLY_BRACKET_OPEN scrapContents AT_CURLY_BRACKET_CLOSE
+    : AT_CURLY_BRACKET_OPEN AT_CURLY_BRACKET_CLOSE
+    {
+        $$ = new scrapVerbatim(new emptyDocumentPart());
+    }
+    | AT_CURLY_BRACKET_OPEN scrapContents AT_CURLY_BRACKET_CLOSE
     {
         $$ = new scrapVerbatim($scrapContents);
     }
@@ -84,7 +88,7 @@ scrap* m_scrap;
 class scrapVerbatim : public scrap {
 public:
     scrapVerbatim(const scrapVerbatim&) = delete;
-    scrapVerbatim(scrapVerbatim&& l_scrapVerbatim) : scrap(std::move(l_scrapVerbatim)) {
+    scrapVerbatim(scrapVerbatim&& l_scrapVerbatim) : scrap(std::move(l_scrapVerbatim)){
     }
     scrapVerbatim(documentPart* l_documentPart) : scrap(l_documentPart) {
     }

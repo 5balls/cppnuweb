@@ -23,6 +23,8 @@ Before going further let's define a ``\codecpp\lstinline{class emptyDocumentPart
 @{@%
 class emptyDocumentPart : public documentPart {
 public:
+    emptyDocumentPart() : documentPart(new filePosition()) {
+    }
     emptyDocumentPart(filePosition* l_filePosition) : documentPart(l_filePosition){
     }
     virtual std::string texUtf8(void) const override {

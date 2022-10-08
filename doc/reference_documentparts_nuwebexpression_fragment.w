@@ -82,7 +82,7 @@ fragmentDefinition
                 $$ = new fragmentDefinition($fragmentNameDefinition, $scrap);
                 break;
             case fragmentType::DEFINITION_PAGEBREAK:
-                throw std::runtime_error("fragmentType::DEFINITION_PAGEBREAK not implemented\n");
+                $$ = new fragmentDefinition($fragmentNameDefinition, $scrap, true);
                 break;
             case fragmentType::QUOTED:
                 throw std::runtime_error("fragmentType::QUOTED not implemented\n");
@@ -118,9 +118,9 @@ private:
     documentPart* m_scrap;
     unsigned int m_currentScrapNumber;
     std::vector<unsigned int> m_referencesInScraps;
+    bool m_pageBreak;
 public:
-    fragmentDefinition(documentPart* l_fragmentName, documentPart* l_scrap) : m_fragmentName(l_fragmentName), m_scrap(l_scrap), m_currentScrapNumber(++m_scrapNumber), m_fragmentNameSize(m_fragmentName->size()){
-        std::cout << "fragmentDefinition::fragmentDefinition::m_scrapNumber " << m_scrapNumber << "\n";
+    fragmentDefinition(documentPart* l_fragmentName, documentPart* l_scrap, bool pageBreak = false) : m_fragmentName(l_fragmentName), m_scrap(l_scrap), m_currentScrapNumber(++m_scrapNumber), m_fragmentNameSize(m_fragmentName->size()), m_pageBreak(pageBreak){
         fragmentDefinitions[m_currentScrapNumber] = this;
     }
     void addReferenceScrapNumber(unsigned int scrapNumber){
@@ -144,8 +144,10 @@ public:
         std::string scrapId = "?";
         if(documentPart::auxFileWasParsed())
             scrapId = nuweb::auxFile::scrapId(m_currentScrapNumber);
-        std::string returnString = R"fragmentStart(\begin{flushleft} \small
-\begin{minipage}{\linewidth}\label{scrap)fragmentStart";
+        std::string returnString = "\\begin{flushleft} \\small";
+        if(!m_pageBreak)
+            returnString += "\n\\begin{minipage}{\\linewidth}";
+        returnString += "\\label{scrap";
         returnString += std::to_string(m_currentScrapNumber) + "}\\raggedright\\small\n";
         returnString += "\\NWtarget{nuweb";
         returnString += scrapId;
@@ -188,8 +190,9 @@ public:
         returnString += ".\n\n";
         returnString += "\\item{}\n";
         returnString += "\\end{list}\n";
-        returnString += R"fragmentEnd(\end{minipage}\vspace{4ex}
-\end{flushleft})fragmentEnd";
+        if(!m_pageBreak)
+            returnString += "\\end{minipage}";
+        returnString += "\\vspace{4ex}\n\\end{flushleft}";
         returnString += "\n";
         return returnString;
     }

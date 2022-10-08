@@ -43,8 +43,7 @@ Here we need to fix a problem. Bison wants to call a function of type ``\lstinli
         return lexer->yylex(yylvalue);
     };
     void yy::parser::error(const std::string& s){
-        /* TODO Throw error here */
-        std::cout << "  ERROR: " << s << "\n";
+        throw std::runtime_error("Bison parser error:\n    " + s + "\n");
     };
 }
 @}

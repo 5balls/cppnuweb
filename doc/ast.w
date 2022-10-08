@@ -105,7 +105,6 @@ See @{@<\classDeclaration{document}@>@}.
 
 namespace nuweb {
 @<\classDeclaration{documentPart}@>
-@<\classDeclaration{emptyDocumentPart}@>
 @<\classDeclaration{outputFile}@>
 @<\classDeclaration{escapeCharacterDocumentPart}@>
 @<\classDeclaration{scrap}@>
@@ -113,6 +112,7 @@ namespace nuweb {
 @<\classDeclaration{fragmentDefinition}@>
 @<\classDeclaration{fragmentNamePartDefinition}@>
 @<\classDeclaration{fragmentReference}@>
+@<\classDeclaration{emptyDocumentPart}@>
 }
 @<End of header@>
 @}
