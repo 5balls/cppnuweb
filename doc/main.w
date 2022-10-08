@@ -23,6 +23,7 @@
 @<Start of @'MAIN@' header@>
 #include <iostream>
 #include <fstream>
+#include "popl-1.3.0/include/popl.hpp"
 #include "helplexer.h"
 #include "auxfile.h"
 
@@ -40,42 +41,70 @@
 int main(int argc, char *argv[])
 {
     std::cout << "C++ nuweb (version: " << TOSTRING(CPPNUWEB_VERSION) << ", git: " << TOSTRING(GIT_VERSION) << ")" << std::endl;
-    if(argc<2){
-        std::cout << "Usage: nuweb <flags> <filename>" << std::endl;
+    popl::OptionParser l_optionParser("Usage: nuweb [flags] <filename>");
+    auto showHelp = l_optionParser.add<popl::Switch>("","help","Show this help.");
+    auto suppressGenerationOfTexFile = l_optionParser.add<popl::Switch>("t","no-tex","Don't write the .tex file.");
+    /*auto suppressGenerationOfOutputFiles = l_optionParser.add<popl::Switch>("o","no-output","Don't write output files.");
+    auto forceOverwrite = l_optionParser.add<popl::Switch>("c","","Force overwrite of files.");
+    auto verboseMessages = l_optionParser.add<popl::Switch>("v","verbose","Show verbose processing messages.");
+    auto sequentialScrapNumbering = l_optionParser.add<popl::Switch>("n","","Number scraps sequentially.");
+    auto listDanglingIdentifierReferences = l_optionParser.add<popl::Switch>("d","","Show unresolved identifier references in the indexes.");
+    auto prependPath = l_optionParser.add<popl::Value<std::string> >("p","path","Prepend path to the filenames for all the output files.");
+    auto listingsPackage = l_optionParser.add<popl::Switch>("l","","Use the listings package for formatting scraps.");
+    auto versionOption = l_optionParser.add<popl::Value<std::string> >("V","","Provide string as the replacement for the @@v operation.");
+    auto suppressScrapList = l_optionParser.add<popl::Switch>("s","","Don’t print list of scraps making up a file at end of each scrap.");
+    auto includeCrossReference = l_optionParser.add<popl::Switch>("x","","Include cross-reference numbers in the comments of scraps.");
+    auto hyperrefOptions = l_optionParser.add<popl::Value<std::string> >("h","","Provide options for the hyperref package.");
+    auto hyperLinks = l_optionParser.add<popl::Switch>("r","","Turn on hyperlinks. You must include the —usepackage— options in the text");*/
+    l_optionParser.parse(argc, argv);
+    if(l_optionParser.non_option_args().size() != 1){
+        std::cout << l_optionParser;
         return EXIT_FAILURE;
     }
+    if(showHelp->is_set()){
+        std::cout << l_optionParser;
+        return EXIT_SUCCESS;
+    }
+    std::string filename = l_optionParser.non_option_args().front();
+    document* nuwebAstEntry = nullptr;
+    // Parse nuweb file 
     try{
-        std::string filename = std::string(argv[argc-1]);
-        document* nuwebAstEntry = nullptr;
         std::stringstream entryStream("@@i " + filename);
         helpLexer* lexer = new helpLexer(&entryStream);
         yy::parser* parser = new yy::parser(lexer,&nuwebAstEntry);
         int parserReturnValue = parser->parse();
         delete parser;
         delete lexer;
-
-        std::cout << "Document contains " << std::to_string(nuwebAstEntry->size()) << " parts\n";
-        std::ofstream texFile;
-        std::string texFileName = filename.substr(0,filename.find_last_of('.')) + "_dbg.tex";
-        try{
-            std::string auxFileName = filename.substr(0,filename.find_last_of('.')) + "_dbg.aux";
-            nuweb::auxFile l_auxFile(auxFileName);
-            nuwebAstEntry->setAuxFileParsed(true);
-        }
-        catch(std::runtime_error& e){
-            std::cout << e.what() << "\n";
-            std::cout << "You'll need to rerun nuweb after running latex\n";
-        }
-        texFile.open(texFileName);
-        std::string texContent = nuwebAstEntry->texUtf8();
-        texFile  << texContent + "\n";
-        texFile.close();
-        std::cout << "Wrote \"" + texContent + "\" to file\n";
-        return EXIT_SUCCESS;
-    }    
+    }
     catch(std::runtime_error& e){
         std::cout << "Parsing file \"" + std::string(argv[argc-1]) + "\" failed with error:\n  " << e.what() << std::endl;
         return EXIT_FAILURE;
     }
+    // Parse aux file
+    try{
+        std::string auxFileName = filename.substr(0,filename.find_last_of('.')) + "_dbg.aux";
+        nuweb::auxFile l_auxFile(auxFileName);
+        nuwebAstEntry->setAuxFileParsed(true);
+    }
+    catch(std::runtime_error& e){
+        std::cout << e.what() << "\n";
+        std::cout << "You'll need to rerun nuweb after running latex\n";
+    }
+    if(!suppressGenerationOfTexFile->is_set()){
+        try{
+            std::ofstream texFile;
+            std::string texFileName = filename.substr(0,filename.find_last_of('.')) + "_dbg.tex";
+            texFile.open(texFileName);
+            std::string texContent = nuwebAstEntry->texUtf8();
+            texFile  << texContent + "\n";
+            texFile.close();
+        }    
+        catch(std::runtime_error& e){
+            std::cout << e.what() << "\n";
+            std::cout << "Error when writing .tex file!\n";
+            return EXIT_FAILURE;
+        }
+    }
+    return EXIT_SUCCESS;
 }
 @}
