@@ -44,8 +44,8 @@ int main(int argc, char *argv[])
     popl::OptionParser l_optionParser("Usage: nuweb [flags] <filename>");
     auto showHelp = l_optionParser.add<popl::Switch>("","help","Show this help.");
     auto suppressGenerationOfTexFile = l_optionParser.add<popl::Switch>("t","no-tex","Don't write the .tex file.");
-    /*auto suppressGenerationOfOutputFiles = l_optionParser.add<popl::Switch>("o","no-output","Don't write output files.");
-    auto forceOverwrite = l_optionParser.add<popl::Switch>("c","","Force overwrite of files.");
+    auto suppressGenerationOfOutputFiles = l_optionParser.add<popl::Switch>("o","no-output","Don't write output files.");
+    /*auto forceOverwrite = l_optionParser.add<popl::Switch>("c","","Force overwrite of files.");
     auto verboseMessages = l_optionParser.add<popl::Switch>("v","verbose","Show verbose processing messages.");
     auto sequentialScrapNumbering = l_optionParser.add<popl::Switch>("n","","Number scraps sequentially.");
     auto listDanglingIdentifierReferences = l_optionParser.add<popl::Switch>("d","","Show unresolved identifier references in the indexes.");
@@ -105,6 +105,16 @@ int main(int argc, char *argv[])
         catch(std::runtime_error& e){
             std::cout << e.what() << "\n";
             std::cout << "Error when writing .tex file!\n";
+            return EXIT_FAILURE;
+        }
+    }
+    if(!suppressGenerationOfOutputFiles->is_set()){
+        try{
+            outputFile::writeFiles();
+        }
+        catch(std::runtime_error& e){
+            std::cout << e.what() << "\n";
+            std::cout << "Error when writing output files!\n";
             return EXIT_FAILURE;
         }
     }

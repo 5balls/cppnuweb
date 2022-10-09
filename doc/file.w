@@ -291,19 +291,22 @@ void nuweb::tagableText::addFeature(const std::string& name, const range& l_rang
 namespace nuweb {
 @<\classDeclaration{indexableText}@>
 @<\classDeclaration{tagableText}@>
+@<\classDeclaration{file}@>
+}
+@<End of header@>
 @}
 
 \indexClass{file}
-@O ../src/file.h -d
+@d \classDeclaration{file}
 @{
-@<Start of class @'file@' public @'indexableText@'@>
+class file : public indexableText {
 public:
     file(std::string filename);
     static file* byName(const std::string& filename);
 private:
     std::string m_filename;
     static std::map<std::string, file*> m_allFiles;
-@<End of class, namespace and header@>
+};
 @}
 \subsection{Implementation}
 @O ../src/file.cpp -d

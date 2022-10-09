@@ -107,13 +107,6 @@ fragmentDefinition
 %type <m_documentPart> fragmentDefinition
 @}
 
-@d \staticDefinitions{fragmentDefinition}
-@{@%
-unsigned int nuweb::fragmentDefinition::m_scrapNumber = 0;
-std::map<unsigned int, nuweb::fragmentDefinition*> nuweb::fragmentDefinition::fragmentDefinitions = {};
-std::map<unsigned int, std::vector<unsigned int> > nuweb::fragmentDefinition::m_scrapsDefiningAFragment = {};
-@}
-
 @d \bisonRule{fragmentCommand}
 @{
 fragmentCommand
@@ -203,12 +196,6 @@ fragmentNamePartDefinition
 @{@%
 %type <m_documentPart> fragmentNamePartDefinition
 @| fragmentNamePartDefinition @}
-
-
-@d \staticDefinitions{fragmentNamePartDefinition}
-@{@%
-std::vector<nuweb::fragmentNamePartDefinition*> nuweb::fragmentNamePartDefinition::m_allFragmentPartDefinitions = {};
-@| m_allFragmentPartDefinitions @}
 
 \indexBisonRuleUsesToken{fragmentNameArgument}{TEXT\_WITHOUT\_AT}\indexBisonRuleUsesToken{fragmentNameArgument}{AT\_TICK}\indexBisonRuleUsesToken{fragmentNameArgument}{TEXT\_WITHOUT\_AT\_OR\_WHITESPACE}
 @d \bisonRule{fragmentNameArgument}

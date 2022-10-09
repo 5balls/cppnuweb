@@ -15,20 +15,20 @@
 % You should have received a copy of the GNU Affero General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-\chapter{Abstract Syntax Tree Classes}
-We define some classes for our Abstract Syntax Tree. This correspond mostly to the non terminal expressions in the Bison grammar and are used there to build up the tree.
+\section{Class document}
+\subsection{Interface}
+\indexHeader{DOCUMENT}
+@O ../src/document.h -d
+@{@%
+@<Start of @'DOCUMENT@' header@>
 
-@i ast_definitions.w
+#include "documentPart.h"
 
-@i ast_document.w
-
-@i ast_documentpart.w
-
-@i ast_fragmentdefinition.w
-
-@i ast_fragmentreference.w
-
-@i ast_fragmentnamepartdefinition.w
-
-@i ast_outputfile.w
+namespace nuweb {
+@<\classDeclaration{document}@>
+}
+@<End of header@>
+@}
+\subsection{Implementation}
+See @{@<\classDeclaration{document}@>@}.
 
