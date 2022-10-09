@@ -1,7 +1,7 @@
 *.w linguist-language=CWeb
 file.w linguist-language=C++
 main.w linguist-language=C++
-ast.w linguist-language=C++
+ast*.w linguist-language=C++
 boilerplate.w linguist-language=C++
 parser_glue_code.w linguist-language=C++
 cmake.w linguist-language=CMake
