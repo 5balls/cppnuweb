@@ -82,34 +82,3 @@ outputFlags
 @| outputFlags @}
 
 \indexClass{outputFile}\todoimplement{Output function for file contents}
-@d \classDeclaration{outputFile}
-@{
-class outputFile: public fragmentDefinition {
-private:
-    std::string m_filename;
-    static std::map<std::string, std::string> m_fileContents;
-public:
-    outputFile(documentPart* l_fileName, documentPart* l_scrap, bool pageBreak = false) : fragmentDefinition(l_fileName, l_scrap, pageBreak) {
-        m_filename = l_fileName->utf8();
-    }
-    virtual std::string headerTexUtf8(void) const override {
-        std::string scrapId = "?";
-        if(documentPart::auxFileWasParsed())
-            scrapId = nuweb::auxFile::scrapId(m_currentScrapNumber);
-        std::string returnString = "\\NWtarget{nuweb";
-        returnString += scrapId;
-        returnString += "}{} \\verb@@\"";
-        returnString += m_fragmentName->texUtf8();
-        returnString += "\"@@\\nobreak\\ {\\footnotesize {";
-        returnString += scrapId;
-        returnString += "}}$\\equiv$\n";
-        return returnString;
-    }
-    virtual std::string referencesTexUtf8(void) const override {
-        return "";
-    }
-    virtual std::string fileUtf8(void) const override {
-        return m_scrap->fileUtf8();
-    }
-};
-@| outputFile @}

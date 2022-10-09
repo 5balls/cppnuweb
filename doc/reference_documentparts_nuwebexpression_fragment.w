@@ -204,36 +204,6 @@ fragmentNamePartDefinition
 %type <m_documentPart> fragmentNamePartDefinition
 @| fragmentNamePartDefinition @}
 
-@d \classDeclaration{fragmentNamePartDefinition}
-@{@%
-class fragmentNamePartDefinition : public documentPart {
-private:
-    bool m_isArgument = false;
-    static std::vector<fragmentNamePartDefinition*> m_allFragmentPartDefinitions;
-public:
-    fragmentNamePartDefinition(filePosition* l_filePosition, bool isArgument) : documentPart(l_filePosition), m_isArgument(isArgument) {
-        m_allFragmentPartDefinitions.push_back(this);
-    }
-    fragmentNamePartDefinition(documentPart&& l_documentPart, bool isArgument) : documentPart(std::move(l_documentPart)), m_isArgument(isArgument) {
-        m_allFragmentPartDefinitions.push_back(this);
-    }
-    bool operator==(const fragmentNamePartDefinition& toCompareWith){
-        if(m_isArgument && toCompareWith.m_isArgument)
-            return m_isArgument == toCompareWith.m_isArgument;
-        else
-            if(m_isArgument != toCompareWith.m_isArgument)
-                return false;
-            else
-                return utf8() == toCompareWith.utf8();
-    }
-    virtual std::string texUtf8() const override {
-        if(m_isArgument)
-            return "\\hbox{\\slshape\\sffamily " + utf8() + "\\/}";
-        else
-            return utf8();
-    }
-};
-@| fragmentNamePart @}
 
 @d \staticDefinitions{fragmentNamePartDefinition}
 @{@%
@@ -323,7 +293,6 @@ fragmentReference
 ;
 @| fragmentReference @}
 
-
 @d Lexer rules for fragment headers and references
 @{@%
 <scrapContents>@@< { start(fragmentReference); TOKEN(AT_ANGLE_BRACKET_OPEN) }
@@ -351,49 +320,3 @@ fragmentNameReference
 %type <m_documentPart> fragmentReference
 @}
 
-
-@d \classDeclaration{fragmentReference}
-@{@%
-class fragmentReference : public documentPart {
-private:
-    fragmentDefinition* m_fragment;
-    documentPart* m_unresolvedFragmentName;
-    unsigned int m_scrapNumber;
-public:
-    fragmentReference(documentPart* fragmentName) : m_unresolvedFragmentName(nullptr){
-        m_fragment = fragmentDefinition::fragmentFromFragmentName(fragmentName);
-        if(!m_fragment) m_unresolvedFragmentName = fragmentName;
-        m_scrapNumber = fragmentDefinition::totalNumberOfScraps() + 1;
-        if(m_fragment) m_fragment->addReferenceScrapNumber(m_scrapNumber);
-    }
-    virtual std::string utf8(void) const override {
-        fragmentDefinition* fragment = m_fragment;
-        if(!fragment) fragment = fragmentDefinition::fragmentFromFragmentName(m_unresolvedFragmentName);
-        if(!fragment) throw std::runtime_error("Could not resolve fragment \"" + m_unresolvedFragmentName->texUtf8() + "\" in file " + m_unresolvedFragmentName->filePositionString());
-        fragment->addReferenceScrapNumber(m_scrapNumber);
-        return fragment->utf8();
-    }
-    virtual std::string texUtf8(void) const override {
-        fragmentDefinition* fragment = m_fragment;
-        if(!fragment) fragment = fragmentDefinition::fragmentFromFragmentName(m_unresolvedFragmentName);
-        if(!fragment) throw std::runtime_error("Could not resolve fragment \"" + m_unresolvedFragmentName->texUtf8() + "\" in file " + m_unresolvedFragmentName->filePositionString());
-        fragment->addReferenceScrapNumber(m_scrapNumber);
-        std::string returnString = "@@\\hbox{$\\langle\\,${\\itshape ";
-        returnString += fragment->name();
-        returnString += "}\\nobreak\\ {\\footnotesize \\NWlink{nuweb";
-        std::string scrapNumber = "?";
-        if(documentPart::auxFileWasParsed())
-            scrapNumber = auxFile::scrapId(fragment->scrapNumber());
-        else
-            std::cout << "No aux file yet, need to run Latex again!\n";
-        returnString += scrapNumber + "}{" + scrapNumber + "}";
-        if(fragment->scrapsFromFragment().size() > 1)
-            returnString += ", \\ldots\\ ";
-        if(listingsPackageEnabled())
-            returnString += "}$\\,\\rangle$}\\lstinline@@";
-        else
-            returnString += "}$\\,\\rangle$}\\verb@@";
-        return returnString;
-    }
-};
-@}

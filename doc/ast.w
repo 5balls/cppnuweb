@@ -133,6 +133,9 @@ namespace nuweb {
 
 @<\classImplementation{documentPart}@>
 @<\classImplementation{fragmentDefinition}@>
+@<\classImplementation{fragmentReference}@>
+@<\classImplementation{fragmentNamePartDefinition}@>
+@<\classImplementation{outputFile}@>
 @}
 
 \subsubsection{utf8}
@@ -229,7 +232,6 @@ public:
     virtual std::string texUtf8(void) const override;
 };
 @| fragmentDefinition @}
-
 \subsection{Implementation}
 \subsubsection{fragmentDefinition}
 @d \classImplementation{fragmentDefinition}
@@ -512,7 +514,6 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
         return returnString;
     }
 @}
-
 \subsubsection{referencesInScraps}
 @d \classImplementation{fragmentDefinition}
 @{@%
@@ -520,3 +521,180 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
         return m_referencesInScraps;
     }
 @}
+
+\section{Class fragmentReference}
+\subsection{Interface}
+@d \classDeclaration{fragmentReference}
+@{@%
+class fragmentReference : public documentPart {
+private:
+    fragmentDefinition* m_fragment;
+    documentPart* m_unresolvedFragmentName;
+    unsigned int m_scrapNumber;
+public:
+    fragmentReference(documentPart* fragmentName);
+    virtual std::string utf8(void) const override;
+    virtual std::string texUtf8(void) const override;
+};
+@}
+
+\subsection{Implementation}
+\subsubsection{fragmentReference}
+@d \classImplementation{fragmentReference}
+@{@%
+    nuweb::fragmentReference::fragmentReference(documentPart* fragmentName) : m_unresolvedFragmentName(nullptr){
+        m_fragment = fragmentDefinition::fragmentFromFragmentName(fragmentName);
+        if(!m_fragment) m_unresolvedFragmentName = fragmentName;
+        m_scrapNumber = fragmentDefinition::totalNumberOfScraps() + 1;
+        if(m_fragment) m_fragment->addReferenceScrapNumber(m_scrapNumber);
+    }
+@}
+\subsubsection{texUtf8}
+@d \classImplementation{fragmentReference}
+@{@%
+    std::string nuweb::fragmentReference::texUtf8(void) const{
+        fragmentDefinition* fragment = m_fragment;
+        if(!fragment) fragment = fragmentDefinition::fragmentFromFragmentName(m_unresolvedFragmentName);
+        if(!fragment) throw std::runtime_error("Could not resolve fragment \"" + m_unresolvedFragmentName->texUtf8() + "\" in file " + m_unresolvedFragmentName->filePositionString());
+        fragment->addReferenceScrapNumber(m_scrapNumber);
+        std::string returnString = "@@\\hbox{$\\langle\\,${\\itshape ";
+        returnString += fragment->name();
+        returnString += "}\\nobreak\\ {\\footnotesize \\NWlink{nuweb";
+        std::string scrapNumber = "?";
+        if(documentPart::auxFileWasParsed())
+            scrapNumber = auxFile::scrapId(fragment->scrapNumber());
+        else
+            std::cout << "No aux file yet, need to run Latex again!\n";
+        returnString += scrapNumber + "}{" + scrapNumber + "}";
+        if(fragment->scrapsFromFragment().size() > 1)
+            returnString += ", \\ldots\\ ";
+        if(listingsPackageEnabled())
+            returnString += "}$\\,\\rangle$}\\lstinline@@";
+        else
+            returnString += "}$\\,\\rangle$}\\verb@@";
+        return returnString;
+    }
+@}
+\subsubsection{utf8}
+@d \classImplementation{fragmentReference}
+@{@%
+    std::string nuweb::fragmentReference::utf8(void) const{
+        fragmentDefinition* fragment = m_fragment;
+        if(!fragment) fragment = fragmentDefinition::fragmentFromFragmentName(m_unresolvedFragmentName);
+        if(!fragment) throw std::runtime_error("Could not resolve fragment \"" + m_unresolvedFragmentName->texUtf8() + "\" in file " + m_unresolvedFragmentName->filePositionString());
+        fragment->addReferenceScrapNumber(m_scrapNumber);
+        return fragment->utf8();
+    }
+@}
+
+\section{Class fragmentNamePartDefinition}
+\subsection{Interface}
+@d \classDeclaration{fragmentNamePartDefinition}
+@{@%
+class fragmentNamePartDefinition : public documentPart {
+private:
+    bool m_isArgument = false;
+    static std::vector<fragmentNamePartDefinition*> m_allFragmentPartDefinitions;
+public:
+    fragmentNamePartDefinition(filePosition* l_filePosition, bool isArgument);
+    fragmentNamePartDefinition(documentPart&& l_documentPart, bool isArgument);
+    bool operator==(const fragmentNamePartDefinition& toCompareWith);
+    virtual std::string texUtf8() const override;
+};
+@| fragmentNamePartDefinition @}
+\subsection{Implementation}
+\subsubsection{fragmentNamePartDefinition}
+@d \classImplementation{fragmentNamePartDefinition}
+@{@%
+    nuweb::fragmentNamePartDefinition::fragmentNamePartDefinition(filePosition* l_filePosition, bool isArgument) : documentPart(l_filePosition), m_isArgument(isArgument) {
+        m_allFragmentPartDefinitions.push_back(this);
+    }
+@}
+@d \classImplementation{fragmentNamePartDefinition}
+@{@%
+    nuweb::fragmentNamePartDefinition::fragmentNamePartDefinition(documentPart&& l_documentPart, bool isArgument) : documentPart(std::move(l_documentPart)), m_isArgument(isArgument) {
+        m_allFragmentPartDefinitions.push_back(this);
+    }
+@}
+\subsubsection{operator==}
+@d \classImplementation{fragmentNamePartDefinition}
+@{@%
+    bool nuweb::fragmentNamePartDefinition::operator==(const fragmentNamePartDefinition& toCompareWith){
+        if(m_isArgument && toCompareWith.m_isArgument)
+            return m_isArgument == toCompareWith.m_isArgument;
+        else
+            if(m_isArgument != toCompareWith.m_isArgument)
+                return false;
+            else
+                return utf8() == toCompareWith.utf8();
+    }
+@}
+\subsubsection{texUtf8}
+@d \classImplementation{fragmentNamePartDefinition}
+@{@%
+    std::string nuweb::fragmentNamePartDefinition::texUtf8() const{
+        if(m_isArgument)
+            return "\\hbox{\\slshape\\sffamily " + utf8() + "\\/}";
+        else
+            return utf8();
+    }
+@| texUtf8 @}
+
+\section{Class outputFile}
+\subsection{Interface}
+@d \classDeclaration{outputFile}
+@{
+class outputFile: public fragmentDefinition {
+private:
+    std::string m_filename;
+    static std::map<std::string, std::string> m_fileContents;
+public:
+    outputFile(documentPart* l_fileName, documentPart* l_scrap, bool pageBreak = false);
+    virtual std::string headerTexUtf8(void) const override;
+    virtual std::string referencesTexUtf8(void) const override;
+    virtual std::string fileUtf8(void) const override;
+};
+@| outputFile @}
+
+\subsection{Implementation}
+\subsubsection{outputFile}
+@d \classImplementation{outputFile}
+@{@%
+    nuweb::outputFile::outputFile(documentPart* l_fileName, documentPart* l_scrap, bool pageBreak) : fragmentDefinition(l_fileName, l_scrap, pageBreak) {
+        m_filename = l_fileName->utf8();
+    }
+@| outputFile @}
+
+\subsubsection{headerTexUtf8}
+@d \classImplementation{outputFile}
+@{@%
+    std::string nuweb::outputFile::headerTexUtf8(void) const{
+        std::string scrapId = "?";
+        if(documentPart::auxFileWasParsed())
+            scrapId = nuweb::auxFile::scrapId(m_currentScrapNumber);
+        std::string returnString = "\\NWtarget{nuweb";
+        returnString += scrapId;
+        returnString += "}{} \\verb@@\"";
+        returnString += m_fragmentName->texUtf8();
+        returnString += "\"@@\\nobreak\\ {\\footnotesize {";
+        returnString += scrapId;
+        returnString += "}}$\\equiv$\n";
+        return returnString;
+    }
+@| headerTexUtf8 @}
+
+\subsubsection{referencesTexUtf8}
+@d \classImplementation{outputFile}
+@{@%
+    std::string nuweb::outputFile::referencesTexUtf8(void) const{
+        return "";
+    }
+@| referencesTexUtf8 @}
+
+\subsubsection{fileUtf8}
+@d \classImplementation{outputFile}
+@{@%
+    std::string nuweb::outputFile::fileUtf8(void) const{
+        return m_scrap->fileUtf8();
+    }
+@| fileUtf8 @}
