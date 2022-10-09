@@ -36,12 +36,10 @@ A ``\lstinline{nuwebExpression}'' is basically every nuweb command\footnote{Anyt
 nuwebExpression
     : INCLUDE_FILE
     {
-        std::cout << "Bison nuwebExpression::INCLUDE_FILE\n";
         $$ = new emptyDocumentPart($INCLUDE_FILE);
     }
     | AT_AT
     {
-        std::cout << "Bison nuwebExpression::AT_AT\n";
         $$ = new escapeCharacterDocumentPart($AT_AT);
     }
     | scrap

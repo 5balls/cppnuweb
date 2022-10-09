@@ -28,7 +28,6 @@ public:
     emptyDocumentPart(filePosition* l_filePosition) : documentPart(l_filePosition){
     }
     virtual std::string texUtf8(void) const override {
-        std::cout << "emptyDocumentPart::texUtf8 \"\"\n";
         return "";
     }
 };
@@ -73,7 +72,7 @@ void include_file(){
     utf8Stream = new std::istringstream(currentFile->utf8());
     push_matcher(new_matcher(*utf8Stream));
     if(!has_matcher())
-        std::cout << "  Current matcher not usable!\n";
+        throw std::runtime_error("Internal program error, current parser matcher not usable!\n");
 }
 @| include_file() @}
 

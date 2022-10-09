@@ -87,6 +87,7 @@ outputFlags
 class outputFile: public fragmentDefinition {
 private:
     std::string m_filename;
+    static std::map<std::string, std::string> m_fileContents;
 public:
     outputFile(documentPart* l_fileName, documentPart* l_scrap, bool pageBreak = false) : fragmentDefinition(l_fileName, l_scrap, pageBreak) {
         m_filename = l_fileName->utf8();
@@ -106,6 +107,9 @@ public:
     }
     virtual std::string referencesTexUtf8(void) const override {
         return "";
+    }
+    virtual std::string fileUtf8(void) const override {
+        return m_scrap->fileUtf8();
     }
 };
 @| outputFile @}

@@ -35,12 +35,10 @@ All of those are creating an \codecpp\lstinline{documentPart} object.
 texCode
     : TEXT_WITHOUT_AT
     {
-        std::cout << "Bison texCode::TEXT_WITHOUT_AT\n";
         $$ = new documentPart($TEXT_WITHOUT_AT);
     }
     | TEXT_WITHOUT_AT_OR_WHITESPACE
     {
-        std::cout << "Bison texCode::TEXT_WITHOUT_AT_OR_WHITESPACE\n";
         $$ = new documentPart($TEXT_WITHOUT_AT_OR_WHITESPACE);
     }
 ;
@@ -50,10 +48,10 @@ We have the following Flex rules for this
 
 \indexFlexRule{WHITESPACE}\indexFlexRule{TEXT\_\-WITHOUT\_\-AT\_\-OR\_\-WHITESPACE}\indexFlexRule{TEXT\_WITHOUT\_AT}
 @d Lexer rules for text handling
-@{<outputFileHeader,userIdentifiers>[[:space:]]+  { DTOKEN(WHITESPACE) }
-<outputFileHeader,userIdentifiers>[^@@[:space:]]+ { DTOKEN(TEXT_WITHOUT_AT_OR_WHITESPACE) }
-<fragmentHeader,fragmentReference>[^@@\n]+ { DTOKEN(TEXT_WITHOUT_AT_OR_NEWLINE) }
-<INITIAL,scrapContents>[^@@]+ { DTOKEN(TEXT_WITHOUT_AT) } @| WHITESPACE TEXT_WITHOUT_AT_OR_WHITESPACE TEXT_WITHOUT_AT TEXT_WITHOUT_AT_OR_NEWLINE @}
+@{<outputFileHeader,userIdentifiers>[[:space:]]+  { TOKEN(WHITESPACE) }
+<outputFileHeader,userIdentifiers>[^@@[:space:]]+ { TOKEN(TEXT_WITHOUT_AT_OR_WHITESPACE) }
+<fragmentHeader,fragmentReference>[^@@\n]+ { TOKEN(TEXT_WITHOUT_AT_OR_NEWLINE) }
+<INITIAL,scrapContents>[^@@]+ { TOKEN(TEXT_WITHOUT_AT) } @| WHITESPACE TEXT_WITHOUT_AT_OR_WHITESPACE TEXT_WITHOUT_AT TEXT_WITHOUT_AT_OR_NEWLINE @}
 
 and our type definitions\footnote{\begin{samepage}Types (note that \codecpp\lstinline{filePosition} is good enough here as we can get the string part from our internal file buffer list):@d Bison type definitions
 @{%type <m_filePosition> WHITESPACE;

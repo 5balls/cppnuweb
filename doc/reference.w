@@ -106,7 +106,6 @@ public:
     document(void) : documentPart() {
     }
     std::string texUtf8(void) const override {
-        std::cout << "document::texUtf8\n";
         std::string returnString;
         if(hyperlinksEnabled())
             returnString = R"definitions(\newcommand{\NWtarget}[2]{\hypertarget{#1}{#2}}

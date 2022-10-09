@@ -58,16 +58,16 @@ We try to use the Flex and Bison programs to create our parser.
  /* rules */
 @<Lexer rule for including files@>
 @<Lexer rule for escape character@>
-<outputFileHeader>-d { DTOKEN(MINUS_D) }
+<outputFileHeader>-d { TOKEN(MINUS_D) }
 @<Lexer rules for text handling@>
 @<Lexer rules for fragment commands@>
-<INITIAL>@@o { start(outputFileHeader); DTOKEN(AT_SMALL_O) }
-<INITIAL>@@O { start(outputFileHeader); DTOKEN(AT_LARGE_O) }
-<INITIAL>@@f { DTOKEN(AT_SMALL_F) }
+<INITIAL>@@o { start(outputFileHeader); TOKEN(AT_SMALL_O) }
+<INITIAL>@@O { start(outputFileHeader); TOKEN(AT_LARGE_O) }
+<INITIAL>@@f { TOKEN(AT_SMALL_F) }
 @<Lexer rules for regular nuweb commands@>
 @<Lexer rules for fragment headers and references@>
-<INITIAL,outputFileHeader,fragmentHeader>[@@][{] { start(scrapContents); DTOKEN(AT_CURLY_BRACKET_OPEN) }
-<scrapContents,userIdentifiers>[@@][}][[:space:]]* { start(INITIAL); DTOKEN(AT_CURLY_BRACKET_CLOSE) }
+<INITIAL,outputFileHeader,fragmentHeader>[@@][{] { start(scrapContents); TOKEN(AT_CURLY_BRACKET_OPEN) }
+<scrapContents,userIdentifiers>[@@][}][[:space:]]* { start(INITIAL); TOKEN(AT_CURLY_BRACKET_CLOSE) }
 @| AT_AT MINUS_D AT_SMALL_D AT_LARGE_D AT_SMALL_O AT_LARGE_O AT_SMALL_F AT_ANGLE_BRACKET_OPEN AT_ANGLE_BRACKET_CLOSE AT_TICK AT_NUMBER AT_CURLY_BRACKET_OPEN AT_CURLY_BRACKET_CLOSE @}
 
 @O ../src/nuweb.l

@@ -18,7 +18,7 @@
 \subsubsection{Escape character}
 @d Lexer rule for escape character
 @{@%
-<INITIAL,scrapContents,fragmentHeader>[@@][@@] { DTOKEN(AT_AT) } @| AT_AT @}
+<INITIAL,scrapContents,fragmentHeader>[@@][@@] { TOKEN(AT_AT) } @| AT_AT @}
 
 @d \classDeclaration{escapeCharacterDocumentPart}
 @{
@@ -32,7 +32,6 @@ public:
         m_escapementString = escape_Character;
     };
     virtual std::string texUtf8(void) const override {
-        std::cout << "escapeCharacterDocumentPart::texUtf8 \"" + m_escapementString + "\"\n";
         return m_escapementString;
     }
 };

@@ -107,132 +107,11 @@ fragmentDefinition
 %type <m_documentPart> fragmentDefinition
 @}
 
-@d \classDeclaration{fragmentDefinition}
-@{@%
-class fragmentDefinition : public documentPart {
-protected:
-    static unsigned int m_scrapNumber;
-    static std::map<unsigned int, fragmentDefinition*> fragmentDefinitions;
-    documentPart* m_fragmentName; 
-    unsigned int m_fragmentNameSize;
-    documentPart* m_scrap;
-    unsigned int m_currentScrapNumber;
-    std::vector<unsigned int> m_referencesInScraps;
-    bool m_pageBreak;
-public:
-    fragmentDefinition(documentPart* l_fragmentName, documentPart* l_scrap, bool pageBreak = false) : m_fragmentName(l_fragmentName), m_scrap(l_scrap), m_currentScrapNumber(++m_scrapNumber), m_fragmentNameSize(m_fragmentName->size()), m_pageBreak(pageBreak){
-        fragmentDefinitions[m_currentScrapNumber] = this;
-    }
-    void addReferenceScrapNumber(unsigned int scrapNumber){
-        if(std::find(m_referencesInScraps.begin(), m_referencesInScraps.end(), scrapNumber) == m_referencesInScraps.end()) 
-            m_referencesInScraps.push_back(scrapNumber);
-        std::sort(m_referencesInScraps.begin(), m_referencesInScraps.end());
-    }
-    static unsigned int totalNumberOfScraps(void) {
-        return m_scrapNumber;
-    }
-    unsigned int scrapNumber(void) {
-        return m_currentScrapNumber;
-    }
-    std::string name(void) {
-        return m_fragmentName->texUtf8();
-    }
-    documentPart* scrap(void) {
-        return m_scrap;
-    }
-    virtual std::string headerTexUtf8(void) const {
-        std::string scrapId = "?";
-        if(documentPart::auxFileWasParsed())
-            scrapId = nuweb::auxFile::scrapId(m_currentScrapNumber);
-        std::string returnString = "\\NWtarget{nuweb";
-        returnString += scrapId;
-        returnString += "}{} $\\langle\\,${\\itshape ";
-        returnString += m_fragmentName->texUtf8();
-        returnString += "}\\nobreak\\ {\\footnotesize {";
-        returnString += scrapId;
-        returnString += "}}$\\,\\rangle\\equiv$\n";
-        return returnString;
-    }
-    virtual std::string referencesTexUtf8(void) const {
-        std::string returnString;
-        returnString += "\\item ";
-        if(m_referencesInScraps.empty())
-            returnString += "{\\NWtxtMacroNoRef}";
-        else{
-            returnString += "\\NWtxtMacroRefIn\\ ";
-            unsigned int lastPage = 0;
-            for(const auto & referenceInScrap: m_referencesInScraps){
-                std::string scrapId = auxFile::scrapId(referenceInScrap);
-                unsigned int currentPage = auxFile::scrapPage(referenceInScrap);
-                returnString += "\\NWlink{nuweb" + scrapId + "}{";
-                if(lastPage == 0){
-                    returnString += scrapId + "}";
-                    lastPage = currentPage;
-                    continue;
-                }
-                if(currentPage != lastPage){
-                    returnString += ", " + scrapId + "}";
-                    lastPage = currentPage;
-                    continue;
-                }
-                returnString += std::string(1, auxFile::scrapLetter(referenceInScrap)) + "}";
-                lastPage = currentPage;
-            }
-        }
-        returnString += ".\n";
-        return returnString;
-    }
-    virtual std::string texUtf8(void) const override {
-        std::string returnString = "\\begin{flushleft} \\small";
-        if(!m_pageBreak)
-            returnString += "\n\\begin{minipage}{\\linewidth}";
-        returnString += "\\label{scrap";
-        returnString += std::to_string(m_currentScrapNumber) + "}\\raggedright\\small\n";
-        returnString += headerTexUtf8();
-        returnString += "\\vspace{-1ex}\n";
-        returnString += "\\begin{list}{}{} \\item\n";
-        returnString += m_scrap->texUtf8();
-        returnString += "\\end{list}\n";
-        returnString += "\\vspace{-1.5ex}\n";
-        returnString += "\\footnotesize\n";
-        returnString += "\\begin{list}{}{\\setlength{\\itemsep}{-\\parsep}\\setlength{\\itemindent}{-\\leftmargin}}\n";
-        returnString += referencesTexUtf8();
-        returnString += "\n\\item{}\n";
-        returnString += "\\end{list}\n";
-        if(!m_pageBreak)
-            returnString += "\\end{minipage}";
-        returnString += "\\vspace{4ex}\n\\end{flushleft}";
-        returnString += "\n";
-        return returnString;
-    }
-    static fragmentDefinition* fragmentFromFragmentName(const documentPart* fragmentName){
-        std::cout << "fragmentDefinition::fragmentFromFragmentName Trying to resolve \"" << fragmentName->utf8() << "\"";
-        unsigned int fragmentNameSize = fragmentName->size();
-        if(fragmentNameSize == 0) return 0;
-        for(const auto& [currentScrapNumber, fragmentDefinition]: fragmentDefinitions){
-            if(fragmentDefinition->m_fragmentNameSize != fragmentNameSize) continue;
-            bool fragmentNamesIdentical = true;
-            for(unsigned int fragmentNamePart = 0; fragmentNamePart < fragmentNameSize; fragmentNamePart++){
-                if(fragmentDefinition->m_fragmentName->at(fragmentNamePart)->utf8().compare(fragmentName->at(fragmentNamePart)->utf8()) != 0){
-                    fragmentNamesIdentical = false;
-                    break;
-                }
-            }
-            if(!fragmentNamesIdentical) continue;
-            // If we reach here we found the corresponding fragment:
-            return fragmentDefinition;
-        }
-        std::cout << "fragmentDefinition::fragmentFromFragmentName Could not resolve \"" << fragmentName->utf8() << "\"";
-        return nullptr;
-    }
-};
-@| fragmentDefinition @}
-
-
 @d \staticDefinitions{fragmentDefinition}
 @{@%
 unsigned int nuweb::fragmentDefinition::m_scrapNumber = 0;
 std::map<unsigned int, nuweb::fragmentDefinition*> nuweb::fragmentDefinition::fragmentDefinitions = {};
+std::map<unsigned int, std::vector<unsigned int> > nuweb::fragmentDefinition::m_scrapsDefiningAFragment = {};
 @}
 
 @d \bisonRule{fragmentCommand}
@@ -279,10 +158,10 @@ enum fragmentType m_fragmentType;
 @| m_fragmentType @}}. We have some simple rules for the fragment commands:
 @d Lexer rules for fragment commands
 @{@%
-<INITIAL>@@d[ ] { start(fragmentHeader); DTOKEN(AT_SMALL_D) }
-<INITIAL>@@D[ ] { start(fragmentHeader); DTOKEN(AT_LARGE_D) }
-<INITIAL>@@q[ ] { start(fragmentHeader); DTOKEN(AT_SMALL_Q) }
-<INITIAL>@@Q[ ] { start(fragmentHeader); DTOKEN(AT_LARGE_Q) }
+<INITIAL>@@d[ ] { start(fragmentHeader); TOKEN(AT_SMALL_D) }
+<INITIAL>@@D[ ] { start(fragmentHeader); TOKEN(AT_LARGE_D) }
+<INITIAL>@@q[ ] { start(fragmentHeader); TOKEN(AT_SMALL_Q) }
+<INITIAL>@@Q[ ] { start(fragmentHeader); TOKEN(AT_LARGE_Q) }
 @| AT_SMALL_D AT_LARGE_D AT_SMALL_Q AT_LARGE_Q @}
 
 @d \bisonRule{fragmentNameDefinition}
@@ -348,7 +227,6 @@ public:
                 return utf8() == toCompareWith.utf8();
     }
     virtual std::string texUtf8() const override {
-        std::cout << "fragmentNamePartDefinition::texUtf8\n";
         if(m_isArgument)
             return "\\hbox{\\slshape\\sffamily " + utf8() + "\\/}";
         else
@@ -372,7 +250,6 @@ fragmentNameArgument
     }
     | AT_TICK TEXT_WITHOUT_AT_OR_NEWLINE AT_TICK
     {
-        std::cout << "Bison fragmentNameArgument:TEXT_WITHOUT_AT_OR_NEWLINE\n" << std::flush;
         throw std::runtime_error("AT_TICK TEXT_WITHOUT_AT_OR_NEWLINE AT_TICK not implemented!\n");
     }
 ;
@@ -449,9 +326,9 @@ fragmentReference
 
 @d Lexer rules for fragment headers and references
 @{@%
-<scrapContents>@@< { start(fragmentReference); DTOKEN(AT_ANGLE_BRACKET_OPEN) }
-<fragmentReference>@@> { start(scrapContents); DTOKEN(AT_ANGLE_BRACKET_CLOSE) }
-<fragmentHeader,fragmentReference>@@' {  DTOKEN(AT_TICK) }
+<scrapContents>@@< { start(fragmentReference); TOKEN(AT_ANGLE_BRACKET_OPEN) }
+<fragmentReference>@@> { start(scrapContents); TOKEN(AT_ANGLE_BRACKET_CLOSE) }
+<fragmentHeader,fragmentReference>@@' {  TOKEN(AT_TICK) }
 <fragmentHeader,scrapContents>@@[1-9] { DINTTOKEN(AT_NUMBER, std::stoi(std::string(yytext+1, yyleng-1))) }
 @}
 
@@ -508,12 +385,14 @@ public:
         if(documentPart::auxFileWasParsed())
             scrapNumber = auxFile::scrapId(fragment->scrapNumber());
         else
-            std::cout << "No aux file yet, need to run Latex again!\n" << std::flush;
-        returnString += scrapNumber + "}{" + scrapNumber;
+            std::cout << "No aux file yet, need to run Latex again!\n";
+        returnString += scrapNumber + "}{" + scrapNumber + "}";
+        if(fragment->scrapsFromFragment().size() > 1)
+            returnString += ", \\ldots\\ ";
         if(listingsPackageEnabled())
-            returnString += "}}$\\,\\rangle$}\\lstinline@@";
+            returnString += "}$\\,\\rangle$}\\lstinline@@";
         else
-            returnString += "}}$\\,\\rangle$}\\verb@@";
+            returnString += "}$\\,\\rangle$}\\verb@@";
         return returnString;
     }
 };
