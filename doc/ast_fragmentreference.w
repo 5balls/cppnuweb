@@ -28,6 +28,7 @@ public:
     fragmentReference(documentPart* fragmentName);
     virtual std::string utf8(void) const override;
     virtual std::string texUtf8(void) const override;
+    virtual std::string fileUtf8(void) const override;
 };
 @}
 
@@ -79,4 +80,15 @@ public:
         return fragment->utf8();
     }
 @}
-
+\subsubsection{fileUtf8}
+@d \classImplementation{fragmentReference}
+@{@%
+    std::string nuweb::fragmentReference::fileUtf8(void) const{
+        fragmentDefinition* fragment = m_fragment;
+        if(!fragment) fragment = fragmentDefinition::fragmentFromFragmentName(m_unresolvedFragmentName);
+        if(!fragment) throw std::runtime_error("Could not resolve fragment \"" + m_unresolvedFragmentName->texUtf8() + "\" in file " + m_unresolvedFragmentName->filePositionString());
+        fragment->addReferenceScrapNumber(m_scrapNumber);
+        std::cout << "fragmentReference::fileUtf8 " << fragment->name() << "\n";
+        return fragment->utf8();
+    }
+@| fileUtf8 @}

@@ -61,18 +61,6 @@ scrap
 ;
 @| scrap @}
 
-@d \classDeclaration{scrap}
-@{@%
-class scrap : public documentPart {
-public:
-    scrap(const scrap&) = delete;
-    scrap(scrap&& l_scrap) : documentPart(std::move(l_scrap)){
-    }
-    scrap(documentPart* l_documentPart) : documentPart(l_documentPart){
-    }
-};
-@| scrap @}
-
 @d Bison union definitions
 @{@%
 scrap* m_scrap;
@@ -82,46 +70,6 @@ scrap* m_scrap;
 @{@%
 %type <m_scrap> scrap
 @}
-
-@d \classDeclaration{scrapVerbatim}
-@{@%
-class scrapVerbatim : public scrap {
-public:
-    scrapVerbatim(const scrapVerbatim&) = delete;
-    scrapVerbatim(scrapVerbatim&& l_scrapVerbatim) : scrap(std::move(l_scrapVerbatim)){
-    }
-    scrapVerbatim(documentPart* l_documentPart) : scrap(l_documentPart) {
-    }
-    virtual std::string texUtf8(void) const override {
-        std::stringstream documentLines(documentPart::texUtf8());
-        std::string documentLine;
-        std::string returnString;
-        bool b_readUntilEnd = false;
-        if(listingsPackageEnabled()){
-            while(std::getline(documentLines,documentLine)){
-                returnString += "\\mbox{}\\lstinline@@" + documentLine + "@@\\\\\n";
-                b_readUntilEnd = (documentLines.rdstate() == std::ios_base::eofbit);
-            }
-            if(!b_readUntilEnd)
-                returnString += "\\mbox{}\\lstinline@@@@\\\\\n";
-        }
-        else{
-            while(std::getline(documentLines,documentLine)){
-                returnString += "\\mbox{}\\verb@@" + documentLine + "@@\\\\\n";
-                b_readUntilEnd = (documentLines.rdstate() == std::ios_base::eofbit);
-            }
-            if(!b_readUntilEnd)
-                returnString += "\\mbox{}\\verb@@@@\\\\\n";
-        }
-        returnString.pop_back();
-        returnString.pop_back();
-        returnString.pop_back();
-        returnString += "{\\NWsep}\n";
-        return returnString;
-    }
-};
-@}
-
 
 \todoimplement{Move constructors for documentPart}
 Some commands are only valid inside a scrap, so we define a specific start condition for scraps:

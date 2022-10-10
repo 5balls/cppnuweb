@@ -61,6 +61,7 @@ namespace nuweb {
 @<\classImplementation{fragmentReference}@>
 @<\classImplementation{fragmentNamePartDefinition}@>
 @<\classImplementation{outputFile}@>
+@<\classImplementation{scrapVerbatim}@>
 @}
 \subsubsection{utf8}
 \indexClassMethod{documentPart}{utf8}
@@ -111,7 +112,7 @@ std::string nuweb::documentPart::texUtf8() const{
 @{@%
 std::string nuweb::documentPart::fileUtf8() const{
     if(empty()){
-        return "";
+        return utf8();
     }
     else{
         std::string returnString;

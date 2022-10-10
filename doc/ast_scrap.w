@@ -15,23 +15,16 @@
 % You should have received a copy of the GNU Affero General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-\chapter{Abstract Syntax Tree Classes}
-We define some classes for our Abstract Syntax Tree. This correspond mostly to the non terminal expressions in the Bison grammar and are used there to build up the tree.
-
-@i ast_definitions.w
-
-@i ast_document.w
-
-@i ast_documentpart.w
-
-@i ast_fragmentdefinition.w
-
-@i ast_fragmentreference.w
-
-@i ast_fragmentnamepartdefinition.w
-
-@i ast_outputfile.w
-
-@i ast_scrap.w
-
-@i ast_scrapverbatim.w
+\section{Class scrap}
+\subsection{Interface}
+@d \classDeclaration{scrap}
+@{@%
+class scrap : public documentPart {
+public:
+    scrap(const scrap&) = delete;
+    scrap(scrap&& l_scrap) : documentPart(std::move(l_scrap)){
+    }
+    scrap(documentPart* l_documentPart) : documentPart(l_documentPart){
+    }
+};
+@| scrap @}
