@@ -89,6 +89,6 @@ public:
         if(!fragment) throw std::runtime_error("Could not resolve fragment \"" + m_unresolvedFragmentName->texUtf8() + "\" in file " + m_unresolvedFragmentName->filePositionString());
         fragment->addReferenceScrapNumber(m_scrapNumber);
         std::cout << "fragmentReference::fileUtf8 " << fragment->name() << "\n";
-        return fragment->utf8();
+        return fragment->fileUtf8();
     }
 @| fileUtf8 @}

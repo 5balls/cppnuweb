@@ -46,6 +46,7 @@ public:
     std::string definedByTexUtf8(void) const;
     virtual std::string texUtf8(void) const override;
     virtual std::string utf8(void) const override;
+    virtual std::string fileUtf8(void) const override;
 };
 @| fragmentDefinition @}
 
@@ -353,4 +354,10 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
     }
 @}
 
-
+\subsubsection{fileUtf8}
+@d \classImplementation{fragmentDefinition}
+@{@%
+    std::string nuweb::fragmentDefinition::fileUtf8(void) const{
+        return m_scrap->fileUtf8();
+    }
+@| fileUtf8 @}
