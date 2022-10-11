@@ -47,6 +47,7 @@ public:
     virtual std::string texUtf8(void) const override;
     virtual std::string utf8(void) const override;
     virtual std::string fileUtf8(void) const override;
+    std::string scrapFileUtf8(void) const;
 };
 @| fragmentDefinition @}
 
@@ -358,6 +359,19 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
 @d \classImplementation{fragmentDefinition}
 @{@%
     std::string nuweb::fragmentDefinition::fileUtf8(void) const{
-        return m_scrap->fileUtf8();
+        std::vector<unsigned int> scraps = scrapsFromFragmentName(m_fragmentName);
+        std::string returnString;
+        for(const auto& scrap: scraps){
+            returnString += fragmentDefinitions[scrap]->scrapFileUtf8();
+        }
+        return returnString;
     }
 @| fileUtf8 @}
+
+\subsubsection{scrapFileUtf8}
+@d \classImplementation{fragmentDefinition}
+@{@%
+    std::string nuweb::fragmentDefinition::scrapFileUtf8(void) const{
+        return m_scrap->fileUtf8();
+    }
+@| scrapFileUtf8 @}
