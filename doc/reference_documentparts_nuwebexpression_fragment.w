@@ -70,6 +70,7 @@ And the following bison type definitions:
 @<\bisonTypeDefinition{fragmentNameText}@>
 @<\bisonTypeDefinition{fragmentNameReference}@>
 @<\bisonTypeDefinition{fragmentReference}@>
+@<\bisonTypeDefinition{fragmentNameArgument}@>
 @}
 
 @d \bisonRule{fragmentDefinition}
@@ -187,7 +188,7 @@ fragmentNamePartDefinition
     }
     | fragmentNameArgument
     {
-        throw std::runtime_error("fragmentNameArgument not implemented!\n");
+        $$ = new fragmentNamePartDefinition($fragmentNameArgument, true);
     }
 ;
 @| fragmentNamePartDefinition @}
@@ -207,10 +208,15 @@ fragmentNameArgument
     }
     | AT_TICK TEXT_WITHOUT_AT_OR_NEWLINE AT_TICK
     {
-        throw std::runtime_error("AT_TICK TEXT_WITHOUT_AT_OR_NEWLINE AT_TICK not implemented!\n");
+        $$ = new documentPart($TEXT_WITHOUT_AT_OR_NEWLINE);
     }
 ;
 @| fragmentNameArgument @}
+
+@d \bisonTypeDefinition{fragmentNameArgument}
+@{@%
+%type <m_documentPart> fragmentNameArgument
+@}
 
 \indexBisonRuleUsesToken{fragmentNameText}{TEXT\_WITHOUT\_AT}\indexBisonRuleUsesToken{fragmentNameText}{AT\_AT}\indexBisonRuleUsesToken{fragmentNameText}{TEXT\_WITHOUT\_AT\_OR\_WHITESPACE}
 @d \bisonRule{fragmentNameText}

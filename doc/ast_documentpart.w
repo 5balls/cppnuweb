@@ -37,6 +37,7 @@ namespace nuweb {
 @<\classDeclaration{fragmentReference}@>
 @<\classDeclaration{outputFile}@>
 @<\classDeclaration{emptyDocumentPart}@>
+@<\classDeclaration{fragmentArgument}@>
 }
 @<End of header@>
 @}
@@ -62,6 +63,7 @@ namespace nuweb {
 @<\classImplementation{fragmentNamePartDefinition}@>
 @<\classImplementation{outputFile}@>
 @<\classImplementation{scrapVerbatim}@>
+@<\classImplementation{fragmentArgument}@>
 @}
 \subsubsection{utf8}
 \indexClassMethod{documentPart}{utf8}

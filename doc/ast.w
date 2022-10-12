@@ -35,3 +35,6 @@ We define some classes for our Abstract Syntax Tree. This correspond mostly to t
 @i ast_scrap.w
 
 @i ast_scrapverbatim.w
+
+@i ast_fragmentargument.w
+

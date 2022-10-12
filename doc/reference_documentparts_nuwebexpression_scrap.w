@@ -168,7 +168,7 @@ scrapElement
     }
     | AT_NUMBER
     {
-        throw std::runtime_error("AT_NUMBER\n");
+        $$ = new fragmentArgument($AT_NUMBER->mn_value);
     }
     | fragmentReference
     {
