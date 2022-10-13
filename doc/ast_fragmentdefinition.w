@@ -93,7 +93,13 @@ std::map<unsigned int, std::vector<unsigned int> > nuweb::fragmentDefinition::m_
             if(l_fragmentDefinition->m_fragmentNameSize != fragmentNameSize) continue;
             bool fragmentNamesIdentical = true;
             for(unsigned int fragmentNamePart = 0; fragmentNamePart < fragmentNameSize; fragmentNamePart++){
-                if(l_fragmentDefinition->m_fragmentName->at(fragmentNamePart)->utf8().compare(fragmentName->at(fragmentNamePart)->utf8()) != 0){
+                fragmentNamePartDefinition* compareFrom = dynamic_cast<fragmentNamePartDefinition*>(l_fragmentDefinition->m_fragmentName->at(fragmentNamePart));
+                if(!compareFrom)
+                    throw ("Internal error, could not compare fragment argument!");
+                fragmentNamePartDefinition* compareTo = dynamic_cast<fragmentNamePartDefinition*>(fragmentName->at(fragmentNamePart));
+                if(!compareTo)
+                    throw ("Internal error, could not compare fragment argument!");
+                if(!(*compareFrom == *compareTo)){
                     fragmentNamesIdentical = false;
                     break;
                 }
@@ -211,6 +217,7 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
         return m_fragmentName->texUtf8();
     }
 @}
+
 \subsubsection{scrap}
 @d \classImplementation{fragmentDefinition}
 @{@%
@@ -324,6 +331,10 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
         returnString += headerTexUtf8();
         returnString += "\\vspace{-1ex}\n";
         returnString += "\\begin{list}{}{} \\item\n";
+        scrapVerbatim* scrap = dynamic_cast<scrapVerbatim*>(m_scrap);
+        if(!scrap)
+            throw ("Internal problem convering scrap to scrap type in fragmentDefinition::texUtf8");
+        scrap->resolveFragmentArguments(m_fragmentName);
         returnString += m_scrap->texUtf8();
         returnString += "\\end{list}\n";
         returnString += "\\vspace{-1.5ex}\n";

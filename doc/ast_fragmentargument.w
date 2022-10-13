@@ -27,6 +27,7 @@ public:
     fragmentArgument(unsigned int number);
     void setNameToExpandTo(fragmentNamePartDefinition* nameToExpandTo);
     virtual std::string texUtf8(void) const override;
+    unsigned int number(void) const;
 };
 @| fragmentArgument @}
 
@@ -56,3 +57,10 @@ public:
         m_nameToExpandTo = nameToExpandTo;
     }
 @| setNameToExpandTo @}
+\subsubsection{number}
+@d \classImplementation{fragmentArgument}
+@{@%
+    unsigned int nuweb::fragmentArgument::number(void) const{
+        return m_number;
+    }
+@| number @}

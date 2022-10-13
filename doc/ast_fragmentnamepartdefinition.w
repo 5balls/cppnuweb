@@ -26,8 +26,9 @@ private:
 public:
     fragmentNamePartDefinition(filePosition* l_filePosition, bool isArgument);
     fragmentNamePartDefinition(documentPart&& l_documentPart, bool isArgument);
-    bool operator==(const fragmentNamePartDefinition& toCompareWith);
+    bool operator==(const fragmentNamePartDefinition& toCompareWith) const;
     virtual std::string texUtf8() const override;
+    bool isArgument(void) const;
 };
 @| fragmentNamePartDefinition @}
 @d \staticDefinitions{fragmentNamePartDefinition}
@@ -51,7 +52,7 @@ std::vector<nuweb::fragmentNamePartDefinition*> nuweb::fragmentNamePartDefinitio
 \subsubsection{operator==}
 @d \classImplementation{fragmentNamePartDefinition}
 @{@%
-    bool nuweb::fragmentNamePartDefinition::operator==(const fragmentNamePartDefinition& toCompareWith){
+    bool nuweb::fragmentNamePartDefinition::operator==(const fragmentNamePartDefinition& toCompareWith) const{
         if(m_isArgument && toCompareWith.m_isArgument)
             return m_isArgument == toCompareWith.m_isArgument;
         else
@@ -72,3 +73,10 @@ std::vector<nuweb::fragmentNamePartDefinition*> nuweb::fragmentNamePartDefinitio
     }
 @| texUtf8 @}
 
+\subsubsection{isArgument}
+@d \classImplementation{fragmentNamePartDefinition}
+@{@%
+    bool nuweb::fragmentNamePartDefinition::isArgument(void) const{
+        return m_isArgument;
+    }
+@| isArgument @}
