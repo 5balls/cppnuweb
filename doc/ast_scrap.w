@@ -26,5 +26,39 @@ public:
     }
     scrap(documentPart* l_documentPart) : documentPart(l_documentPart){
     }
+    bool resolveFragmentArguments(documentPart* fragmentName);
 };
 @| scrap @}
+
+\subsubsection{Implementation}
+\subsubsection{resolveFragmentArguments}
+@d \classImplementation{scrap}
+@{@%
+    bool nuweb::scrap::resolveFragmentArguments(documentPart* fragmentName){
+        if(fragmentName->empty()) return false;
+        std::vector<fragmentNamePartDefinition*> fragmentNameArguments;
+        for(auto& fragmentNamePart: *fragmentName){
+            fragmentNamePartDefinition* fragmentNamePossibleArgument = dynamic_cast<fragmentNamePartDefinition*>(fragmentNamePart);
+            if(!fragmentNamePossibleArgument)
+                throw std::runtime_error("Internal error, could not convert argument to argument type!");
+            if(fragmentNamePossibleArgument->isArgument()) fragmentNameArguments.push_back(fragmentNamePossibleArgument);
+        }
+        if(!empty()){
+            for(const auto& documentPart: *this){
+                fragmentArgument* foundFragmentArgument = dynamic_cast<fragmentArgument*>(documentPart);
+                if(foundFragmentArgument){
+                    std::cout << "Found fragment argument which needs expansion!\n";
+                    unsigned int argumentNumber = foundFragmentArgument->number();
+                    if(argumentNumber>fragmentNameArguments.size())
+                        throw std::runtime_error("Referencing argument number " + std::to_string(argumentNumber) + " but there are only " + std::to_string(fragmentNameArguments.size()) + " arguments defined in this fragment!");
+                    foundFragmentArgument->setNameToExpandTo(fragmentNameArguments.at(argumentNumber-1));
+                    std::cout << "  expanded to \"" << fragmentNameArguments.at(argumentNumber-1)->texUtf8() << "\"\n";
+
+                }
+            }
+        }
+        else
+            throw std::runtime_error("Internal error, unexpected empty argument list in scrap::resolveFragmentArguments!");
+        return true;
+    }
+@| resolveFragmentArguments @}

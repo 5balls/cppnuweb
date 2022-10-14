@@ -84,15 +84,25 @@ int main(int argc, char *argv[])
     nuwebAstEntry->setListingsPackageEnabled(listingsPackage->is_set());
     nuwebAstEntry->setHyperlinksEnabled(hyperLinks->is_set());
     // Parse aux file
+    std::string auxFileName;
     try{
-        std::string auxFileName = filename.substr(0,filename.find_last_of('.')) + "_dbg.aux";
+        auxFileName = filename.substr(0,filename.find_last_of('.')) + "_dbg.aux";
         nuweb::auxFile l_auxFile(auxFileName);
         nuwebAstEntry->setAuxFileParsed(true);
     }
     catch(std::runtime_error& e){
-        std::cout << e.what() << "\n";
-        std::cout << "You'll need to rerun nuweb after running latex\n";
+        std::cout << "Parsing aux file \"" + auxFileName + "\" failed with error:\n  " << e.what() << std::endl;
+        std::cout << "You'll need to rerun nuweb after running latex.\n";
     }
+    // Resolve references
+    try{
+        nuwebAstEntry->resolveReferences();
+    }
+    catch(std::runtime_error& e){
+        std::cout << "Resolving references failed with error:\n  " << e.what() << std::endl;
+        return EXIT_FAILURE;
+    }
+    // Generate LaTeX file:
     if(!suppressGenerationOfTexFile->is_set()){
         try{
             std::ofstream texFile;
@@ -108,6 +118,7 @@ int main(int argc, char *argv[])
             return EXIT_FAILURE;
         }
     }
+    // Generate Output files
     if(!suppressGenerationOfOutputFiles->is_set()){
         try{
             outputFile::writeFiles();

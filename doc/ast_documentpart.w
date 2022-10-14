@@ -42,6 +42,36 @@ namespace nuweb {
 @<End of header@>
 @}
 
+
+\indexClass{documentPart}\indexClassBaseOf{documentPart}{outputFile}\indexClassBaseOf{documentPart}{emptyDocumentPart}
+@d \classDeclaration{documentPart}
+@{@%
+class documentPart: public std::vector<documentPart*> {
+private:
+    filePosition* m_filePosition = nullptr;
+    static bool auxFileParsed;
+    static bool m_listingsPackageEnabled;
+    static bool m_hyperlinksEnabled;
+public:
+    documentPart(const documentPart&) = delete;
+    documentPart(void);
+    documentPart(documentPart&& l_documentPart);
+    documentPart(documentPart* l_documentPart);
+    documentPart(filePosition* l_filePosition);
+    std::string filePositionString() const;
+    virtual std::string utf8() const;
+    virtual std::string texUtf8() const;
+    virtual std::string fileUtf8() const;
+    virtual void resolveReferences(void);
+    void setAuxFileParsed(bool wasParsed);
+    static bool auxFileWasParsed(void);
+    void setListingsPackageEnabled(bool listingsPackageEnabled);
+    static bool listingsPackageEnabled(void);
+    void setHyperlinksEnabled(bool hyperlinksEnabled);
+    static bool hyperlinksEnabled(void);
+};
+@| documentPart utf8 texUtf8 @}
+
 \subsection{Implementation}
 @d C++ files without main in path @'path@'
 @{@1documentPart.cpp
@@ -63,8 +93,91 @@ namespace nuweb {
 @<\classImplementation{fragmentNamePartDefinition}@>
 @<\classImplementation{outputFile}@>
 @<\classImplementation{scrapVerbatim}@>
+@<\classImplementation{scrap}@>
 @<\classImplementation{fragmentArgument}@>
 @}
+
+\subsubsection{documentPart}
+\indexClassMethod{documentPart}{documentPart}
+@d \classImplementation{documentPart}
+@{@%
+    nuweb::documentPart::documentPart(void) : std::vector<documentPart*>({}) {
+    }
+    nuweb::documentPart::documentPart(documentPart&& l_documentPart) : m_filePosition(l_documentPart.m_filePosition), std::vector<documentPart*>(std::move(l_documentPart)) {
+    }
+    nuweb::documentPart::documentPart(documentPart* l_documentPart) : documentPart(std::move(*l_documentPart)){
+    }
+    nuweb::documentPart::documentPart(filePosition* l_filePosition) : m_filePosition(l_filePosition){
+    }
+@| documentPart @}
+
+\subsubsection{filePositionString}
+\indexClassMethod{documentPart}{filePositionString}
+@d \classImplementation{documentPart}
+@{@%
+    std::string nuweb::documentPart::filePositionString(void) const{
+        if(empty())
+            return "[" + m_filePosition->m_filename + ":" + std::to_string(m_filePosition->m_line) + "," + std::to_string(m_filePosition->m_column) + "|" + std::to_string(m_filePosition->m_line_end) + "," + std::to_string(m_filePosition->m_column_end) + "]";
+        else{
+            return "[" + this->front()->m_filePosition->m_filename + ":" + std::to_string(this->front()->m_filePosition->m_line) + "," + std::to_string(this->front()->m_filePosition->m_column) + "|" + std::to_string(this->back()->m_filePosition->m_line_end) + "," + std::to_string(this->back()->m_filePosition->m_column_end) + "]";
+        }
+    }
+@| filePositionString @}
+
+\subsubsection{setAuxFileParsed}
+\indexClassMethod{documentPart}{setAuxFileParsed}
+@d \classImplementation{documentPart}
+@{@%
+    void nuweb::documentPart::setAuxFileParsed(bool wasParsed){
+        auxFileParsed = wasParsed;
+    }
+@| setAuxFileParsed @}
+
+\subsubsection{auxFileWasParsed}
+\indexClassMethod{documentPart}{auxFileWasParsed}
+@d \classImplementation{documentPart}
+@{@%
+    bool nuweb::documentPart::auxFileWasParsed(void){
+        return auxFileParsed;
+    }
+@| auxFileWasParsed @}
+
+\subsubsection{setListingsPackageEnabled}
+\indexClassMethod{documentPart}{setListingsPackageEnabled}
+@d \classImplementation{documentPart}
+@{@%
+    void nuweb::documentPart::setListingsPackageEnabled(bool listingsPackageEnabled){
+        m_listingsPackageEnabled = listingsPackageEnabled;
+    }
+@| setListingsPackageEnabled @}
+
+\subsubsection{listingsPackageEnabled}
+\indexClassMethod{documentPart}{listingsPackageEnabled}
+@d \classImplementation{documentPart}
+@{@%
+    bool nuweb::documentPart::listingsPackageEnabled(void){
+        return m_listingsPackageEnabled;
+    }
+@| listingsPackageEnabled @}
+
+\subsubsection{setHyperlinksEnabled}
+\indexClassMethod{documentPart}{setHyperlinksEnabled}
+@d \classImplementation{documentPart}
+@{@%
+    void nuweb::documentPart::setHyperlinksEnabled(bool hyperlinksEnabled){
+        m_hyperlinksEnabled = hyperlinksEnabled;
+    }
+@| setHyperlinksEnabled @}
+
+\subsubsection{hyperlinksEnabled}
+\indexClassMethod{documentPart}{hyperlinksEnabled}
+@d \classImplementation{documentPart}
+@{@%
+    bool nuweb::documentPart::hyperlinksEnabled(void){
+        return m_hyperlinksEnabled;
+    }
+@| hyperlinksEnabled @}
+
 \subsubsection{utf8}
 \indexClassMethod{documentPart}{utf8}
 @d \classImplementation{documentPart}
@@ -125,3 +238,14 @@ std::string nuweb::documentPart::fileUtf8() const{
 }
 @}
 
+\subsubsection{resolveReferences}
+\indexClassMethod{documentPart}{resolveReferences}
+@d \classImplementation{documentPart}
+@{@%
+    void nuweb::documentPart::resolveReferences(void){
+        // To be implemented by derived classes that need it
+        if(!empty())
+            for(auto& documentPart: *this)
+                documentPart->resolveReferences();
+    }
+@| resolveReferences @}

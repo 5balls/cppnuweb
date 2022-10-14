@@ -20,21 +20,23 @@
 @d \classDeclaration{fragmentDefinition}
 @{@%
 class fragmentDefinition : public documentPart {
+private:
+    fragmentDefinition* m_firstFragment;
 protected:
     static unsigned int m_scrapNumber;
     static std::map<unsigned int, fragmentDefinition*> fragmentDefinitions;
     static std::map<unsigned int, std::vector<unsigned int> > m_scrapsDefiningAFragment;
     documentPart* m_fragmentName; 
     unsigned int m_fragmentNameSize;
-    documentPart* m_scrap;
+    scrap* m_scrap;
     unsigned int m_currentScrapNumber;
     std::vector<unsigned int> m_referencesInScraps;
     bool m_pageBreak;
 public:
+    fragmentDefinition(documentPart* l_fragmentName, documentPart* l_scrap, bool pageBreak = false); 
     static fragmentDefinition* fragmentFromFragmentName(const documentPart* fragmentName);
     std::vector<unsigned int> scrapsFromFragment(void);
     static std::vector<unsigned int> scrapsFromFragmentName(const documentPart* fragmentName);
-    fragmentDefinition(documentPart* l_fragmentName, documentPart* l_scrap, bool pageBreak = false); 
     void addReferenceScrapNumber(unsigned int scrapNumber);
     unsigned int scrapNumber(void);
     static unsigned int totalNumberOfScraps(void);
@@ -47,6 +49,7 @@ public:
     virtual std::string texUtf8(void) const override;
     virtual std::string utf8(void) const override;
     virtual std::string fileUtf8(void) const override;
+    virtual void resolveReferences(void) override;
     std::string scrapFileUtf8(void) const;
 };
 @| fragmentDefinition @}
@@ -62,7 +65,10 @@ std::map<unsigned int, std::vector<unsigned int> > nuweb::fragmentDefinition::m_
 \subsubsection{fragmentDefinition}
 @d \classImplementation{fragmentDefinition}
 @{@%
-    nuweb::fragmentDefinition::fragmentDefinition(documentPart* l_fragmentName, documentPart* l_scrap, bool pageBreak) : m_fragmentName(l_fragmentName), m_scrap(l_scrap), m_currentScrapNumber(++m_scrapNumber), m_fragmentNameSize(m_fragmentName->size()), m_pageBreak(pageBreak){
+    nuweb::fragmentDefinition::fragmentDefinition(documentPart* l_fragmentName, documentPart* l_scrap, bool pageBreak) : m_fragmentName(l_fragmentName), m_currentScrapNumber(++m_scrapNumber), m_fragmentNameSize(m_fragmentName->size()), m_pageBreak(pageBreak){
+        m_scrap = dynamic_cast<class scrap*>(l_scrap);
+        if(!m_scrap)
+            throw std::runtime_error("Internal program error, documentPart passed fot fragmentDefinition is not a scrap as expected!");
         fragmentDefinitions[m_currentScrapNumber] = this;
         if(scrapsFromFragmentName(l_fragmentName).size()==0)
             throw std::runtime_error("Internal program error, could not maintain internal scrap list!");
@@ -249,10 +255,7 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
         std::string returnString;
         returnString += "\\item ";
         // We need to get the references from the first fragment which keeps those:
-        fragmentDefinition* firstFragment = fragmentFromFragmentName(m_fragmentName);
-        if(!firstFragment)
-            throw std::runtime_error("Internal error, could not get first scrap of fragment!");
-        std::vector<unsigned int> referencesInScraps = firstFragment->referencesInScraps();
+        std::vector<unsigned int> referencesInScraps = m_firstFragment->referencesInScraps();
         if(referencesInScraps.empty())
             returnString += "{\\NWtxtMacroNoRef}";
         else{
@@ -284,10 +287,7 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
 @d \classImplementation{fragmentDefinition}
 @{@%
     std::string nuweb::fragmentDefinition::definedByTexUtf8(void) const{
-        fragmentDefinition* firstFragment = fragmentFromFragmentName(m_fragmentName);
-        if(!firstFragment)
-            throw std::runtime_error("Internal error, could not get first scrap of fragment!");
-        unsigned int firstFragmentNumber = firstFragment->scrapNumber();
+        unsigned int firstFragmentNumber = m_firstFragment->scrapNumber();
         if(m_scrapsDefiningAFragment[firstFragmentNumber].size()>1){
             if(auxFileWasParsed()){
                 std::string returnString = "\\item \\NWtxtMacroDefBy\\ ";
@@ -334,7 +334,6 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
         scrapVerbatim* scrap = dynamic_cast<scrapVerbatim*>(m_scrap);
         if(!scrap)
             throw ("Internal problem convering scrap to scrap type in fragmentDefinition::texUtf8");
-        scrap->resolveFragmentArguments(m_fragmentName);
         returnString += m_scrap->texUtf8();
         returnString += "\\end{list}\n";
         returnString += "\\vspace{-1.5ex}\n";
@@ -386,3 +385,15 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
         return m_scrap->fileUtf8();
     }
 @| scrapFileUtf8 @}
+
+\subsubsection{resolveReferences}
+\indexClassMethod{fragmentDefinition}{resolveReferences}
+@d \classImplementation{fragmentDefinition}
+@{@%
+    void nuweb::fragmentDefinition::resolveReferences(void){
+        m_firstFragment = fragmentFromFragmentName(m_fragmentName);
+        if(!m_firstFragment)
+            throw std::runtime_error("Internal error, could resolve to first defining fragment!");
+        m_scrap->resolveFragmentArguments(m_fragmentName);
+    }
+@| resolveReferences @}

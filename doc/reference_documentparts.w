@@ -69,56 +69,6 @@ documentPart* m_documentPart;
 
 This is all we need to define our ``\lstinline{class documentPart}''.
 
-\indexClass{documentPart}\indexClassBaseOf{documentPart}{outputFile}\indexClassBaseOf{documentPart}{emptyDocumentPart}
-@d \classDeclaration{documentPart}
-@{@%
-class documentPart: public std::vector<documentPart*> {
-private:
-    filePosition* m_filePosition = nullptr;
-    static bool auxFileParsed;
-    static bool m_listingsPackageEnabled;
-    static bool m_hyperlinksEnabled;
-public:
-    documentPart(const documentPart&) = delete;
-    documentPart(void) : std::vector<documentPart*>({}) {
-    }
-    documentPart(documentPart&& l_documentPart) : m_filePosition(l_documentPart.m_filePosition), std::vector<documentPart*>(std::move(l_documentPart)) {
-    }
-    documentPart(documentPart* l_documentPart) : documentPart(std::move(*l_documentPart)){
-    }
-    documentPart(filePosition* l_filePosition) : m_filePosition(l_filePosition){
-    }
-    std::string filePositionString() const {
-        if(empty())
-            return "[" + m_filePosition->m_filename + ":" + std::to_string(m_filePosition->m_line) + "," + std::to_string(m_filePosition->m_column) + "|" + std::to_string(m_filePosition->m_line_end) + "," + std::to_string(m_filePosition->m_column_end) + "]";
-        else{
-            return "[" + this->front()->m_filePosition->m_filename + ":" + std::to_string(this->front()->m_filePosition->m_line) + "," + std::to_string(this->front()->m_filePosition->m_column) + "|" + std::to_string(this->back()->m_filePosition->m_line_end) + "," + std::to_string(this->back()->m_filePosition->m_column_end) + "]";
-        }
-    }
-    virtual std::string utf8() const;
-    virtual std::string texUtf8() const;
-    virtual std::string fileUtf8() const;
-    void setAuxFileParsed(bool wasParsed){
-        auxFileParsed = wasParsed;
-    }
-    static bool auxFileWasParsed(void){
-        return auxFileParsed;
-    }
-    void setListingsPackageEnabled(bool listingsPackageEnabled){
-        m_listingsPackageEnabled = listingsPackageEnabled;
-    }
-    static bool listingsPackageEnabled(void){
-        return m_listingsPackageEnabled;
-    }
-    void setHyperlinksEnabled(bool hyperlinksEnabled){
-        m_hyperlinksEnabled = hyperlinksEnabled;
-    }
-    static bool hyperlinksEnabled(void){
-        return m_hyperlinksEnabled;
-    }
-};
-@| documentPart utf8 texUtf8 @}
-
 @d \staticDefinitions{documentPart}
 @{@%
 bool nuweb::documentPart::auxFileParsed = false;
