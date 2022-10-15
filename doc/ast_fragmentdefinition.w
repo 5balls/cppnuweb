@@ -395,5 +395,10 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
         if(!m_firstFragment)
             throw std::runtime_error("Internal error, could resolve to first defining fragment!");
         m_scrap->resolveFragmentArguments(m_fragmentName);
+        if(m_scrap->empty())
+            m_scrap->resolveReferences();
+        else
+            for(auto& scrapPart: *m_scrap)
+                scrapPart->resolveReferences();
     }
 @| resolveReferences @}
