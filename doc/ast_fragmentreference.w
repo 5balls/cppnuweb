@@ -56,7 +56,10 @@ public:
             if(!referenceNamePart) 
                 throw std::runtime_error("Internal error, could not get fragment reference name correctly!");
             if(referenceNamePart->isArgument())
-                returnString += "\\verb@@" + referenceNamePart->utf8() + "@@";
+                if(listingsPackageEnabled())
+                    returnString += "\\lstinline@@" + referenceNamePart->utf8() + "@@";
+                else
+                    returnString += "\\verb@@" + referenceNamePart->utf8() + "@@";
             else
                 returnString += referenceNamePart->utf8();
         }

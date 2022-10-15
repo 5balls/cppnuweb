@@ -45,7 +45,10 @@ public:
 @{@%
     std::string nuweb::fragmentArgument::texUtf8(void) const{
         if(m_nameToExpandTo)
-            return "@@" + m_nameToExpandTo->texUtf8() + "\\verb@@";
+            if(listingsPackageEnabled())
+                return "@@" + m_nameToExpandTo->texUtf8() + "\\lstinline@@";
+            else
+                return "@@" + m_nameToExpandTo->texUtf8() + "\\verb@@";
         else
             throw std::runtime_error("Could not resolve argument name at runtime!");
     }
