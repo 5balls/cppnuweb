@@ -101,7 +101,7 @@ scrapContents
 
 @d Lexer rules for regular nuweb commands
 @{
-<scrapContents>@@\| { start(userIdentifiers); DSTRINGTOKEN(AT_PIPE) }
+<scrapContents>@@\| { start(userIdentifiers); STRINGTOKEN(AT_PIPE) }
 @| AT_PIPE @}
 
 The user identifiers do not allow any nuweb commands inside it, so we define a new start condition \lstinline{userIdentifiers} for it. This ends with \lstinline{AT_CURLY_BRACKET_CLOSE} or similar, so we are fine here.

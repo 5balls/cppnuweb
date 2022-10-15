@@ -47,12 +47,10 @@ public:
             for(const auto& documentPart: *this){
                 fragmentArgument* foundFragmentArgument = dynamic_cast<fragmentArgument*>(documentPart);
                 if(foundFragmentArgument){
-                    std::cout << "Found fragment argument which needs expansion!\n";
                     unsigned int argumentNumber = foundFragmentArgument->number();
                     if(argumentNumber>fragmentNameArguments.size())
                         throw std::runtime_error("Referencing argument number " + std::to_string(argumentNumber) + " but there are only " + std::to_string(fragmentNameArguments.size()) + " arguments defined in this fragment!");
                     foundFragmentArgument->setNameToExpandTo(fragmentNameArguments.at(argumentNumber-1));
-                    std::cout << "  expanded to \"" << fragmentNameArguments.at(argumentNumber-1)->texUtf8() << "\"\n";
 
                 }
             }

@@ -49,8 +49,10 @@ public:
     virtual std::string texUtf8(void) const override;
     virtual std::string utf8(void) const override;
     virtual std::string fileUtf8(void) const override;
+    std::string fileUtf8(documentPart* fragmentName) const;
     virtual void resolveReferences(void) override;
     std::string scrapFileUtf8(void) const;
+    std::string scrapFileUtf8(documentPart* fragmentName) const;
 };
 @| fragmentDefinition @}
 
@@ -223,7 +225,6 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
         return m_fragmentName->texUtf8();
     }
 @}
-
 \subsubsection{scrap}
 @d \classImplementation{fragmentDefinition}
 @{@%
@@ -354,6 +355,8 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
 @d \classImplementation{fragmentDefinition}
 @{@%
     std::string nuweb::fragmentDefinition::utf8(void) const{
+        if(!m_scrap)
+            throw ("Internal error, scrap not set in fragment definition");
         return m_scrap->utf8();
     }
 @| utf8 @}
@@ -364,7 +367,6 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
         return m_referencesInScraps;
     }
 @}
-
 \subsubsection{fileUtf8}
 @d \classImplementation{fragmentDefinition}
 @{@%
@@ -377,7 +379,19 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
         return returnString;
     }
 @| fileUtf8 @}
-
+\subsubsection{fileUtf8}
+\indexClassMethod{fragmentDefinition}{fileUtf8}
+@d \classImplementation{fragmentDefinition}
+@{@%
+    std::string nuweb::fragmentDefinition::fileUtf8(documentPart* fragmentName) const{
+        std::vector<unsigned int> scraps = scrapsFromFragmentName(m_fragmentName);
+        std::string returnString;
+        for(const auto& scrap: scraps){
+            returnString += fragmentDefinitions[scrap]->scrapFileUtf8(fragmentName);
+        }
+        return returnString;
+    }
+@| fileUtf8 @}
 \subsubsection{scrapFileUtf8}
 @d \classImplementation{fragmentDefinition}
 @{@%
@@ -385,7 +399,15 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
         return m_scrap->fileUtf8();
     }
 @| scrapFileUtf8 @}
-
+\subsubsection{scrapFileUtf8}
+\indexClassMethod{fragmentDefinition}{scrapFileUtf8}
+@d \classImplementation{fragmentDefinition}
+@{@%
+    std::string nuweb::fragmentDefinition::scrapFileUtf8(documentPart* fragmentName) const{
+        m_scrap->resolveFragmentArguments(fragmentName);
+        return m_scrap->fileUtf8();
+    }
+@| scrapFileUtf8 @}
 \subsubsection{resolveReferences}
 \indexClassMethod{fragmentDefinition}{resolveReferences}
 @d \classImplementation{fragmentDefinition}

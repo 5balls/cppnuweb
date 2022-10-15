@@ -27,6 +27,7 @@ public:
     fragmentArgument(unsigned int number);
     void setNameToExpandTo(fragmentNamePartDefinition* nameToExpandTo);
     virtual std::string texUtf8(void) const override;
+    virtual std::string fileUtf8(void) const override;
     unsigned int number(void) const;
 };
 @| fragmentArgument @}
@@ -64,3 +65,11 @@ public:
         return m_number;
     }
 @| number @}
+\subsubsection{fileUtf8}
+\indexClassMethod{fragmentArgument}{fileUtf8}
+@d \classImplementation{fragmentArgument}
+@{@%
+    std::string nuweb::fragmentArgument::fileUtf8(void) const{
+        return m_nameToExpandTo->utf8();
+    }
+@| fileUtf8 @}

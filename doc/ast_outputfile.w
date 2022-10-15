@@ -96,7 +96,10 @@ public:
                     throw std::runtime_error("Internal error, could not get fragment when trying to write output files!");
                 outputFileContent += outputFragment->fileUtf8();
             }
-            outputFileStream.open(outputFile->name());
+
+            std::string outputFileName = outputFile->name().substr(0,outputFile->name().find_last_of('.')) + "_dbg.txt";
+            outputFileStream.open(outputFileName);
+            //outputFileStream.open(outputFile->name());
             outputFileStream << outputFileContent;
             outputFileStream.close();
         }

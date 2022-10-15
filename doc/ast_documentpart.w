@@ -52,6 +52,8 @@ private:
     static bool auxFileParsed;
     static bool m_listingsPackageEnabled;
     static bool m_hyperlinksEnabled;
+protected:
+    std::string thisString(void) const;
 public:
     documentPart(const documentPart&) = delete;
     documentPart(void);
@@ -186,7 +188,9 @@ std::string nuweb::documentPart::utf8(void) const{
     if(empty()){
         // Line numbers in lex start by one, internally we start at 0, so we
         // have to substract one here:
-        if(!m_filePosition) throw std::runtime_error("Internal error: documentPart without file pointer!");
+        if(!m_filePosition){
+            throw std::runtime_error("Internal error: documentPart without file pointer!" + std::string(typeid(*this).name()) + " " + thisString() + "\n");
+        }
         std::string filename = m_filePosition->m_filename;
         if(filename.empty())
             return "";
@@ -227,6 +231,7 @@ std::string nuweb::documentPart::texUtf8() const{
 @{@%
 std::string nuweb::documentPart::fileUtf8() const{
     if(empty()){
+
         return utf8();
     }
     else{
@@ -249,3 +254,14 @@ std::string nuweb::documentPart::fileUtf8() const{
                 documentPart->resolveReferences();
     }
 @| resolveReferences @}
+
+\subsubsection{thisString}
+\indexClassMethod{documentPart}{thisString}
+@d \classImplementation{documentPart}
+@{@%
+    std::string nuweb::documentPart::thisString(void) const{
+        std::stringstream thisStream;
+        thisStream << this;
+        return thisStream.str();
+    }
+@| thisString @}

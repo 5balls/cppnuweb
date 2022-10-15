@@ -91,12 +91,8 @@ public:
 @d \classImplementation{fragmentReference}
 @{@%
     std::string nuweb::fragmentReference::fileUtf8(void) const{
-        fragmentDefinition* fragment = m_fragment;
-        if(!fragment) fragment = fragmentDefinition::fragmentFromFragmentName(m_unresolvedFragmentName);
-        if(!fragment) throw std::runtime_error("Could not resolve fragment \"" + m_unresolvedFragmentName->texUtf8() + "\" in file " + m_unresolvedFragmentName->filePositionString());
-        fragment->addReferenceScrapNumber(m_scrapNumber);
-        std::cout << "fragmentReference::fileUtf8 " << fragment->name() << "\n";
-        return fragment->fileUtf8();
+        if(!m_fragment) throw std::runtime_error("Could not resolve fragment \"" + m_unresolvedFragmentName->texUtf8() + "\" in file " + m_unresolvedFragmentName->filePositionString());
+        return m_fragment->fileUtf8(m_referenceFragmentName);
     }
 @| fileUtf8 @}
 \subsubsection{resolveReferences}

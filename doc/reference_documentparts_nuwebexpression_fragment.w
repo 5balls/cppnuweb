@@ -291,7 +291,7 @@ fragmentReference
 <scrapContents>@@< { start(fragmentReference); TOKEN(AT_ANGLE_BRACKET_OPEN) }
 <fragmentReference>@@> { start(scrapContents); TOKEN(AT_ANGLE_BRACKET_CLOSE) }
 <fragmentHeader,fragmentReference>@@' {  TOKEN(AT_TICK) }
-<fragmentHeader,scrapContents>@@[1-9] { DINTTOKEN(AT_NUMBER, std::stoi(std::string(yytext+1, yyleng-1))) }
+<fragmentHeader,scrapContents>@@[1-9] { INTTOKEN(AT_NUMBER, std::stoi(std::string(yytext+1, yyleng-1))) }
 @}
 
 @d \bisonRule{fragmentNameReference}
