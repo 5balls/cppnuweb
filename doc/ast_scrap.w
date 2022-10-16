@@ -30,8 +30,9 @@ public:
 };
 @| scrap @}
 
-\subsubsection{Implementation}
+\subsection{Implementation}
 \subsubsection{resolveFragmentArguments}
+\indexClassMethod{fragmentDefinition}{resolveFragmentArguments}
 @d \classImplementation{scrap}
 @{@%
     bool nuweb::scrap::resolveFragmentArguments(documentPart* fragmentName){

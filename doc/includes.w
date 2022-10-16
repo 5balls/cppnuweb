@@ -19,7 +19,6 @@
 \usepackage{listings}
 \usepackage{imakeidx}
 \usepackage[margin=3cm]{geometry}
-\usepackage[nottoc]{tocbibind}
 \usepackage{longtable}
 \usepackage{verbatim}
 \usepackage{pgf-umlsd}
@@ -27,7 +26,6 @@
 \usepackage[textsize=tiny, textwidth=2.7cm, colorinlistoftodos]{todonotes}
 \usepackage{etoolbox}% http://ctan.org/pkg/etoolbox
 \usepackage{syntax} 
-\usepackage{tocbibind}
 \usepackage{amssymb}
 \usepackage{amsmath}
 \usepackage{bigfoot}
@@ -48,3 +46,4 @@
 \patchcmd\FN@@allmarks{266}{256}{}{\fail}
 \makeatother
 \makeindex[options=-s ./index]
+\usepackage{tocbibind}

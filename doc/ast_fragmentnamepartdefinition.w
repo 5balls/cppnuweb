@@ -37,6 +37,7 @@ std::vector<nuweb::fragmentNamePartDefinition*> nuweb::fragmentNamePartDefinitio
 @| m_allFragmentPartDefinitions @}
 \subsection{Implementation}
 \subsubsection{fragmentNamePartDefinition}
+\indexClassMethod{fragmentDefinition}{fragmentNamePartDefinition}
 @d \classImplementation{fragmentNamePartDefinition}
 @{@%
     nuweb::fragmentNamePartDefinition::fragmentNamePartDefinition(filePosition* l_filePosition, bool isArgument) : documentPart(l_filePosition), m_isArgument(isArgument) {
@@ -50,6 +51,7 @@ std::vector<nuweb::fragmentNamePartDefinition*> nuweb::fragmentNamePartDefinitio
     }
 @}
 \subsubsection{operator==}
+\indexClassMethod{fragmentDefinition}{operator}
 @d \classImplementation{fragmentNamePartDefinition}
 @{@%
     bool nuweb::fragmentNamePartDefinition::operator==(const fragmentNamePartDefinition& toCompareWith) const{
@@ -63,6 +65,7 @@ std::vector<nuweb::fragmentNamePartDefinition*> nuweb::fragmentNamePartDefinitio
     }
 @}
 \subsubsection{texUtf8}
+\indexClassMethod{fragmentDefinition}{texUtf8}
 @d \classImplementation{fragmentNamePartDefinition}
 @{@%
     std::string nuweb::fragmentNamePartDefinition::texUtf8() const{
@@ -74,6 +77,7 @@ std::vector<nuweb::fragmentNamePartDefinition*> nuweb::fragmentNamePartDefinitio
 @| texUtf8 @}
 
 \subsubsection{isArgument}
+\indexClassMethod{fragmentDefinition}{isArgument}
 @d \classImplementation{fragmentNamePartDefinition}
 @{@%
     bool nuweb::fragmentNamePartDefinition::isArgument(void) const{

@@ -31,6 +31,7 @@ public:
 @}
 \section{Implementation}
 \subsubsection{texUtf8}
+\indexClassMethod{fragmentDefinition}{texUtf8}
 @d \classImplementation{scrapVerbatim}
 @{@%
     std::string nuweb::scrapVerbatim::texUtf8(void) const{

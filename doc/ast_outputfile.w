@@ -39,6 +39,7 @@ public:
 
 \subsection{Implementation}
 \subsubsection{outputFile}
+\indexClassMethod{fragmentDefinition}{outputFile}
 @d \classImplementation{outputFile}
 @{@%
     nuweb::outputFile::outputFile(documentPart* l_fileName, documentPart* l_scrap, bool pageBreak) : fragmentDefinition(l_fileName, l_scrap, pageBreak) {
@@ -52,6 +53,7 @@ public:
     }
 @| outputFile @}
 \subsubsection{headerTexUtf8}
+\indexClassMethod{fragmentDefinition}{headerTexUtf8}
 @d \classImplementation{outputFile}
 @{@%
     std::string nuweb::outputFile::headerTexUtf8(void) const{
@@ -69,6 +71,7 @@ public:
     }
 @| headerTexUtf8 @}
 \subsubsection{referencesTexUtf8}
+\indexClassMethod{fragmentDefinition}{referencesTexUtf8}
 @d \classImplementation{outputFile}
 @{@%
     std::string nuweb::outputFile::referencesTexUtf8(void) const{
@@ -76,6 +79,7 @@ public:
     }
 @| referencesTexUtf8 @}
 \subsubsection{fileUtf8}
+\indexClassMethod{fragmentDefinition}{fileUtf8}
 @d \classImplementation{outputFile}
 @{@%
     std::string nuweb::outputFile::fileUtf8(void) const{
@@ -83,6 +87,7 @@ public:
     }
 @| fileUtf8 @}
 \subsubsection{writeFiles}
+\indexClassMethod{fragmentDefinition}{writeFiles}
 @d \classImplementation{outputFile}
 @{@%
     void nuweb::outputFile::writeFiles(void){

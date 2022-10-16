@@ -65,6 +65,7 @@ std::map<unsigned int, std::vector<unsigned int> > nuweb::fragmentDefinition::m_
 
 \subsection{Implementation}
 \subsubsection{fragmentDefinition}
+\indexClassMethod{fragmentDefinition}{fragmentDefinition}
 @d \classImplementation{fragmentDefinition}
 @{@%
     nuweb::fragmentDefinition::fragmentDefinition(documentPart* l_fragmentName, documentPart* l_scrap, bool pageBreak) : m_fragmentName(l_fragmentName), m_currentScrapNumber(++m_scrapNumber), m_fragmentNameSize(m_fragmentName->size()), m_pageBreak(pageBreak){
@@ -85,6 +86,7 @@ std::map<unsigned int, std::vector<unsigned int> > nuweb::fragmentDefinition::m_
     }
 @}
 \subsubsection{fragmentFromFragmentName}
+\indexClassMethod{fragmentDefinition}{fragmentFromFragmentName}
 @d \classImplementation{fragmentDefinition}
 @{@%
     nuweb::fragmentDefinition* nuweb::fragmentDefinition::fragmentFromFragmentName(const documentPart* fragmentName){
@@ -120,6 +122,7 @@ std::map<unsigned int, std::vector<unsigned int> > nuweb::fragmentDefinition::m_
     }
 @}
 \subsubsection{scrapNumber}
+\indexClassMethod{fragmentDefinition}{scrapNumber}
 @d \classImplementation{fragmentDefinition}
 @{@%
     unsigned int nuweb::fragmentDefinition::scrapNumber(void) {
@@ -127,6 +130,7 @@ std::map<unsigned int, std::vector<unsigned int> > nuweb::fragmentDefinition::m_
     }
 @}
 \subsubsection{scrapsFromFragmentName}
+\indexClassMethod{fragmentDefinition}{scrapsFromFragmentName}
 @d \classImplementation{fragmentDefinition}
 @{@%
     std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragmentName(const documentPart* fragmentName){
@@ -196,6 +200,7 @@ std::map<unsigned int, std::vector<unsigned int> > nuweb::fragmentDefinition::m_
     }
 @}
 \subsubsection{scrapsFromFragment}
+\indexClassMethod{fragmentDefinition}{scrapsFromFragment}
 @d \classImplementation{fragmentDefinition}
 @{@%
 std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
@@ -203,6 +208,7 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
 }
 @}
 \subsubsection{addReferenceScrapNumber}
+\indexClassMethod{fragmentDefinition}{addReferenceScrapNumber}
 @d \classImplementation{fragmentDefinition}
 @{@%
     void nuweb::fragmentDefinition::addReferenceScrapNumber(unsigned int scrapNumber){
@@ -212,6 +218,7 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
     }
 @}
 \subsubsection{totalNumberOfScraps}
+\indexClassMethod{fragmentDefinition}{totalNumberOfScraps}
 @d \classImplementation{fragmentDefinition}
 @{@%
     unsigned int nuweb::fragmentDefinition::totalNumberOfScraps(void){
@@ -219,6 +226,7 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
     }
 @}
 \subsubsection{name}
+\indexClassMethod{fragmentDefinition}{name}
 @d \classImplementation{fragmentDefinition}
 @{@%
     std::string nuweb::fragmentDefinition::name(void) const {
@@ -226,6 +234,7 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
     }
 @}
 \subsubsection{scrap}
+\indexClassMethod{fragmentDefinition}{scrap}
 @d \classImplementation{fragmentDefinition}
 @{@%
     nuweb::documentPart* nuweb::fragmentDefinition::scrap(void){
@@ -233,6 +242,7 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
     }
 @}
 \subsubsection{headerTexUtf8}
+\indexClassMethod{fragmentDefinition}{headerTexUtf8}
 @d \classImplementation{fragmentDefinition}
 @{@%
     std::string nuweb::fragmentDefinition::headerTexUtf8(void) const {
@@ -250,6 +260,7 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
     }
 @}
 \subsubsection{referencesTexUtf8}
+\indexClassMethod{fragmentDefinition}{referencesTexUtf8}
 @d \classImplementation{fragmentDefinition}
 @{@%
     std::string nuweb::fragmentDefinition::referencesTexUtf8(void) const {
@@ -285,6 +296,7 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
     }
 @}
 \subsubsection{definedByTexUtf8}
+\indexClassMethod{fragmentDefinition}{definedByTexUtf8}
 @d \classImplementation{fragmentDefinition}
 @{@%
     std::string nuweb::fragmentDefinition::definedByTexUtf8(void) const{
@@ -321,6 +333,7 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
     }
 @}
 \subsubsection{texUtf8}
+\indexClassMethod{fragmentDefinition}{texUtf8}
 @d \classImplementation{fragmentDefinition}
 @{@%
     std::string nuweb::fragmentDefinition::texUtf8(void) const{
@@ -352,6 +365,7 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
     }
 @}
 \subsubsection{utf8}
+\indexClassMethod{fragmentDefinition}{utf8}
 @d \classImplementation{fragmentDefinition}
 @{@%
     std::string nuweb::fragmentDefinition::utf8(void) const{
@@ -361,6 +375,7 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
     }
 @| utf8 @}
 \subsubsection{referencesInScraps}
+\indexClassMethod{fragmentDefinition}{referencesInScraps}
 @d \classImplementation{fragmentDefinition}
 @{@%
     std::vector<unsigned int> nuweb::fragmentDefinition::referencesInScraps(void) const{
@@ -368,6 +383,7 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
     }
 @}
 \subsubsection{fileUtf8}
+\indexClassMethod{fragmentDefinition}{fileUtf8}
 @d \classImplementation{fragmentDefinition}
 @{@%
     std::string nuweb::fragmentDefinition::fileUtf8(void) const{
@@ -393,6 +409,7 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
     }
 @| fileUtf8 @}
 \subsubsection{scrapFileUtf8}
+\indexClassMethod{fragmentDefinition}{scrapFileUtf8}
 @d \classImplementation{fragmentDefinition}
 @{@%
     std::string nuweb::fragmentDefinition::scrapFileUtf8(void) const{

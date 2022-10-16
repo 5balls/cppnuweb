@@ -38,6 +38,7 @@ public:
 
 \subsection{Implementation}
 \subsubsection{fragmentReference}
+\indexClassMethod{fragmentDefinition}{fragmentReference}
 @d \classImplementation{fragmentReference}
 @{@%
     nuweb::fragmentReference::fragmentReference(documentPart* fragmentName, bool expandReference) : m_unresolvedFragmentName(nullptr), m_referenceFragmentName(fragmentName), m_expandReference(expandReference){
@@ -47,6 +48,7 @@ public:
     }
 @}
 \subsubsection{texUtf8}
+\indexClassMethod{fragmentDefinition}{texUtf8}
 @d \classImplementation{fragmentReference}
 @{@%
     std::string nuweb::fragmentReference::texUtf8(void) const{
@@ -86,6 +88,7 @@ public:
     }
 @}
 \subsubsection{utf8}
+\indexClassMethod{fragmentDefinition}{utf8}
 @d \classImplementation{fragmentReference}
 @{@%
     std::string nuweb::fragmentReference::utf8(void) const{
@@ -97,6 +100,7 @@ public:
     }
 @}
 \subsubsection{fileUtf8}
+\indexClassMethod{fragmentDefinition}{fileUtf8}
 @d \classImplementation{fragmentReference}
 @{@%
     std::string nuweb::fragmentReference::fileUtf8(void) const{

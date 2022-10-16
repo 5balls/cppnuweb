@@ -32,7 +32,9 @@ public:
 };
 @| fragmentArgument @}
 
+\subsection{Implementation}
 \subsubsection{fragmentArgument}
+\indexClassMethod{fragmentDefinition}{fragmentArgument}
 @d \classImplementation{fragmentArgument}
 @{@%
     nuweb::fragmentArgument::fragmentArgument(unsigned int number) : documentPart(), m_number(number), m_nameToExpandTo(nullptr){
@@ -41,6 +43,7 @@ public:
 @| fragmentArgument @}
 
 \subsubsection{texUtf8}
+\indexClassMethod{fragmentDefinition}{texUtf8}
 @d \classImplementation{fragmentArgument}
 @{@%
     std::string nuweb::fragmentArgument::texUtf8(void) const{
@@ -55,6 +58,7 @@ public:
 @| texUtf8 @}
 
 \subsubsection{setNameToExpandTo}
+\indexClassMethod{fragmentDefinition}{setNameToExpandTo}
 @d \classImplementation{fragmentArgument}
 @{@%
     void nuweb::fragmentArgument::setNameToExpandTo(fragmentNamePartDefinition* nameToExpandTo){
@@ -62,6 +66,7 @@ public:
     }
 @| setNameToExpandTo @}
 \subsubsection{number}
+\indexClassMethod{fragmentDefinition}{number}
 @d \classImplementation{fragmentArgument}
 @{@%
     unsigned int nuweb::fragmentArgument::number(void) const{

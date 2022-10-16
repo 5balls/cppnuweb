@@ -50,8 +50,8 @@
 \section{User identifiers}
 @u
 
-\todototoc\listoftodos
+\phantomsection\listoftodos\todototoc
 
-\cleardoublepage\printindex
+\cleardoublepage\phantomsection\printindex
 \end{appendix}
 \end{document}
