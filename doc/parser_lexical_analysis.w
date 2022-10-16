@@ -53,6 +53,7 @@ We try to use the Flex and Bison programs to create our parser.
 %x outputFileHeader
 %x fragmentHeader
 %x fragmentReference
+%x fragmentReferenceExpanded
 
 %%
  /* rules */

@@ -24,6 +24,7 @@ A ``\lstinline{nuwebExpression}'' is basically every nuweb command\footnote{Anyt
 \alt AT_AT
 \alt <scrap>
 \alt <fragmentDefinition>
+\alt <fragmentReference>
 \alt AT_SMALL_F
 \alt NOT_IMPLEMENTED
 \end{grammar}
@@ -49,6 +50,11 @@ nuwebExpression
     | fragmentDefinition
     {
         $$ = $fragmentDefinition;
+    }
+    | fragmentReference
+    {
+        $fragmentReference->setExpandReference(true);
+        $$ = $fragmentReference;
     }
     | AT_SMALL_F
     {

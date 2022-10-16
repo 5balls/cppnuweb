@@ -290,7 +290,9 @@ fragmentReference
 @{@%
 <scrapContents>@@< { start(fragmentReference); TOKEN(AT_ANGLE_BRACKET_OPEN) }
 <fragmentReference>@@> { start(scrapContents); TOKEN(AT_ANGLE_BRACKET_CLOSE) }
-<fragmentHeader,fragmentReference>@@' {  TOKEN(AT_TICK) }
+<INITIAL>@@< { start(fragmentReferenceExpanded); TOKEN(AT_ANGLE_BRACKET_OPEN) }
+<fragmentReferenceExpanded>@@> { start(INITIAL); TOKEN(AT_ANGLE_BRACKET_CLOSE) }
+<fragmentHeader,fragmentReference,fragmentReferenceExpanded>@@' {  TOKEN(AT_TICK) }
 <fragmentHeader,scrapContents>@@[1-9] { INTTOKEN(AT_NUMBER, std::stoi(std::string(yytext+1, yyleng-1))) }
 @}
 
@@ -303,13 +305,18 @@ fragmentNameReference
     }
 @| fragmentNameReference @}
 
+@d Bison union definitions
+@{@%
+fragmentReference* m_fragmentReference;
+@}
+
 @d \bisonTypeDefinition{fragmentNameReference}
 @{@%
-%type <m_documentPart> fragmentNameReference
+%type <m_fragmentReference> fragmentNameReference
 @}
 
 @d \bisonTypeDefinition{fragmentReference}
 @{@%
-%type <m_documentPart> fragmentReference
+%type <m_fragmentReference> fragmentReference
 @}
 
