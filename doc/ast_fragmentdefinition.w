@@ -45,6 +45,7 @@ public:
     std::vector<unsigned int> referencesInScraps(void) const;
     virtual std::string headerTexUtf8(void) const;
     virtual std::string referencesTexUtf8(void) const;
+    virtual std::string usesTexUtf8(void) const;
     std::string definedByTexUtf8(void) const;
     virtual std::string texUtf8(void) const override;
     virtual std::string utf8(void) const override;
@@ -355,6 +356,7 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
         returnString += "\\begin{list}{}{\\setlength{\\itemsep}{-\\parsep}\\setlength{\\itemindent}{-\\leftmargin}}\n";
         returnString += definedByTexUtf8();
         returnString += referencesTexUtf8();
+        returnString += usesTexUtf8();
         returnString += "\n\\item{}\n";
         returnString += "\\end{list}\n";
         if(!m_pageBreak)
@@ -434,6 +436,7 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
         if(!m_firstFragment)
             throw std::runtime_error("Internal error, could resolve to first defining fragment!");
         m_scrap->resolveFragmentArguments(m_fragmentName);
+        m_scrap->setUserIdentifiersScrapNumber(m_scrapNumber);
         if(m_scrap->empty())
             m_scrap->resolveReferences();
         else
@@ -441,3 +444,15 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
                 scrapPart->resolveReferences();
     }
 @| resolveReferences @}
+\subsubsection{usesTexUtf8}
+\indexClassMethod{fragmentDefinition}{usesTexUtf8}
+@d \classImplementation{fragmentDefinition}
+@{@%
+    std::string nuweb::fragmentDefinition::usesTexUtf8(void) const{
+        std::string returnString;
+        for(auto& usedIdentifier: m_scrap->uses()){
+            returnString += usedIdentifier.first;
+        }
+        return returnString;
+    }
+@| usesTexUtf8 @}

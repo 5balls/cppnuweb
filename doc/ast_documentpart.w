@@ -38,6 +38,7 @@ namespace nuweb {
 @<\classDeclaration{outputFile}@>
 @<\classDeclaration{emptyDocumentPart}@>
 @<\classDeclaration{fragmentArgument}@>
+@<\classDeclaration{userIdentifiers}@>
 }
 @<End of header@>
 @}
@@ -88,6 +89,7 @@ public:
 @<\staticDefinitions{fragmentDefinition}@>
 @<\staticDefinitions{fragmentNamePartDefinition}@>
 @<\staticDefinitions{outputFile}@>
+@<\staticDefinitions{userIdentifier}@>
 
 @<\classImplementation{documentPart}@>
 @<\classImplementation{fragmentDefinition}@>
@@ -97,6 +99,7 @@ public:
 @<\classImplementation{scrapVerbatim}@>
 @<\classImplementation{scrap}@>
 @<\classImplementation{fragmentArgument}@>
+@<\classImplementation{userIdentifiers}@>
 @}
 
 \subsubsection{documentPart}

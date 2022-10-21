@@ -26,7 +26,9 @@ public:
     }
     scrap(documentPart* l_documentPart) : documentPart(l_documentPart){
     }
+    std::vector<std::pair<std::string, unsigned int> > uses(void);
     bool resolveFragmentArguments(documentPart* fragmentName);
+    void setUserIdentifiersScrapNumber(unsigned int scrapNumber);
 };
 @| scrap @}
 
@@ -61,4 +63,40 @@ public:
         return true;
     }
 @| resolveFragmentArguments @}
-
+\subsubsection{setUserIdentifiersScrapNumber}
+\indexClassMethod{scrap}{setUserIdentifiersScrapNumber}
+@d \classImplementation{scrap}
+@{@%
+    void nuweb::scrap::setUserIdentifiersScrapNumber(unsigned int scrapNumber){
+       if(!empty())
+           for(auto& documentPart: *this){
+               userIdentifiers* userIdentifier = dynamic_cast<userIdentifiers*>(documentPart);
+               if(userIdentifier){
+                   if(userIdentifier->empty())
+                       userIdentifier->setScrapNumber(scrapNumber);
+                   else
+                       for(auto& l_userIdentifier: *userIdentifier){
+                           userIdentifiers* ll_userIdentifier = dynamic_cast<userIdentifiers*>(l_userIdentifier);
+                           if(ll_userIdentifier)
+                               ll_userIdentifier->setScrapNumber(scrapNumber);
+                           else
+                               throw std::runtime_error("Internal error, can not convert user identifier list to corresponding type!");
+                       }
+               }
+           }
+    }
+@| setUserIdentifiersScrapNumber @}
+\subsubsection{uses}
+\indexClassMethod{scrap}{uses}
+@d \classImplementation{scrap}
+@{@%
+    std::vector<std::pair<std::string, unsigned int> > nuweb::scrap::uses(void){
+        std::string scrapContent;
+        if(empty())
+            scrapContent = utf8();
+        else
+            for(const auto scrapContentPart: *this)
+                scrapContent += scrapContentPart->utf8();
+        return nuweb::userIdentifiers::uses(scrapContent);
+    }
+@| uses @}

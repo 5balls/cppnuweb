@@ -88,7 +88,10 @@ scrapContents
     }
     | scrapElements AT_PIPE userIdentifiers
     {
-        throw std::runtime_error("User identifiers not implemented!");
+        $$ = $scrapElements;
+        for(const auto& userIdentifier: *$userIdentifiers)
+            $$->push_back(userIdentifier);
+        delete $userIdentifiers;
     }
 ;
 @| scrapContents @}
@@ -111,11 +114,12 @@ The user identifiers do not allow any nuweb commands inside it, so we define a n
 userIdentifiers
     : WHITESPACE TEXT_WITHOUT_AT_OR_WHITESPACE WHITESPACE
     {
-        throw std::runtime_error("User identifiers not implemented!");
+        $$ = new documentPart();
+        $$->push_back(new userIdentifiers($TEXT_WITHOUT_AT_OR_WHITESPACE));
     }
-    | userIdentifiers TEXT_WITHOUT_AT_OR_WHITESPACE WHITESPACE
+    | userIdentifiers[l_userIdentifiers] TEXT_WITHOUT_AT_OR_WHITESPACE WHITESPACE
     {
-        throw std::runtime_error("User identifiers not implemented!");
+        $l_userIdentifiers->push_back(new userIdentifiers($TEXT_WITHOUT_AT_OR_WHITESPACE));
     }
 ;
 @| userIdentifiers @}
