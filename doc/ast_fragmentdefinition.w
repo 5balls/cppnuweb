@@ -46,12 +46,14 @@ public:
     virtual std::string headerTexUtf8(void) const;
     virtual std::string referencesTexUtf8(void) const;
     virtual std::string usesTexUtf8(void) const;
+    std::string definesTexUtf8(void) const;
     std::string definedByTexUtf8(void) const;
     virtual std::string texUtf8(void) const override;
     virtual std::string utf8(void) const override;
     virtual std::string fileUtf8(void) const override;
     std::string fileUtf8(documentPart* fragmentName) const;
     virtual void resolveReferences(void) override;
+    virtual void resolveReferences2(void) override;
     std::string scrapFileUtf8(void) const;
     std::string scrapFileUtf8(documentPart* fragmentName) const;
 };
@@ -356,6 +358,7 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
         returnString += "\\begin{list}{}{\\setlength{\\itemsep}{-\\parsep}\\setlength{\\itemindent}{-\\leftmargin}}\n";
         returnString += definedByTexUtf8();
         returnString += referencesTexUtf8();
+        returnString += definesTexUtf8();
         returnString += usesTexUtf8();
         returnString += "\n\\item{}\n";
         returnString += "\\end{list}\n";
@@ -444,6 +447,17 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
                 scrapPart->resolveReferences();
     }
 @| resolveReferences @}
+\subsubsection{resolveReferences2}
+\indexClassMethod{fragmentDefinition}{resolveReferences2}
+@d \classImplementation{fragmentDefinition}
+@{@%
+    void nuweb::fragmentDefinition::resolveReferences2(){
+        std::vector<std::pair<std::string, std::vector<unsigned int> > > usedIdentifiersInFragment;
+        usedIdentifiersInFragment = userIdentifiers::uses(m_scrap->utf8());
+        for(auto& usedIdentifier: usedIdentifiersInFragment)
+            userIdentifiers::setScrapUsingIdentifier(usedIdentifier.first, m_currentScrapNumber);
+    }
+@| resolveReferences2 @}
 \subsubsection{usesTexUtf8}
 \indexClassMethod{fragmentDefinition}{usesTexUtf8}
 @d \classImplementation{fragmentDefinition}
@@ -486,3 +500,41 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
         return returnString;
     }
 @| usesTexUtf8 @}
+\subsubsection{definesTexUtf8}
+\indexClassMethod{fragmentDefinition}{definesTexUtf8}
+@d \classImplementation{fragmentDefinition}
+@{@%
+    std::string nuweb::fragmentDefinition::definesTexUtf8(void) const{
+        std::vector<std::pair<std::string, std::vector<unsigned int> > > definedIdentifiersInFragment;
+        definedIdentifiersInFragment = userIdentifiers::defines(m_currentScrapNumber);
+        if(definedIdentifiersInFragment.empty()) return "";
+        std::string returnString;
+        returnString = "\\item \\NWtxtIdentsDefed\\nobreak\\ ";
+        for(auto& definedIdentifier: definedIdentifiersInFragment){
+            returnString += " \\verb@@" + definedIdentifier.first + "@@\\nobreak\\ ";
+            unsigned int lastPage = 0;
+            for(auto scrapNumber: definedIdentifier.second){
+                std::string scrapId = auxFile::scrapId(scrapNumber);
+                unsigned int currentPage = auxFile::scrapPage(scrapNumber);
+                returnString += "\\NWlink{nuweb" + scrapId + "}{";
+                if(lastPage == 0){
+                    returnString += scrapId + "}";
+                    lastPage = currentPage;
+                    continue;
+                }
+                if(currentPage != lastPage){
+                    returnString += ", " + scrapId + "}";
+                    lastPage = currentPage;
+                    continue;
+                }
+                returnString += std::string(1, auxFile::scrapLetter(scrapNumber)) + "}";
+                lastPage = currentPage;
+            }
+            returnString += ",";
+        }
+        returnString.pop_back();
+        returnString += ".";
+        return returnString;
+       
+    }
+@| definesTexUtf8 @}

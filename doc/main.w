@@ -97,6 +97,7 @@ int main(int argc, char *argv[])
     // Resolve references
     try{
         nuwebAstEntry->resolveReferences();
+        nuwebAstEntry->resolveReferences2();
     }
     catch(std::runtime_error& e){
         std::cout << "Resolving references failed with error:\n  " << e.what() << std::endl;

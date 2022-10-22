@@ -66,6 +66,7 @@ public:
     virtual std::string texUtf8() const;
     virtual std::string fileUtf8() const;
     virtual void resolveReferences(void);
+    virtual void resolveReferences2(void);
     void setAuxFileParsed(bool wasParsed);
     static bool auxFileWasParsed(void);
     void setListingsPackageEnabled(bool listingsPackageEnabled);
@@ -257,6 +258,19 @@ std::string nuweb::documentPart::fileUtf8() const{
                 documentPart->resolveReferences();
     }
 @| resolveReferences @}
+
+\subsubsection{resolveReferences2}
+\indexClassMethod{documentPart}{resolveReferences2}
+@d \classImplementation{documentPart}
+@{@%
+    void nuweb::documentPart::resolveReferences2(void){
+        // To be implemented by derived classes that need it
+        if(!empty())
+            for(auto& documentPart: *this)
+                documentPart->resolveReferences2();
+    }
+@| resolveReferences2 @}
+
 
 \subsubsection{thisString}
 \indexClassMethod{documentPart}{thisString}
