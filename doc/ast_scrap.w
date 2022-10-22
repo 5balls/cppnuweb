@@ -26,7 +26,6 @@ public:
     }
     scrap(documentPart* l_documentPart) : documentPart(l_documentPart){
     }
-    std::vector<std::pair<std::string, unsigned int> > uses(void);
     bool resolveFragmentArguments(documentPart* fragmentName);
     void setUserIdentifiersScrapNumber(unsigned int scrapNumber);
 };
@@ -86,17 +85,4 @@ public:
            }
     }
 @| setUserIdentifiersScrapNumber @}
-\subsubsection{uses}
-\indexClassMethod{scrap}{uses}
-@d \classImplementation{scrap}
-@{@%
-    std::vector<std::pair<std::string, unsigned int> > nuweb::scrap::uses(void){
-        std::string scrapContent;
-        if(empty())
-            scrapContent = utf8();
-        else
-            for(const auto scrapContentPart: *this)
-                scrapContent += scrapContentPart->utf8();
-        return nuweb::userIdentifiers::uses(scrapContent);
-    }
-@| uses @}
+

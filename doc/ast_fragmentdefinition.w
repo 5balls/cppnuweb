@@ -436,7 +436,7 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
         if(!m_firstFragment)
             throw std::runtime_error("Internal error, could resolve to first defining fragment!");
         m_scrap->resolveFragmentArguments(m_fragmentName);
-        m_scrap->setUserIdentifiersScrapNumber(m_scrapNumber);
+        m_scrap->setUserIdentifiersScrapNumber(m_currentScrapNumber);
         if(m_scrap->empty())
             m_scrap->resolveReferences();
         else
@@ -449,10 +449,40 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
 @d \classImplementation{fragmentDefinition}
 @{@%
     std::string nuweb::fragmentDefinition::usesTexUtf8(void) const{
+        std::vector<std::pair<std::string, std::vector<unsigned int> > > usedIdentifiersInFragment;
+        usedIdentifiersInFragment = userIdentifiers::uses(m_scrap->utf8());
+        if(usedIdentifiersInFragment.empty()) return "";
         std::string returnString;
-        for(auto& usedIdentifier: m_scrap->uses()){
-            returnString += usedIdentifier.first;
+        returnString = "\\item \\NWtxtIdentsUsed\\nobreak\\ ";
+        bool b_foundUsed = false;
+        for(auto& usedIdentifier: usedIdentifiersInFragment){
+            // We only "use" the identifiers we don't define ourself:
+            if(std::find(usedIdentifier.second.begin(), usedIdentifier.second.end(), m_currentScrapNumber) != usedIdentifier.second.end()) continue;
+            b_foundUsed = true;
+            returnString += " \\verb@@" + usedIdentifier.first + "@@\\nobreak\\ ";
+            unsigned int lastPage = 0;
+            for(auto scrapNumber: usedIdentifier.second){
+                std::string scrapId = auxFile::scrapId(scrapNumber);
+                unsigned int currentPage = auxFile::scrapPage(scrapNumber);
+                returnString += "\\NWlink{nuweb" + scrapId + "}{";
+                if(lastPage == 0){
+                    returnString += scrapId + "}";
+                    lastPage = currentPage;
+                    continue;
+                }
+                if(currentPage != lastPage){
+                    returnString += ", " + scrapId + "}";
+                    lastPage = currentPage;
+                    continue;
+                }
+                returnString += std::string(1, auxFile::scrapLetter(scrapNumber)) + "}";
+                lastPage = currentPage;
+            }
+            returnString += ",";
         }
+        if(!b_foundUsed) return "";
+        returnString.pop_back();
+        returnString += ".";
         return returnString;
     }
 @| usesTexUtf8 @}

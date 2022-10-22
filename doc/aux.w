@@ -72,7 +72,6 @@ nuweb::auxFile::auxFile(std::string filename) : nuweb::file(filename) {
     if(scrapNumberStartPosition == std::string::npos) continue;
 @}
 
-
 @d \functionPartImplementation{auxFile} Read scrap number
 @{@%
     scrapNumberStartPosition += startStringSize;

@@ -21,12 +21,12 @@
 @{@%
 class userIdentifiers : public documentPart {
 private:
-    static std::map<std::string, unsigned int> m_userIdentifiersToScrapNumbers;
+    static std::map<std::string, std::vector<unsigned int> > m_userIdentifiersToScrapNumbers;
 public:
     userIdentifiers(filePosition* l_filePosition);
     userIdentifiers(documentPart&& l_documentPart);
     void setScrapNumber(unsigned int scrapNumber);
-    static std::vector<std::pair<std::string, unsigned int> > uses(const std::string& textToCheck);
+    static std::vector<std::pair<std::string, std::vector<unsigned int> > > uses(const std::string& textToCheck);
     virtual std::string texUtf8(void) const override;
 };
 @| userIdentifiers @}
@@ -34,18 +34,18 @@ public:
 \subsection{Implementation}
 @d \staticDefinitions{userIdentifier}
 @{@%
-std::map<std::string, unsigned int> nuweb::userIdentifiers::m_userIdentifiersToScrapNumbers = {};
+std::map<std::string, std::vector<unsigned int> > nuweb::userIdentifiers::m_userIdentifiersToScrapNumbers = {};
 @}
 \subsubsection{uses}
 \indexClassMethod{userIdentifiers}{uses}
 @d \classImplementation{userIdentifiers}
 @{@%
-    std::vector<std::pair<std::string, unsigned int> > nuweb::userIdentifiers::uses(const std::string& textToCheck){
-        std::vector<std::pair<std::string, unsigned int> > returnValue;
-       for(auto const& [userIdentifier, scrapNumber]: m_userIdentifiersToScrapNumbers)
-           if(textToCheck.find(userIdentifier) != std::string::npos)
-               returnValue.push_back({userIdentifier, scrapNumber});
-       return returnValue;
+    std::vector<std::pair<std::string, std::vector<unsigned int> > > nuweb::userIdentifiers::uses(const std::string& textToCheck){
+        std::vector<std::pair<std::string, std::vector<unsigned int> > > returnValue;
+        for(auto const& [userIdentifier, scrapNumbers]: m_userIdentifiersToScrapNumbers)
+            if(textToCheck.find(userIdentifier) != std::string::npos)
+                returnValue.push_back({userIdentifier, scrapNumbers});
+        return returnValue;
     }
 @| uses @}
 \subsubsection{userIdentifiers}
@@ -61,7 +61,9 @@ std::map<std::string, unsigned int> nuweb::userIdentifiers::m_userIdentifiersToS
 @d \classImplementation{userIdentifiers}
 @{@%
     void nuweb::userIdentifiers::setScrapNumber(unsigned int scrapNumber){
-        m_userIdentifiersToScrapNumbers[utf8()] = scrapNumber;
+        std::vector<unsigned int>& scrapNumbers = m_userIdentifiersToScrapNumbers[utf8()];
+        if(std::find(scrapNumbers.begin(), scrapNumbers.end(), scrapNumber) == scrapNumbers.end())
+            scrapNumbers.push_back(scrapNumber);
     }
 @| setScrapNumber @}
 \subsubsection{texUtf8}
