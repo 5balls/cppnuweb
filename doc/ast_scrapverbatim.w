@@ -29,7 +29,7 @@ public:
     virtual std::string texUtf8(void) const override;
 };
 @}
-\section{Implementation}
+\subsection{Implementation}
 \subsubsection{texUtf8}
 \indexClassMethod{fragmentDefinition}{texUtf8}
 @d \classImplementation{scrapVerbatim}

@@ -102,7 +102,7 @@ public:
                 outputFileContent += outputFragment->fileUtf8();
             }
 
-            std::string outputFileName = outputFile->name().substr(0,outputFile->name().find_last_of('.')) + "_dbg.txt";
+            std::string outputFileName = outputFile->name().substr(0,outputFile->name().find_last_of('.')) + ".txt";
             outputFileStream.open(outputFileName);
             //outputFileStream.open(outputFile->name());
             outputFileStream << outputFileContent;

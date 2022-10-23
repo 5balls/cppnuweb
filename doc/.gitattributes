@@ -9,3 +9,4 @@ parser.w linguist-language=Bison
 parser_lexical_analysis.w linguist-language=Lex
 parser_tokens.w linguist-language=Lex
 reference*.w linguist-language=Bison
+unittests.w linguist-language=Python

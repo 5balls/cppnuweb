@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
     // Parse aux file
     std::string auxFileName;
     try{
-        auxFileName = filename.substr(0,filename.find_last_of('.')) + "_dbg.aux";
+        auxFileName = filename.substr(0,filename.find_last_of('.')) + ".aux";
         nuweb::auxFile l_auxFile(auxFileName);
         nuwebAstEntry->setAuxFileParsed(true);
     }
@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
     if(!suppressGenerationOfTexFile->is_set()){
         try{
             std::ofstream texFile;
-            std::string texFileName = filename.substr(0,filename.find_last_of('.')) + "_dbg.tex";
+            std::string texFileName = filename.substr(0,filename.find_last_of('.')) + ".tex";
             texFile.open(texFileName);
             std::string texContent = nuwebAstEntry->texUtf8();
             texFile  << texContent + "\n";
