@@ -82,7 +82,10 @@ The \LaTeX output contains some formatting this time.
 \end{document}
 @}
 
+@o ../tests/test_expected_outputFile.txt
+@{@<Lorem ipsum@>@}
+
 @d nuweb unit test functions
-@{@<nuweb comparison for test @'outputFile@' with expected output and \LaTeX{} run@>
+@{@<nuweb comparison for test @'outputFile@' with expected output, \LaTeX{} run and expected file output@>
 @}
 

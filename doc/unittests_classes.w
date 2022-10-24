@@ -64,12 +64,26 @@ import subprocess
                          stderr=subprocess.PIPE)
     return process.communicate()
 @| spawn_shell_command @}
+
 @d Generic unit test helper functions
 @{@%
   def run_latex_on_file(self,filename):
     return self.spawn_shell_command('pdflatex', filename)
 @| run_latex_on_file @}
 
+@d Generic unit test helper functions
+@{@%
+  def compare_files(self,file1,file2):
+    writtenFile = open(file1,'r')
+    writtenLines = writtenFile.readlines()
+    expectedFile = open(file2, 'r')
+    expectedLines = expectedFile.readlines()
+    self.assertEqual(len(writtenLines), len(expectedLines))
+    line = 0
+    for writtenLine in writtenLines:
+      self.assertEqual(writtenLine, expectedLines[line])
+      line += 1
+@| compare_files @}
 \subsection{Helper text blocks}
 \subsubsection{Lorem ipsum}
 @d Lorem ipsum
@@ -94,24 +108,23 @@ import subprocess
 @}
 
 \subsection{Test templates}
-\subsubsection{File output comparison}
-@d File output comparison for test @'filename@'
-@{    writtenFile = open('test_@1.tex','r')
-    writtenLines = writtenFile.readlines()
-    expectedFile = open('test_expected_@1.tex', 'r')
-    expectedLines = expectedFile.readlines()
-    self.assertEqual(len(writtenLines), len(expectedLines))
-    line = 0
-    for writtenLine in writtenLines:
-      self.assertEqual(writtenLine, expectedLines[line])
-      line += 1@}
 \subsubsection{nuweb comparison with expected output}
 @d nuweb comparison for test @'testname@' with expected output
 @{  def test_@1(self):
     stdout, stderr = self.run_nuweb_on_file('test_@1.w')
     self.assertEqual(stderr, '')
-@<File output comparison for test @1@>
+    self.compare_files('test_@1.tex', 'test_expected_@1.tex')
 @}
+
+\subsubsection{nuweb comparison with expected output and expected file output}
+@d nuweb comparison for test @'testname@' with expected output and expected file output
+@{  def test_@1(self):
+    stdout, stderr = self.run_nuweb_on_file('test_@1.w')
+    self.assertEqual(stderr, '')
+    self.compare_files('test_@1.tex', 'test_expected_@1.tex')
+    self.compare_files('test_@1.txt', 'test_expected_@1.txt')
+@}
+
 \subsubsection{nuweb comparison with expected output and \LaTeX{} run}
 @d nuweb comparison for test @'testname@' with expected output and \LaTeX{} run
 @{  def test_@1(self):
@@ -119,6 +132,16 @@ import subprocess
     stdout, stderr = self.run_latex_on_file('test_@1.tex')
     stdout, stderr = self.run_nuweb_on_file('test_@1.w')
     self.assertEqual(stderr, '')
-@<File output comparison for test @1@>
+    self.compare_files('test_@1.tex', 'test_expected_@1.tex')
 @}
 
+\subsubsection{nuweb comparison with expected output, \LaTeX{} run and expected file output}
+@d nuweb comparison for test @'testname@' with expected output, \LaTeX{} run and expected file output
+@{  def test_@1(self):
+    stdout, stderr = self.run_nuweb_on_file('test_@1.w')
+    stdout, stderr = self.run_latex_on_file('test_@1.tex')
+    stdout, stderr = self.run_nuweb_on_file('test_@1.w')
+    self.assertEqual(stderr, '')
+    self.compare_files('test_@1.tex', 'test_expected_@1.tex')
+    self.compare_files('test_@1.txt', 'test_expected_@1.txt')
+@}
