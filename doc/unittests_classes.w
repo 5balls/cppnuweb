@@ -50,11 +50,22 @@ import subprocess
   def run_nuweb_on_file(self,filename):
     return self.spawn_shell_command('../build/x64/nuweb', filename)
 @| run_nuweb_on_file @}
+@d C++ nuweb unit test helper functions
+@{@%
+  def run_nuweb_listings_on_file(self,filename):
+    return self.spawn_shell_command_with_options('../build/x64/nuweb', '-l', filename)
+@| run_nuweb_listings_on_file @}
 @d C nuweb unit test helper functions
 @{@%
   def run_nuweb_on_file(self,filename):
     return self.spawn_shell_command('nuweb', filename)
 @| run_nuweb_on_file @}
+@d C nuweb unit test helper functions
+@{@%
+  def run_nuweb_listings_on_file(self,filename):
+    return self.spawn_shell_command_with_options('nuweb', '-l', filename)
+@| run_nuweb_listings_on_file @}
+
 \subsubsection{Generic}
 @d Generic unit test helper functions
 @{@%
@@ -64,6 +75,15 @@ import subprocess
                          stderr=subprocess.PIPE)
     return process.communicate()
 @| spawn_shell_command @}
+
+@d Generic unit test helper functions
+@{@%
+  def spawn_shell_command_with_options(self,command,options,filename):
+    process = subprocess.Popen([command, options, filename],
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE)
+    return process.communicate()
+@| spawn_shell_command_with_options @}
 
 @d Generic unit test helper functions
 @{@%
@@ -141,6 +161,44 @@ import subprocess
     stdout, stderr = self.run_nuweb_on_file('test_@1.w')
     stdout, stderr = self.run_latex_on_file('test_@1.tex')
     stdout, stderr = self.run_nuweb_on_file('test_@1.w')
+    self.assertEqual(stderr, '')
+    self.compare_files('test_@1.tex', 'test_expected_@1.tex')
+    self.compare_files('test_@1.txt', 'test_expected_@1.txt')
+@}
+
+\subsubsection{nuweb (listings) comparison with expected output}
+@d nuweb (listings) comparison for test @'testname@' with expected output
+@{  def test_@1(self):
+    stdout, stderr = self.run_nuweb_listings_on_file('test_@1.w')
+    self.assertEqual(stderr, '')
+    self.compare_files('test_@1.tex', 'test_expected_@1.tex')
+@}
+
+\subsubsection{nuweb (listings) comparison with expected output and expected file output}
+@d nuweb (listings) comparison for test @'testname@' with expected output and expected file output
+@{  def test_@1(self):
+    stdout, stderr = self.run_nuweb_listings_on_file('test_@1.w')
+    self.assertEqual(stderr, '')
+    self.compare_files('test_@1.tex', 'test_expected_@1.tex')
+    self.compare_files('test_@1.txt', 'test_expected_@1.txt')
+@}
+
+\subsubsection{nuweb (listings) comparison with expected output and \LaTeX{} run}
+@d nuweb (listings) comparison for test @'testname@' with expected output and \LaTeX{} run
+@{  def test_@1(self):
+    stdout, stderr = self.run_nuweb_listings_on_file('test_@1.w')
+    stdout, stderr = self.run_latex_on_file('test_@1.tex')
+    stdout, stderr = self.run_nuweb_listings_on_file('test_@1.w')
+    self.assertEqual(stderr, '')
+    self.compare_files('test_@1.tex', 'test_expected_@1.tex')
+@}
+
+\subsubsection{nuweb (listings) comparison with expected output, \LaTeX{} run and expected file output}
+@d nuweb (listings) comparison for test @'testname@' with expected output, \LaTeX{} run and expected file output
+@{  def test_@1(self):
+    stdout, stderr = self.run_nuweb_listings_on_file('test_@1.w')
+    stdout, stderr = self.run_latex_on_file('test_@1.tex')
+    stdout, stderr = self.run_nuweb_listings_on_file('test_@1.w')
     self.assertEqual(stderr, '')
     self.compare_files('test_@1.tex', 'test_expected_@1.tex')
     self.compare_files('test_@1.txt', 'test_expected_@1.txt')

@@ -89,3 +89,42 @@ The \LaTeX output contains some formatting this time.
 @{@<nuweb comparison for test @'outputFile@' with expected output, \LaTeX{} run and expected file output@>
 @}
 
+\subsection{Test outputFileListingsOption}
+\indexUnitTest{outputFile}{outputFileListingsOption}Using the listings option changes the output slightly. We need to use the ``listings'' \LaTeX{} package for this to work.
+@o ../tests/test_outputFileListingsOption.w
+@{\documentclass{article}
+\usepackage{listings}
+\begin{document}
+@@o ../tests/test_outputFileListingsOption.txt
+@@{@<Lorem ipsum@>@@}
+\end{document}
+@}
+nuweb writes \verb@@\lstinline@@ instead of \verb@@\verb@@ inside the scrap now.
+@o ../tests/test_expected_outputFileListingsOption.tex
+@{@<Nuweb \LaTeX{} definitions@>\documentclass{article}
+\usepackage{listings}
+\begin{document}
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap1}\raggedright\small
+\NWtarget{nuweb1}{} \verb@@"../tests/test_outputFileListingsOption.txt"@@\nobreak\ {\footnotesize {1}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\lstinline@@@<Lorem ipsum@>@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\end{document}
+@}
+
+@o ../tests/test_expected_outputFileListingsOption.txt
+@{@<Lorem ipsum@>@}
+
+@d nuweb unit test functions
+@{@<nuweb (listings) comparison for test @'outputFileListingsOption@' with expected output, \LaTeX{} run and expected file output@>
+@}
