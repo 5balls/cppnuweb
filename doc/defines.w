@@ -70,6 +70,7 @@ literate={ä}{{\"a}}1 {ö}{{\"o}}1 {ü}{{\"u}}1 {é}{{\'e}}1 {—}{{-}}1
 \newcommand\codecmake{\lstset{language=CMake,breaklines=true}}
 \newcommand\codebisonflex{\lstset{language=bisonflex,breaklines=true}}
 \newcommand\codepython{\lstset{language=Python,breaklines=true}}
+\newcommand\codelatex{\lstset{language=[LaTeX]TeX,breaklines=true}}
 
 \newcounter{todobugcounter}
 \newcommand{\todobug}[1]{\stepcounter{todobugcounter}\todo[color=red!60]{Bug \thetodobugcounter: #1}}

@@ -50,7 +50,7 @@ Nuweb should not modify the input text but add latex definitions in front of the
 
 \subsection{Test outputFile}
 \indexUnitTest{outputFile}{outputFile}This writes the text to a simple output file. As we run \LaTeX also this time we need to make it a valid document.
-
+\codelatex
 @o ../tests/test_outputFile.w
 @{\documentclass{article}
 \begin{document}
@@ -99,7 +99,7 @@ The \LaTeX output contains some formatting this time.
 @@{@<Lorem ipsum@>@@}
 \end{document}
 @}
-nuweb writes \verb@@\lstinline@@ instead of \verb@@\verb@@ inside the scrap now.
+nuweb writes \lstinline@@\lstinline@@ instead of \lstinline@@\verb@@ inside the scrap now.
 @o ../tests/test_expected_outputFileListingsOption.tex
 @{@<Nuweb \LaTeX{} definitions@>\documentclass{article}
 \usepackage{listings}
@@ -127,4 +127,44 @@ nuweb writes \verb@@\lstinline@@ instead of \verb@@\verb@@ inside the scrap now.
 
 @d nuweb unit test functions
 @{@<nuweb (listings) comparison for test @'outputFileListingsOption@' with expected output, \LaTeX{} run and expected file output@>
+@}
+
+\subsection{Test outputFileLineBreak}
+\index{outputFile}{outputFileLineBreak}Changing the command to `O` changes the output slightly to not use a minipage and create linebreaks.
+@o ../tests/test_outputFileLineBreak.w
+@{\documentclass{article}
+\begin{document}
+@@O ../tests/test_outputFileLineBreak.txt
+@@{@<Lorem ipsum@>
+@<Lorem ipsum@>@@}
+\end{document}
+@}
+
+@o ../tests/test_expected_outputFileLineBreak.tex
+@{@<Nuweb \LaTeX{} definitions@>\documentclass{article}
+\begin{document}
+\begin{flushleft} \small\label{scrap1}\raggedright\small
+\NWtarget{nuweb1}{} \verb@@"../tests/test_outputFileLineBreak.txt"@@\nobreak\ {\footnotesize {1}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@@<Lorem ipsum@>@@\\
+\mbox{}\verb@@@<Lorem ipsum@>@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+\end{document}
+@}
+
+@o ../tests/test_expected_outputFileLineBreak.txt
+@{@<Lorem ipsum@>
+@<Lorem ipsum@>@}
+
+@d nuweb unit test functions
+@{@<nuweb comparison for test @'outputFileLineBreak@' with expected output, \LaTeX{} run and expected file output@>
 @}
