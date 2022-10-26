@@ -168,3 +168,44 @@ nuweb writes \lstinline@@\lstinline@@ instead of \lstinline@@\verb@@ inside the 
 @d nuweb unit test functions
 @{@<nuweb comparison for test @'outputFileLineBreak@' with expected output, \LaTeX{} run and expected file output@>
 @}
+
+\subsection{Test outputFileUserIdentifier}
+\index{outputFile}{outputFileUserIdentifier}We can use a user identifier on an output file fragment.
+@o ../tests/test_outputFileUserIdentifier.w
+@{\documentclass{article}
+\begin{document}
+@@o ../tests/test_outputFileUserIdentifier.txt
+@@{@<Lorem ipsum@>
+@<Lorem ipsum@>@@| Lorem @@}
+\end{document}
+@}
+
+@o ../tests/test_expected_outputFileUserIdentifier.tex
+@{@<Nuweb \LaTeX{} definitions@>\documentclass{article}
+\begin{document}
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap1}\raggedright\small
+\NWtarget{nuweb1}{} \verb@@"../tests/test_outputFileUserIdentifier.txt"@@\nobreak\ {\footnotesize {1}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@@<Lorem ipsum@>@@\\
+\mbox{}\verb@@@<Lorem ipsum@>@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtIdentsDefed\nobreak\  \verb@@Lorem@@\nobreak\ \NWtxtIdentsNotUsed.
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\end{document}
+@}
+
+@o ../tests/test_expected_outputFileUserIdentifier.txt
+@{@<Lorem ipsum@>
+@<Lorem ipsum@>@}
+
+@d nuweb unit test functions
+@{@<nuweb comparison for test @'outputFileUserIdentifier@' with expected output, \LaTeX{} run and expected file output@>
+@}
