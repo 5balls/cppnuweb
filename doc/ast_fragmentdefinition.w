@@ -513,23 +513,26 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
         for(auto& definedIdentifier: definedIdentifiersInFragment){
             returnString += " \\verb@@" + definedIdentifier.first + "@@\\nobreak\\ ";
             unsigned int lastPage = 0;
-            for(auto scrapNumber: definedIdentifier.second){
-                std::string scrapId = auxFile::scrapId(scrapNumber);
-                unsigned int currentPage = auxFile::scrapPage(scrapNumber);
-                returnString += "\\NWlink{nuweb" + scrapId + "}{";
-                if(lastPage == 0){
-                    returnString += scrapId + "}";
+            if(definedIdentifier.second.empty())
+                returnString += "\\NWtxtIdentsNotUsed";
+            else
+                for(auto scrapNumber: definedIdentifier.second){
+                    std::string scrapId = auxFile::scrapId(scrapNumber);
+                    unsigned int currentPage = auxFile::scrapPage(scrapNumber);
+                    returnString += "\\NWlink{nuweb" + scrapId + "}{";
+                    if(lastPage == 0){
+                        returnString += scrapId + "}";
+                        lastPage = currentPage;
+                        continue;
+                    }
+                    if(currentPage != lastPage){
+                        returnString += ", " + scrapId + "}";
+                        lastPage = currentPage;
+                        continue;
+                    }
+                    returnString += std::string(1, auxFile::scrapLetter(scrapNumber)) + "}";
                     lastPage = currentPage;
-                    continue;
                 }
-                if(currentPage != lastPage){
-                    returnString += ", " + scrapId + "}";
-                    lastPage = currentPage;
-                    continue;
-                }
-                returnString += std::string(1, auxFile::scrapLetter(scrapNumber)) + "}";
-                lastPage = currentPage;
-            }
             returnString += ",";
         }
         returnString.pop_back();
