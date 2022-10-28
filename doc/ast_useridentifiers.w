@@ -31,6 +31,7 @@ public:
     static std::vector<std::pair<std::string, std::vector<unsigned int> > > uses(const std::string& textToCheck);
     static std::vector<std::pair<std::string, std::vector<unsigned int> > > defines(unsigned int scrapNumber);
     virtual std::string texUtf8(void) const override;
+    virtual std::string fileUtf8(void) const override;
 };
 @| userIdentifiers @}
 
@@ -105,3 +106,11 @@ std::map<std::string, std::vector<unsigned int> > nuweb::userIdentifiers::m_user
     
     }
 @| setScrapUsingIdentifier @}
+\subsubsection{fileUtf8}
+\indexClassMethod{userIdentifiers}{fileUtf8}
+@d \classImplementation{userIdentifiers}
+@{@%
+    std::string nuweb::userIdentifiers::fileUtf8(void) const{
+        return "";
+    }
+@| fileUtf8 @}
