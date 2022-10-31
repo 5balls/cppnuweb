@@ -23,8 +23,9 @@ class outputFile: public fragmentDefinition {
 private:
     std::string m_filename;
     static std::vector<fragmentDefinition*> m_outputFiles;
+    std::vector<enum outputFileFlags> m_flags;
 public:
-    outputFile(documentPart* l_fileName, documentPart* l_scrap, bool pageBreak = false);
+    outputFile(documentPart* l_fileName, documentPart* l_scrap, bool pageBreak = false, std::vector<enum outputFileFlags> flags={});
     virtual std::string headerTexUtf8(void) const override;
     virtual std::string referencesTexUtf8(void) const override;
     virtual std::string fileUtf8(void) const override;
@@ -42,7 +43,7 @@ public:
 \indexClassMethod{fragmentDefinition}{outputFile}
 @d \classImplementation{outputFile}
 @{@%
-    nuweb::outputFile::outputFile(documentPart* l_fileName, documentPart* l_scrap, bool pageBreak) : fragmentDefinition(l_fileName, l_scrap, pageBreak) {
+    nuweb::outputFile::outputFile(documentPart* l_fileName, documentPart* l_scrap, bool pageBreak, std::vector<enum outputFileFlags> flags) : fragmentDefinition(l_fileName, l_scrap, pageBreak), m_flags(flags) {
         m_filename = l_fileName->utf8();
         fragmentDefinition* firstFragment = fragmentFromFragmentName(m_fragmentName);
         if(!firstFragment)
@@ -83,7 +84,10 @@ public:
 @d \classImplementation{outputFile}
 @{@%
     std::string nuweb::outputFile::fileUtf8(void) const{
-        return m_scrap->fileUtf8();
+        if(std::find(m_flags.begin(), m_flags.end(), outputFileFlags::FORCE_LINE_NUMBERS) != m_flags.end())
+            return m_scrap->fileUtf8LineNumber();
+        else
+            return m_scrap->fileUtf8();
     }
 @| fileUtf8 @}
 \subsubsection{writeFiles}

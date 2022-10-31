@@ -63,8 +63,10 @@ public:
     documentPart(filePosition* l_filePosition);
     std::string filePositionString() const;
     virtual std::string utf8() const;
+    virtual std::string utf8LineNumber(void) const;
     virtual std::string texUtf8() const;
     virtual std::string fileUtf8() const;
+    virtual std::string fileUtf8LineNumber(void) const;
     virtual void resolveReferences(void);
     virtual void resolveReferences2(void);
     void setAuxFileParsed(bool wasParsed);
@@ -213,6 +215,32 @@ std::string nuweb::documentPart::utf8(void) const{
     }
 }
 @| utf8 @}
+
+\subsubsection{utf8LineNumber}
+\indexClassMethod{documentPart}{utf8LineNumber}
+@d \classImplementation{documentPart}
+@{@%
+    std::string nuweb::documentPart::utf8LineNumber(void) const{
+        if(empty()){
+            if(!m_filePosition)
+                throw std::runtime_error("Internal error: documentPart without file pointer!" + std::string(typeid(*this).name()) + " " + thisString() + "\n");
+            std::string filename = m_filePosition->m_filename;
+            if(filename.empty())
+                return "";
+            std::string returnString = "\n#line ";
+            returnString += std::to_string(m_filePosition->m_line) + " ";
+            returnString += "\"" + filename + "\"\n";
+            returnString += utf8();
+            return returnString;    
+        }
+        else{
+            std::string returnString;
+            for(auto documentPart: *this)
+                returnString += documentPart->utf8LineNumber();
+            return returnString;
+        }
+    }
+@| utf8LineNumber @}
 \subsubsection{texUtf8}
 \indexClassMethod{documentPart}{texUtf8}
 @d \classImplementation{documentPart}
@@ -235,7 +263,6 @@ std::string nuweb::documentPart::texUtf8() const{
 @{@%
 std::string nuweb::documentPart::fileUtf8() const{
     if(empty()){
-
         return utf8();
     }
     else{
@@ -246,6 +273,22 @@ std::string nuweb::documentPart::fileUtf8() const{
     }
 }
 @}
+\subsubsection{fileUtf8LineNumber}
+\indexClassMethod{documentPart}{fileUtf8LineNumber}
+@d \classImplementation{documentPart}
+@{@%
+    std::string nuweb::documentPart::fileUtf8LineNumber(void) const{
+        if(empty()){
+            return utf8LineNumber();
+        }
+        else{
+            std::string returnString;
+            for(auto& documentPart: *this)
+                returnString += documentPart->fileUtf8LineNumber();
+            return returnString;
+        }
+    }
+@| fileUtf8LineNumber @}
 
 \subsubsection{resolveReferences}
 \indexClassMethod{documentPart}{resolveReferences}

@@ -174,3 +174,45 @@ nuweb writes \lstinline@@\lstinline@@ instead of \lstinline@@\verb@@ inside the 
 @d nuweb unit test functions
 @{@<nuweb comparison for test @'outputFileUserIdentifier@' with expected output, \LaTeX{} run and expected file output@>
 @}
+
+
+\subsection{Test outputFileLineNumbers}
+\indexUnitTest{outputFile}{outputFileLineNumbers}
+\codelatex
+@o ../tests/test_outputFileLineNumbers.w
+@{@<Start of simple \LaTeX{} document@>
+@@o ../tests/test_outputFileLineNumbers.txt -d
+@@{@<Lorem ipsum@>@@}
+@<End of simple \LaTeX{} document@>
+@}
+
+@o ../tests/test_expected_outputFileLineNumbers.tex
+@{@<Nuweb \LaTeX{} definitions@>@<Start of simple \LaTeX{} document@>
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap1}\raggedright\small
+\NWtarget{nuweb1}{} \verb@@"../tests/test_outputFileLineNumbers.txt"@@\nobreak\ {\footnotesize {1}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@@<Lorem ipsum@>@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+@<End of simple \LaTeX{} document@>
+@}
+
+@o ../tests/test_expected_outputFileLineNumbers.txt
+@{
+#line 4 "test_outputFileLineNumbers.w"
+@<Lorem ipsum@>@}
+
+@d nuweb unit test functions
+@{@<nuweb comparison for test @'outputFileLineNumbers@' with expected output, \LaTeX{} run and expected file output@>
+@}
+
+

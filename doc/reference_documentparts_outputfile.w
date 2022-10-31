@@ -33,7 +33,15 @@ outputFile
     }
     | outputCommand WHITESPACE outputFilename WHITESPACE outputFlags WHITESPACE scrap
     {
-        throw std::runtime_error("outputCommand with filename <hidden in file class somewhere> and flags\n");
+        switch($outputCommand){
+            case fragmentType::OUTPUT_FILE:
+                $$ = new outputFile(new documentPart($outputFilename), $scrap, false, *$outputFlags);
+                break;
+            case fragmentType::OUTPUT_FILE_PAGEBREAK:
+            default:
+                $$ = new outputFile(new documentPart($outputFilename), $scrap, true, *$outputFlags);
+                break;
+        }
     }
 ;
 @| outputFile @}
@@ -73,12 +81,52 @@ outputFilename
 
 @d Bison rules
 @{
-outputFlags
+outputFlag
     : MINUS_D
     {
-        throw std::runtime_error("MINUS_D not implemented!\n");
+        $$ = outputFileFlags::FORCE_LINE_NUMBERS;
+    }
+;
+@| outputFlag @}
+
+@d Bison rules
+@{
+outputFlags
+    : outputFlag
+    {
+        $$ = new std::vector<enum outputFileFlags>();
+        $$->push_back($outputFlag);
+    }
+    | outputFlags[l_outputFlags] WHITESPACE outputFlag
+    {
+        $l_outputFlags->push_back($outputFlag);
+        $$ = $l_outputFlags;
     }
 ;
 @| outputFlags @}
+
+@d Bison type definitions
+@{@%
+%type <m_outputFileFlag> outputFlag
+%type <m_outputFileFlags> outputFlags
+@| outputFlag outputFlags @}
+
+@d Bison union definitions
+@{@%
+enum outputFileFlags m_outputFileFlag;
+std::vector<enum outputFileFlags> *m_outputFileFlags;
+@| m_outputFileFlag m_outputFileFlags @}
+
+@d C++ enum class definitions in namespace nuweb
+@{@%
+enum class outputFileFlags {
+    FORCE_LINE_NUMBERS,
+    SUPPRESS_INDENTATION,
+    SUPPRESS_TAB_EXPANSION,
+    C_COMMENTS,
+    CPP_COMMENTS,
+    PERL_COMMENTS
+};
+@| outputFileFlags @}}
 
 \indexClass{outputFile}\todoimplement{Output function for file contents}
