@@ -49,3 +49,34 @@
 @d nuweb unit test functions
 @{@<nuweb comparison for test @'fragment@' with expected output and \LaTeX{} run@>
 @}
+
+\subsection{Test fragmentArgumentString}
+\index{fragment}{fragmentArgumentString}This is the first of four type of arguments which can be passed to a fragment. The string is just copied literally to the output.
+@o ../tests/test_fragmentArgumentString.w
+@{@<Start of simple \LaTeX{} document@>@@d Fragment @@'argument@@'
+@@{@<Lorem ipsum@>@@1@@}
+@<End of simple \LaTeX{} document@>
+@}
+
+@o ../tests/test_expected_fragmentArgumentString.tex
+@{@<Nuweb \LaTeX{} definitions@>@<Start of simple \LaTeX{} document@>\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap1}\raggedright\small
+\NWtarget{nuweb1}{} $\langle\,${\itshape Fragment \hbox{\slshape\sffamily argument\/}}\nobreak\ {\footnotesize {1}}$\,\rangle\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@@<Lorem ipsum@>@@\hbox{\slshape\sffamily argument\/}\verb@@@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item {\NWtxtMacroNoRef}.
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+@<End of simple \LaTeX{} document@>
+@}
+@d nuweb unit test functions
+@{@<nuweb comparison for test @'fragmentArgumentString@' with expected output and \LaTeX{} run@>
+@}
