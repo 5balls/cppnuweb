@@ -127,6 +127,6 @@ enum class outputFileFlags {
     CPP_COMMENTS,
     PERL_COMMENTS
 };
-@| outputFileFlags @}}
+@| outputFileFlags @}
 
 \indexClass{outputFile}\todoimplement{Output function for file contents}
