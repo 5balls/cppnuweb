@@ -113,3 +113,53 @@
 @d nuweb unit test functions
 @{@<nuweb comparison for test @'fragmentArgumentStringExpansion@' with expected output and \LaTeX{} run@>
 @}
+
+\subsection{Test fragmentArgumentStringExpansionInOtherFragment}
+\index{fragment}{fragmentArgumentStringExpansionInOtherFragment}
+@o ../tests/test_fragmentArgumentStringExpansionInOtherFragment.w
+@{@<Start of simple \LaTeX{} document@>@@d Fragment @@'argument@@'
+@@{@<Lorem ipsum@>@@1@@}
+@@d Second fragment
+@@{@@<Fragment @@'Expanded argument@@'@@>@@}
+@<End of simple \LaTeX{} document@>
+@}
+
+@o ../tests/test_expected_fragmentArgumentStringExpansionInOtherFragment.tex
+@{@<Nuweb \LaTeX{} definitions@>@<Start of simple \LaTeX{} document@>\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap1}\raggedright\small
+\NWtarget{nuweb1a}{} $\langle\,${\itshape Fragment \hbox{\slshape\sffamily argument\/}}\nobreak\ {\footnotesize {1a}}$\,\rangle\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@@<Lorem ipsum@>@@\hbox{\slshape\sffamily argument\/}\verb@@@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtMacroRefIn\ \NWlink{nuweb1b}{1b}.
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap2}\raggedright\small
+\NWtarget{nuweb1b}{} $\langle\,${\itshape Second fragment}\nobreak\ {\footnotesize {1b}}$\,\rangle\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@@@\hbox{$\langle\,${\itshape Fragment \verb@@Expanded argument@@}\nobreak\ {\footnotesize \NWlink{nuweb1a}{1a}}$\,\rangle$}\verb@@@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item {\NWtxtMacroNoRef}.
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+@<End of simple \LaTeX{} document@>
+@}
+@d nuweb unit test functions
+@{@<nuweb comparison for test @'fragmentArgumentStringExpansionInOtherFragment@' with expected output and \LaTeX{} run@>
+@}
+
