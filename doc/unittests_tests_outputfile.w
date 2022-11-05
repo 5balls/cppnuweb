@@ -215,4 +215,58 @@ nuweb writes \lstinline@@\lstinline@@ instead of \lstinline@@\verb@@ inside the 
 @{@<nuweb comparison for test @'outputFileLineNumbers@' with expected output, \LaTeX{} run and expected file output@>
 @}
 
+\subsection{Test outputFileWithFragment}
+\indexUnitTest{outputFile}{outputFileWithFragment}
+@o ../tests/test_outputFileWithFragment.w
+@{@<Start of simple \LaTeX{} document@>
+@@o ../tests/test_outputFileWithFragment.txt
+@@{@<Lorem ipsum@>@@<Fragment@@>@@}
+@@d Fragment
+@@{@<Lorem ipsum@>@@}
+@<End of simple \LaTeX{} document@>
+@}
+
+@o ../tests/test_expected_outputFileWithFragment.tex
+@{@<Nuweb \LaTeX{} definitions@>@<Start of simple \LaTeX{} document@>
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap1}\raggedright\small
+\NWtarget{nuweb1a}{} \verb@@"../tests/test_outputFileWithFragment.txt"@@\nobreak\ {\footnotesize {1a}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@@<Lorem ipsum@>@@\hbox{$\langle\,${\itshape Fragment}\nobreak\ {\footnotesize \NWlink{nuweb1b}{1b}}$\,\rangle$}\verb@@@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap2}\raggedright\small
+\NWtarget{nuweb1b}{} $\langle\,${\itshape Fragment}\nobreak\ {\footnotesize {1b}}$\,\rangle\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@@<Lorem ipsum@>@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtMacroRefIn\ \NWlink{nuweb1a}{1a}.
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+@<End of simple \LaTeX{} document@>
+@}
+
+@o ../tests/test_expected_outputFileWithFragment.txt
+@{@<Lorem ipsum@>@<Lorem ipsum@>@}
+
+@d nuweb unit test functions
+@{@<nuweb comparison for test @'outputFileWithFragment@' with expected output, \LaTeX{} run and expected file output@>
+@}
+
 
