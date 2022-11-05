@@ -71,7 +71,7 @@ nuweb writes \lstinline@@\lstinline@@ instead of \lstinline@@\verb@@ inside the 
 @}
 
 \subsection{Test outputFileLineBreak}
-\index{outputFile}{outputFileLineBreak}Changing the command to `O` changes the output slightly to not use a minipage and create linebreaks.
+\indexUnitTest{outputFile}{outputFileLineBreak}Changing the command to `O` changes the output slightly to not use a minipage and create linebreaks.
 @o ../tests/test_outputFileLineBreak.w
 @{@<Start of simple \LaTeX{} document@>
 @@O ../tests/test_outputFileLineBreak.txt
@@ -100,7 +100,7 @@ nuweb writes \lstinline@@\lstinline@@ instead of \lstinline@@\verb@@ inside the 
 @}
 
 \subsection{Test outputFileUserIdentifier}
-\index{outputFile}{outputFileUserIdentifier}We can use a user identifier on an output file fragment.
+\indexUnitTest{outputFile}{outputFileUserIdentifier}We can use a user identifier on an output file fragment.
 @o ../tests/test_outputFileUserIdentifier.w
 @{@<Start of simple \LaTeX{} document@>
 @@o ../tests/test_outputFileUserIdentifier.txt
