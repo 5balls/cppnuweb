@@ -18,7 +18,7 @@
 \documentclass[a4paper]{book}
 \usepackage{listings}
 \usepackage{imakeidx}
-\usepackage[margin=3cm]{geometry}
+\usepackage[margin=2cm]{geometry}
 \usepackage{longtable}
 \usepackage{verbatim}
 \usepackage{pgf-umlsd}

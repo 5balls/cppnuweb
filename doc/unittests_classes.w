@@ -108,8 +108,8 @@ import subprocess
 \subsubsection{Lorem ipsum}
 @d Lorem ipsum
 @{Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.@}
-\subsubsection{Nuweb \LaTeX{} definitions}
-@d Nuweb \LaTeX{} definitions
+\subsubsection{NW \LaTeX{} definitions}
+@d NW \LaTeX{} definitions
 @{\newcommand{\NWtarget}[2]{#2}
 \newcommand{\NWlink}[2]{#2}
 \newcommand{\NWtxtMacroDefBy}{Fragment defined by}
@@ -130,10 +130,83 @@ import subprocess
 @d Start of simple \LaTeX{} document
 @{\documentclass{article}
 \begin{document}@}
+\subsubsection{Start of listings \LaTeX{} document}
+@d Start of listings \LaTeX{} document
+@{\documentclass{article}
+\usepackage{listings}
+\begin{document}@}
+
 \subsubsection{End of simple \LaTeX{} document}
 @d End of simple \LaTeX{} document
 @{\end{document}@}
-
+\subsubsection{Nuweb start of scrap}
+@d NW start of scrap @'scrap number@' target @'target number@' title @'scrap title@'
+@{\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap@1}\raggedright\small
+\NWtarget{nuweb@2}{} @3 {\footnotesize {@2}}$\,\rangle\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item@}
+\subsubsection{Nuweb start of file scrap}
+@d NW start of file scrap @'scrap number@' target @'target number@' title @'scrap title@'
+@{\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap@1}\raggedright\small
+\NWtarget{nuweb@2}{} @3 {\footnotesize {@2}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item@}
+\subsubsection{Nuweb start of LB file scrap}
+@d NW start of LB file scrap @'scrap number@' target @'target number@' title @'scrap title@'
+@{\begin{flushleft} \small\label{scrap@1}\raggedright\small
+\NWtarget{nuweb@2}{} @3 {\footnotesize {@2}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item@}
+\subsubsection{Nuweb verbatim scrap line}
+@d NW verbatim scrap line @'content@'
+@{\mbox{}\verb@@@1@@\\@}
+\subsubsection{Nuweb verbatim last scrap line}
+@d NW verbatim last scrap line @'content@'
+@{\mbox{}\verb@@@1@@{\NWsep}@}
+\subsubsection{Nuweb listings scrap line}
+@d NW listings scrap line @'content@'
+@{\mbox{}\lstinline@@@1@@\\@}
+\subsubsection{Nuweb listings last scrap line}
+@d NW listings last scrap line @'content@'
+@{\mbox{}\lstinline@@@1@@{\NWsep}@}
+\subsubsection{Nuweb middle of scrap}
+@d NW middle of scrap
+@{\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}@}
+\subsubsection{Nuweb no scrap references}
+@d NW no scrap references
+@{\item {\NWtxtMacroNoRef}.@}
+\subsubsection{Nuweb referenced in}
+@d NW referenced in @'reference@'
+@{\item \NWtxtMacroRefIn\ \NWlink{nuweb@1}{@1}.@}
+\subsubsection{Nuweb end of scrap}
+@d NW end of scrap
+@{\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}@}
+\subsubsection{Nuweb end of LB scrap}
+@d NW end of LB scrap
+@{\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}@}
+\subsubsection{Nuweb fragment title}
+@d NW fragment title @'title@'
+@{$\langle\,${\itshape @1}\nobreak\@}
+\subsubsection{Nuweb output file}
+@d NW output file @'filename@'
+@{\verb@@"@1"@@\nobreak\@}
+\subsubsection{Nuweb argument}
+@d NW argument @'argument@'
+@{\hbox{\slshape\sffamily @1\/}@}
+\subsubsection{Nuweb fragment reference}
+@d NW fragment reference title @'title@' reference @'reference@'
+@{@@\hbox{@<NW fragment title @1@> {\footnotesize \NWlink{nuweb@2}{@2}}$\,\rangle$}\verb@@@}
 \subsection{Test templates}
 \subsubsection{nuweb comparison with expected output}
 @d nuweb comparison for test @'testname@' with expected output

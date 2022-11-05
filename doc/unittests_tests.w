@@ -26,7 +26,7 @@ This test is a simple passthrough test where no nuweb commands are used.
 Nuweb should not modify the input text but add latex definitions in front of the text.
 
 @o ../tests/test_expected_textWithoutAnyNuwebCommand.tex
-@{@<Nuweb \LaTeX{} definitions@>@<Lorem ipsum@>
+@{@<NW \LaTeX{} definitions@>@<Lorem ipsum@>
 @}
 
 @d nuweb unit test functions
@@ -41,7 +41,7 @@ Nuweb should not modify the input text but add latex definitions in front of the
 @}
 
 @o ../tests/test_expected_textWithAtAt.tex
-@{@<Nuweb \LaTeX{} definitions@>Text with @@.
+@{@<NW \LaTeX{} definitions@>Text with @@.
 @}
 
 @d nuweb unit test functions
