@@ -51,8 +51,13 @@ public:
                 if(foundFragmentArgument){
                     unsigned int argumentNumber = foundFragmentArgument->number();
                     if(argumentNumber>fragmentNameArguments.size())
-                        throw std::runtime_error("Referencing argument number " + std::to_string(argumentNumber) + " but there are only " + std::to_string(fragmentNameArguments.size()) + " arguments defined in this fragment!");
-                    foundFragmentArgument->setNameToExpandTo(fragmentNameArguments.at(argumentNumber-1));
+                    {
+                        std::cout << "  Referencing argument number " + std::to_string(argumentNumber) + " but there are only " + std::to_string(fragmentNameArguments.size()) + " arguments defined in this fragment!\n";
+                        fragmentNamePartDefinition* emptyFragmentArgument = new fragmentNamePartDefinition(argumentNumber);
+                        foundFragmentArgument->setNameToExpandTo(emptyFragmentArgument);
+                    }
+                    else
+                        foundFragmentArgument->setNameToExpandTo(fragmentNameArguments.at(argumentNumber-1));
 
                 }
             }

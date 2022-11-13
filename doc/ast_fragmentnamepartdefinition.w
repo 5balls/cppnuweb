@@ -21,11 +21,13 @@
 @{@%
 class fragmentNamePartDefinition : public documentPart {
 private:
+    int m_argumentNumber = 0;
     bool m_isArgument = false;
     static std::vector<fragmentNamePartDefinition*> m_allFragmentPartDefinitions;
 public:
     fragmentNamePartDefinition(filePosition* l_filePosition, bool isArgument);
     fragmentNamePartDefinition(documentPart&& l_documentPart, bool isArgument);
+    fragmentNamePartDefinition(unsigned int argumentNumber);
     bool operator==(const fragmentNamePartDefinition& toCompareWith) const;
     virtual std::string texUtf8() const override;
     bool isArgument(void) const;
@@ -40,16 +42,23 @@ std::vector<nuweb::fragmentNamePartDefinition*> nuweb::fragmentNamePartDefinitio
 \indexClassMethod{fragmentDefinition}{fragmentNamePartDefinition}
 @d \classImplementation{fragmentNamePartDefinition}
 @{@%
-    nuweb::fragmentNamePartDefinition::fragmentNamePartDefinition(filePosition* l_filePosition, bool isArgument) : documentPart(l_filePosition), m_isArgument(isArgument) {
+    nuweb::fragmentNamePartDefinition::fragmentNamePartDefinition(filePosition* l_filePosition, bool isArgument) : documentPart(l_filePosition), m_isArgument(isArgument), m_argumentNumber(0) {
         m_allFragmentPartDefinitions.push_back(this);
     }
 @}
 @d \classImplementation{fragmentNamePartDefinition}
 @{@%
-    nuweb::fragmentNamePartDefinition::fragmentNamePartDefinition(documentPart&& l_documentPart, bool isArgument) : documentPart(std::move(l_documentPart)), m_isArgument(isArgument) {
+    nuweb::fragmentNamePartDefinition::fragmentNamePartDefinition(documentPart&& l_documentPart, bool isArgument) : documentPart(std::move(l_documentPart)), m_isArgument(isArgument), m_argumentNumber(0) {
         m_allFragmentPartDefinitions.push_back(this);
     }
 @}
+@d \classImplementation{fragmentNamePartDefinition}
+@{@%
+   nuweb::fragmentNamePartDefinition::fragmentNamePartDefinition(unsigned int argumentNumber) : m_argumentNumber(argumentNumber), m_isArgument(true)
+    {
+    }
+@}
+
 \subsubsection{operator==}
 \indexClassMethod{fragmentDefinition}{operator}
 @d \classImplementation{fragmentNamePartDefinition}
@@ -70,7 +79,17 @@ std::vector<nuweb::fragmentNamePartDefinition*> nuweb::fragmentNamePartDefinitio
 @{@%
     std::string nuweb::fragmentNamePartDefinition::texUtf8() const{
         if(m_isArgument)
-            return "\\hbox{\\slshape\\sffamily " + utf8() + "\\/}";
+            if(m_argumentNumber>0){
+                if(m_argumentNumber < 10)
+                    m_texFilePositionColumnCorrection = -1;
+                else if(m_argumentNumber < 100)
+                    m_texFilePositionColumnCorrection = -2;
+                else
+                    throw std::runtime_error("More than 99 arguments not supported!");
+                return "{\\tt @@}";
+            }
+            else
+                return "\\hbox{\\slshape\\sffamily " + utf8() + "\\/}";
         else
             return utf8();
     }

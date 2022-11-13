@@ -55,6 +55,7 @@ private:
     static bool m_hyperlinksEnabled;
 protected:
     std::string thisString(void) const;
+    static int m_texFilePositionColumnCorrection;
 public:
     documentPart(const documentPart&) = delete;
     documentPart(void);
@@ -203,6 +204,13 @@ std::string nuweb::documentPart::utf8(void) const{
         else {
             file* l_file = file::byName(filename);
             //std::cout << "File access in \"" << m_filePosition->m_filename << "\": " << m_filePosition->m_line-1 << "," << m_filePosition->m_column << " " << m_filePosition->m_line_end-1 << "," << m_filePosition->m_column_end << "\n";
+            if(m_texFilePositionColumnCorrection != 0)
+            {
+                int columnCorrection = m_texFilePositionColumnCorrection;
+                m_texFilePositionColumnCorrection = 0;
+                return l_file->utf8({{m_filePosition->m_line-1,m_filePosition->m_column+columnCorrection},
+                        {m_filePosition->m_line_end-1,m_filePosition->m_column_end}});
+            }
             return l_file->utf8({{m_filePosition->m_line-1,m_filePosition->m_column},
                     {m_filePosition->m_line_end-1,m_filePosition->m_column_end}});
         }
