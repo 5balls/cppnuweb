@@ -70,7 +70,18 @@ std::vector<nuweb::fragmentNamePartDefinition*> nuweb::fragmentNamePartDefinitio
             if(m_isArgument != toCompareWith.m_isArgument)
                 return false;
             else
+            {
+                std::string leftHandSide = utf8();
+                std::string rightHandSide = toCompareWith.utf8();
+                bool leftHandSideShortened = false;
+                bool rightHandSideShortened = false;
+                if(leftHandSide.find("...") == leftHandSide.length()-3)
+                    leftHandSideShortened = true; 
+                if(rightHandSide.find("...") == rightHandSide.length()-3)
+                    rightHandSideShortened = true; 
+                // TODO compare shortened forms
                 return utf8() == toCompareWith.utf8();
+            }
     }
 @}
 \subsubsection{texUtf8}
