@@ -19,7 +19,7 @@
 \subsection{Interface}
 @d \classDeclaration{indexFragmentNames}
 @{@%
-class indexFragmentNames : public documentPart {
+class indexFragmentNames : public documentPart{
 private:
     
 public:
@@ -41,6 +41,18 @@ public:
 @d \classImplementation{indexFragmentNames}
 @{@%
     std::string nuweb::indexFragmentNames::texUtf8(void) const{
-        return "TODO nuweb::indexFragmentNames::texUtf8";    
+        std::string returnString;
+        returnString = "{\\small\\begin{list}{}{\\setlength{\\itemsep}{-\\parsep}\\setlength{\\itemindent}{-\\leftmargin}}\n";
+        std::vector<documentPart*> fragmentNames = fragmentDefinition::fragmentDefinitionsNames();
+        std::vector<unsigned int> scrapNumbers = fragmentDefinition::fragmentDefinitionsScrapNumbers();
+        unsigned int fragmentDefinitionNumber = 0;
+        for(const auto& fragmentName: fragmentNames){
+            std::string fragmentScrapId = auxFile::scrapId(scrapNumbers.at(fragmentDefinitionNumber));
+            if(fragmentScrapId.empty()) fragmentScrapId = "?";
+            returnString += "\\item $\\langle\\,$" + fragmentName->texUtf8() + "\\nobreak\\ {\\footnotesize \\NWlink{nuweb" + fragmentScrapId + "}{" + fragmentScrapId + "}}$\\,\\rangle$ {\\footnotesize {\\NWtxtNoRef}.}\n";
+            fragmentDefinitionNumber++;
+        }
+        returnString += "\\end{list}}"; 
+        return returnString;
     }
 @| texUtf8 @}

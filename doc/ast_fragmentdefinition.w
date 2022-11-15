@@ -37,6 +37,8 @@ public:
     static fragmentDefinition* fragmentFromFragmentName(const documentPart* fragmentName);
     std::vector<unsigned int> scrapsFromFragment(void);
     static std::vector<unsigned int> scrapsFromFragmentName(const documentPart* fragmentName);
+    static std::vector<documentPart*> fragmentDefinitionsNames(void);
+    static std::vector<unsigned int> fragmentDefinitionsScrapNumbers(void);
     void addReferenceScrapNumber(unsigned int scrapNumber);
     unsigned int scrapNumber(void);
     static unsigned int totalNumberOfScraps(void);
@@ -540,3 +542,25 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
        
     }
 @| definesTexUtf8 @}
+\subsubsection{fragmentDefinitionsNames}
+\indexClassMethod{fragmentDefinition}{fragmentDefinitionsNames}
+@d \classImplementation{fragmentDefinition}
+@{@%
+    std::vector<nuweb::documentPart*> nuweb::fragmentDefinition::fragmentDefinitionsNames(void){
+        std::vector<documentPart*> fragmentNames;
+        for(auto& fragmentDefinition: fragmentDefinitions)
+            fragmentNames.push_back(fragmentDefinition.second->m_fragmentName);
+        return fragmentNames;
+    }
+@| fragmentDefinitionsNames @}
+\subsubsection{fragmentDefinitionsScrapNumbers}
+\indexClassMethod{fragmentDefinition}{fragmentDefinitionsScrapNumbers}
+@d \classImplementation{fragmentDefinition}
+@{@%
+    std::vector<unsigned int> nuweb::fragmentDefinition::fragmentDefinitionsScrapNumbers(void){
+        std::vector<unsigned int> scrapNumbers;
+        for(auto& fragmentDefinition: fragmentDefinitions)
+            scrapNumbers.push_back(fragmentDefinition.second->m_scrapNumber);
+        return scrapNumbers;
+    }
+@| fragmentDefinitionsScrapNumbers @}

@@ -62,7 +62,7 @@ nuwebExpression
     }
     | AT_SMALL_M
     {
-        throw std::runtime_error("nuwebExpression::@@m not implemented\n");
+        $$ = new indexFragmentNames($AT_SMALL_M);
     }
     | NOT_IMPLEMENTED
     {
@@ -77,6 +77,10 @@ nuwebExpression
 
 @d Bison token definitions
 @{%token AT_SMALL_M@| AT_SMALL_M @}
+
+@d Bison type definitions
+@{%type <m_filePosition> AT_SMALL_M;
+@}
 
 @i reference_documentparts_nuwebexpression_includefile.w
 
