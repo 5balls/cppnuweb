@@ -1,0 +1,58 @@
+% Copyright 2022 Florian Pesth
+%
+% This file is part of cppnuweb.
+%
+% cppnuweb is free software: you can redistribute it and/or modify
+% it under the terms of the GNU Affero General Public License as
+% published by the Free Software Foundation version 3 of the
+% License.
+%
+% cppnuweb is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU Affero General Public License for more details.
+%
+% You should have received a copy of the GNU Affero General Public License
+% along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+\section{Class indexFragmentNames}
+\subsection{Interface}
+@d \classDeclaration{indexFragmentNames}
+@{@%
+class indexFragmentNames : public documentPart{
+private:
+    
+public:
+    indexFragmentNames(filePosition* l_filePosition);
+    virtual std::string texUtf8(void) const override;
+};
+@| indexFragmentNames @}
+\section{Implementation}
+\subsubsection{indexFragmentNames}
+\indexClassMethod{indexFragmentNames}{indexFragmentNames}
+@d \classImplementation{indexFragmentNames}
+@{@%
+    nuweb::indexFragmentNames::indexFragmentNames(filePosition* l_filePosition) : documentPart(l_filePosition){
+        
+    }
+@| indexFragmentNames @}
+\subsubsection{texUtf8}
+\indexClassMethod{indexFragmentNames}{texUtf8}
+@d \classImplementation{indexFragmentNames}
+@{@%
+    std::string nuweb::indexFragmentNames::texUtf8(void) const{
+        std::string returnString;
+        returnString = "{\\small\\begin{list}{}{\\setlength{\\itemsep}{-\\parsep}\\setlength{\\itemindent}{-\\leftmargin}}\n";
+        std::vector<documentPart*> fragmentNames = fragmentDefinition::fragmentDefinitionsNames();
+        std::vector<unsigned int> scrapNumbers = fragmentDefinition::fragmentDefinitionsScrapNumbers();
+        unsigned int fragmentDefinitionNumber = 0;
+        for(const auto& fragmentName: fragmentNames){
+            std::string fragmentScrapId = auxFile::scrapId(scrapNumbers.at(fragmentDefinitionNumber));
+            if(fragmentScrapId.empty()) fragmentScrapId = "?";
+            returnString += "\\item $\\langle\\,$" + fragmentName->texUtf8() + "\\nobreak\\ {\\footnotesize \\NWlink{nuweb" + fragmentScrapId + "}{" + fragmentScrapId + "}}$\\,\\rangle$ {\\footnotesize {\\NWtxtNoRef}.}\n";
+            fragmentDefinitionNumber++;
+        }
+        returnString += "\\end{list}}"; 
+        return returnString;
+    }
+@| texUtf8 @}

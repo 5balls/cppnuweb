@@ -39,6 +39,7 @@ namespace nuweb {
 @<\classDeclaration{emptyDocumentPart}@>
 @<\classDeclaration{fragmentArgument}@>
 @<\classDeclaration{userIdentifiers}@>
+@<\classDeclaration{indexFragmentNames}@>
 }
 @<End of header@>
 @}
@@ -104,6 +105,7 @@ public:
 @<\classImplementation{scrap}@>
 @<\classImplementation{fragmentArgument}@>
 @<\classImplementation{userIdentifiers}@>
+@<\classImplementation{indexFragmentNames}@>
 @}
 
 \subsubsection{documentPart}
