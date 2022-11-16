@@ -73,14 +73,22 @@ std::vector<nuweb::fragmentNamePartDefinition*> nuweb::fragmentNamePartDefinitio
             {
                 std::string leftHandSide = utf8();
                 std::string rightHandSide = toCompareWith.utf8();
+                size_t leftHandSideLength = leftHandSide.length();
+                size_t rightHandSideLength = rightHandSide.length();
                 bool leftHandSideShortened = false;
                 bool rightHandSideShortened = false;
-                if(leftHandSide.find("...") == leftHandSide.length()-3)
-                    leftHandSideShortened = true; 
-                if(rightHandSide.find("...") == rightHandSide.length()-3)
-                    rightHandSideShortened = true; 
-                // TODO compare shortened forms
-                return utf8() == toCompareWith.utf8();
+                if(leftHandSide.find("...") == leftHandSideLength-3){
+                    leftHandSide = leftHandSide.substr(0,leftHandSideLength-3);
+                    leftHandSideLength -= 3;
+                    leftHandSideShortened = true;
+                }
+                if(rightHandSide.find("...") == rightHandSideLength-3){
+                    rightHandSide = rightHandSide.substr(0,rightHandSideLength-3); 
+                    rightHandSideLength -= 3;
+                    rightHandSideShortened = true;
+                }
+                return (rightHandSideShortened ? leftHandSide.substr(0,rightHandSideLength) : leftHandSide)
+                    == (leftHandSideShortened ? rightHandSide.substr(0,leftHandSideLength) : rightHandSide);
             }
     }
 @}
