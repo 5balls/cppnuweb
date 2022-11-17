@@ -23,6 +23,7 @@ class fragmentNamePartDefinition : public documentPart {
 private:
     int m_argumentNumber = 0;
     bool m_isArgument = false;
+    bool m_isShortened = false;
     static std::vector<fragmentNamePartDefinition*> m_allFragmentPartDefinitions;
 public:
     fragmentNamePartDefinition(filePosition* l_filePosition, bool isArgument);
@@ -39,19 +40,29 @@ std::vector<nuweb::fragmentNamePartDefinition*> nuweb::fragmentNamePartDefinitio
 @| m_allFragmentPartDefinitions @}
 \subsection{Implementation}
 \subsubsection{fragmentNamePartDefinition}
-\indexClassMethod{fragmentDefinition}{fragmentNamePartDefinition}
+\indexClassMethod{fragmentNamePartDefinition}{fragmentNamePartDefinition}
 @d \classImplementation{fragmentNamePartDefinition}
 @{@%
     nuweb::fragmentNamePartDefinition::fragmentNamePartDefinition(filePosition* l_filePosition, bool isArgument) : documentPart(l_filePosition), m_isArgument(isArgument), m_argumentNumber(0) {
+        if(m_isArgument)
+            m_isShortened = false;
+        else
+            m_isShortened = (utf8().find("...") == utf8().length() - 3);
         m_allFragmentPartDefinitions.push_back(this);
     }
 @}
+\indexClassMethod{fragmentNamePartDefinition}{fragmentNamePartDefinition}
 @d \classImplementation{fragmentNamePartDefinition}
 @{@%
     nuweb::fragmentNamePartDefinition::fragmentNamePartDefinition(documentPart&& l_documentPart, bool isArgument) : documentPart(std::move(l_documentPart)), m_isArgument(isArgument), m_argumentNumber(0) {
+        if(m_isArgument)
+            m_isShortened = false;
+        else
+            m_isShortened = (utf8().find("...") == utf8().length() - 3);
         m_allFragmentPartDefinitions.push_back(this);
     }
 @}
+\indexClassMethod{fragmentNamePartDefinition}{fragmentNamePartDefinition}
 @d \classImplementation{fragmentNamePartDefinition}
 @{@%
    nuweb::fragmentNamePartDefinition::fragmentNamePartDefinition(unsigned int argumentNumber) : m_argumentNumber(argumentNumber), m_isArgument(true)
@@ -60,7 +71,7 @@ std::vector<nuweb::fragmentNamePartDefinition*> nuweb::fragmentNamePartDefinitio
 @}
 
 \subsubsection{operator==}
-\indexClassMethod{fragmentDefinition}{operator}
+\indexClassMethod{fragmentNamePartDefinition}{operator}
 @d \classImplementation{fragmentNamePartDefinition}
 @{@%
     bool nuweb::fragmentNamePartDefinition::operator==(const fragmentNamePartDefinition& toCompareWith) const{
@@ -75,25 +86,21 @@ std::vector<nuweb::fragmentNamePartDefinition*> nuweb::fragmentNamePartDefinitio
                 std::string rightHandSide = toCompareWith.utf8();
                 size_t leftHandSideLength = leftHandSide.length();
                 size_t rightHandSideLength = rightHandSide.length();
-                bool leftHandSideShortened = false;
-                bool rightHandSideShortened = false;
-                if(leftHandSide.find("...") == leftHandSideLength-3){
+                if(m_isShortened){
                     leftHandSide = leftHandSide.substr(0,leftHandSideLength-3);
                     leftHandSideLength -= 3;
-                    leftHandSideShortened = true;
                 }
-                if(rightHandSide.find("...") == rightHandSideLength-3){
+                if(toCompareWith.m_isShortened){
                     rightHandSide = rightHandSide.substr(0,rightHandSideLength-3); 
                     rightHandSideLength -= 3;
-                    rightHandSideShortened = true;
                 }
-                return (rightHandSideShortened ? leftHandSide.substr(0,rightHandSideLength) : leftHandSide)
-                    == (leftHandSideShortened ? rightHandSide.substr(0,leftHandSideLength) : rightHandSide);
+                return (toCompareWith.m_isShortened ? leftHandSide.substr(0,rightHandSideLength) : leftHandSide)
+                    == (m_isShortened ? rightHandSide.substr(0,leftHandSideLength) : rightHandSide);
             }
     }
 @}
 \subsubsection{texUtf8}
-\indexClassMethod{fragmentDefinition}{texUtf8}
+\indexClassMethod{fragmentNamePartDefinition}{texUtf8}
 @d \classImplementation{fragmentNamePartDefinition}
 @{@%
     std::string nuweb::fragmentNamePartDefinition::texUtf8() const{
@@ -115,10 +122,20 @@ std::vector<nuweb::fragmentNamePartDefinition*> nuweb::fragmentNamePartDefinitio
 @| texUtf8 @}
 
 \subsubsection{isArgument}
-\indexClassMethod{fragmentDefinition}{isArgument}
+\indexClassMethod{fragmentNamePartDefinition}{isArgument}
 @d \classImplementation{fragmentNamePartDefinition}
 @{@%
     bool nuweb::fragmentNamePartDefinition::isArgument(void) const{
         return m_isArgument;
     }
 @| isArgument @}
+\subsubsection{resolveReferences}
+\indexClassMethod{fragmentNamePartDefinition}{resolveReferences}
+@d \classImplementation{fragmentNamePartDefinition}
+@{@%
+    void nuweb::fragmentNamePartDefinition::resolveReferences(void){
+        if(m_isShortened){
+            // TODO Find long form alternative
+        }
+    }
+@| resolveReferences @}
