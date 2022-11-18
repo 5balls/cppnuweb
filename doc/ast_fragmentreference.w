@@ -42,8 +42,21 @@ public:
 @d \classImplementation{fragmentReference}
 @{@%
     nuweb::fragmentReference::fragmentReference(documentPart* fragmentName, bool expandReference) : m_unresolvedFragmentName(nullptr), m_referenceFragmentName(fragmentName), m_expandReference(expandReference){
+        unsigned int fragmentNamePartNumber = 0;
+        for(auto& fragmentNamePart: *m_referenceFragmentName){
+            fragmentNamePartDefinition* fragmentArgument = dynamic_cast<fragmentNamePartDefinition*>(fragmentNamePart);
+            if(fragmentArgument)
+            {
+                fragmentArgument->setParent(this);
+                fragmentArgument->setNamePartNumber(fragmentNamePartNumber);
+            }
+            fragmentNamePartNumber++;
+        }
         m_fragment = fragmentDefinition::fragmentFromFragmentName(fragmentName);
-        if(!m_fragment) m_unresolvedFragmentName = fragmentName;
+        if(!m_fragment)
+            m_unresolvedFragmentName = fragmentName;
+        else
+            m_fragment->addReference(this);
         m_scrapNumber = fragmentDefinition::totalNumberOfScraps() + 1;
     }
 @}
@@ -109,7 +122,13 @@ public:
 @d \classImplementation{fragmentReference}
 @{@%
     void nuweb::fragmentReference::resolveReferences(void){
-        if(!m_fragment) m_fragment = fragmentDefinition::fragmentFromFragmentName(m_unresolvedFragmentName);
+        if(!m_fragment){
+            m_fragment = fragmentDefinition::fragmentFromFragmentName(m_unresolvedFragmentName);
+            // This is inside the if(!m_fragment) because we only want to add the 
+            // reference if we didn't do so already
+            if(m_fragment)
+                m_fragment->addReference(this);
+        }
         if(!m_fragment) throw std::runtime_error("Could not resolve fragment \"" + m_unresolvedFragmentName->texUtf8() + "\" in file " + m_unresolvedFragmentName->filePositionString());
         if(!m_expandReference) 
             m_fragment->addReferenceScrapNumber(m_scrapNumber);

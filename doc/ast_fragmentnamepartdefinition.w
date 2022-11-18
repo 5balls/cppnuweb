@@ -24,6 +24,8 @@ private:
     int m_argumentNumber = 0;
     bool m_isArgument = false;
     bool m_isShortened = false;
+    documentPart* m_parent = nullptr;
+    unsigned int m_namePartNumber = 0;
     static std::vector<fragmentNamePartDefinition*> m_allFragmentPartDefinitions;
 public:
     fragmentNamePartDefinition(filePosition* l_filePosition, bool isArgument);
@@ -31,7 +33,11 @@ public:
     fragmentNamePartDefinition(unsigned int argumentNumber);
     bool operator==(const fragmentNamePartDefinition& toCompareWith) const;
     virtual std::string texUtf8() const override;
+    virtual void resolveReferences(void) override;
     bool isArgument(void) const;
+    void setParent(documentPart*);
+    void setNamePartNumber(unsigned int number);
+    bool isShortened(void) const;
 };
 @| fragmentNamePartDefinition @}
 @d \staticDefinitions{fragmentNamePartDefinition}
@@ -139,3 +145,27 @@ std::vector<nuweb::fragmentNamePartDefinition*> nuweb::fragmentNamePartDefinitio
         }
     }
 @| resolveReferences @}
+\subsubsection{setParent}
+\indexClassMethod{fragmentNamePartDefinition}{setParent}
+@d \classImplementation{fragmentNamePartDefinition}
+@{@%
+    void nuweb::fragmentNamePartDefinition::setParent(documentPart* parent){
+        m_parent = parent;
+    }
+@| setParent @}
+\subsubsection{setNamePartNumber}
+\indexClassMethod{fragmentNamePartDefinition}{setNamePartNumber}
+@d \classImplementation{fragmentNamePartDefinition}
+@{@%
+    void nuweb::fragmentNamePartDefinition::setNamePartNumber(unsigned int number){
+        m_namePartNumber = number;
+    }
+@| setNamePartNumber @}
+\subsubsection{isShortened}
+\indexClassMethod{fragmentNamePartDefinition}{isShortened}
+@d \classImplementation{fragmentNamePartDefinition}
+@{@%
+    bool nuweb::fragmentNamePartDefinition::isShortened(void) const{
+        return m_isShortened;
+    }
+@| isShortened @}

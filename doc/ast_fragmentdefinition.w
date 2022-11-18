@@ -19,6 +19,9 @@
 \subsection{Interface}
 @d \classDeclaration{fragmentDefinition}
 @{@%
+class fragmentReference;
+class fragmentNamePartDefinition;
+
 class fragmentDefinition : public documentPart {
 private:
     fragmentDefinition* m_firstFragment;
@@ -32,6 +35,7 @@ protected:
     unsigned int m_currentScrapNumber;
     std::vector<unsigned int> m_referencesInScraps;
     bool m_pageBreak;
+    std::vector<fragmentReference*> m_references;
 public:
     fragmentDefinition(documentPart* l_fragmentName, documentPart* l_scrap, bool pageBreak = false); 
     static fragmentDefinition* fragmentFromFragmentName(const documentPart* fragmentName);
@@ -39,6 +43,7 @@ public:
     static std::vector<unsigned int> scrapsFromFragmentName(const documentPart* fragmentName);
     static std::vector<documentPart*> fragmentDefinitionsNames(void);
     static std::vector<unsigned int> fragmentDefinitionsScrapNumbers(void);
+    static fragmentNamePartDefinition* findLongFormNamePart(unsigned int argumentNumber);
     void addReferenceScrapNumber(unsigned int scrapNumber);
     unsigned int scrapNumber(void);
     static unsigned int totalNumberOfScraps(void);
@@ -58,6 +63,7 @@ public:
     virtual void resolveReferences2(void) override;
     std::string scrapFileUtf8(void) const;
     std::string scrapFileUtf8(documentPart* fragmentName) const;
+    void addReference(fragmentReference*);
 };
 @| fragmentDefinition @}
 
@@ -74,6 +80,16 @@ std::map<unsigned int, std::vector<unsigned int> > nuweb::fragmentDefinition::m_
 @d \classImplementation{fragmentDefinition}
 @{@%
     nuweb::fragmentDefinition::fragmentDefinition(documentPart* l_fragmentName, documentPart* l_scrap, bool pageBreak) : m_fragmentName(l_fragmentName), m_currentScrapNumber(++m_scrapNumber), m_fragmentNameSize(m_fragmentName->size()), m_pageBreak(pageBreak){
+        unsigned int fragmentNamePartNumber = 0;
+        for(auto& fragmentNamePart: *m_fragmentName){
+            fragmentNamePartDefinition* fragmentArgument = dynamic_cast<fragmentNamePartDefinition*>(fragmentNamePart);
+            if(fragmentArgument)
+            {
+                fragmentArgument->setParent(this);
+                fragmentArgument->setNamePartNumber(fragmentNamePartNumber);
+            }
+            fragmentNamePartNumber++;
+        }
         m_scrap = dynamic_cast<class scrap*>(l_scrap);
         if(!m_scrap)
             throw std::runtime_error("Internal program error, documentPart passed fot fragmentDefinition is not a scrap as expected!");
@@ -564,3 +580,35 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
         return scrapNumbers;
     }
 @| fragmentDefinitionsScrapNumbers @}
+\subsubsection{addReference}
+\indexClassMethod{fragmentDefinition}{addReference}
+@d \classImplementation{fragmentDefinition}
+@{@%
+    void nuweb::fragmentDefinition::addReference(fragmentReference* reference){
+        if(std::find(m_references.begin(), m_references.end(), reference) != m_references.end())
+            m_references.push_back(reference);
+        else
+            throw std::runtime_error("Internal error, trying to add the same reference twice!");
+    }
+@| addReference @}
+\subsubsection{findLongFormNamePart}
+\indexClassMethod{fragmentDefinition}{findLongFormNamePart}
+@d \classImplementation{}
+@{@%
+    fragmentNamePartDefinition* nuweb::fragmentDefinition::findLongFormNamePart(unsigned int namePartNumber){
+       if(m_fragmentNameSize>=namePartNumber){
+           fragmentNamePartDefinition* possibleLongForm = dynamic_cast<fragmentNamePartDefinition*>(m_fragmentName->at(namePartNumber));
+           if(possibleLongForm)
+               if(!possibleLongForm->isShortened())
+                   return possibleLongForm;
+       }
+       for(const auto& reference: m_references){
+           if(reference->size() < namePartNumber)
+               continue;
+           fragmentNamePartDefinition* possibleLongForm = dynamic_cast<fragmentNamePartDefinition*>(reference->at(namePartNumber));
+           if(possibleLongForm)
+               if(!possibleLongForm->isShortened())
+                   return possibleLongForm;
+       }
+    }
+@| findLongFormNamePart @}
