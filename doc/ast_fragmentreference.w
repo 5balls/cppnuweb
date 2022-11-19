@@ -32,7 +32,10 @@ public:
     virtual std::string texUtf8(void) const override;
     virtual std::string fileUtf8(void) const override;
     virtual void resolveReferences(void) override;
+    virtual void resolveReferences2(void) override;
     void setExpandReference(bool expandReference);
+    fragmentDefinition* getFragmentDefinition(void) const;
+    documentPart* getFragmentName(void) const;
 };
 @}
 
@@ -55,8 +58,10 @@ public:
         m_fragment = fragmentDefinition::fragmentFromFragmentName(fragmentName);
         if(!m_fragment)
             m_unresolvedFragmentName = fragmentName;
-        else
+        else{
+            //std::cout << "DEBUG " << this << " " << __LINE__ << " " << __FUNCTION__ << "\n";
             m_fragment->addReference(this);
+        }
         m_scrapNumber = fragmentDefinition::totalNumberOfScraps() + 1;
     }
 @}
@@ -127,13 +132,25 @@ public:
             // This is inside the if(!m_fragment) because we only want to add the 
             // reference if we didn't do so already
             if(m_fragment)
+            {
+                //std::cout << "DEBUG " << this << " " << __LINE__ << " " << __FUNCTION__ << "\n";
                 m_fragment->addReference(this);
+            }
         }
         if(!m_fragment) throw std::runtime_error("Could not resolve fragment \"" + m_unresolvedFragmentName->texUtf8() + "\" in file " + m_unresolvedFragmentName->filePositionString());
         if(!m_expandReference) 
             m_fragment->addReferenceScrapNumber(m_scrapNumber);
     }
 @| resolveReferences @}
+\subsubsection{resolveReferences2}
+\indexClassMethod{fragmentReference}{resolveReferences2}
+@d \classImplementation{fragmentReference}
+@{@%
+    void nuweb::fragmentReference::resolveReferences2(void){
+        for(const auto& referenceFragmentNamePart: *m_referenceFragmentName)
+            referenceFragmentNamePart->resolveReferences2();
+    }
+@| resolveReferences2 @}
 \subsubsection{setExpandReference}
 \indexClassMethod{fragmentReference}{setExpandReference}
 @d \classImplementation{fragmentReference}
@@ -142,3 +159,19 @@ public:
         m_expandReference = expandReference;
     }
 @| setExpandReference @}
+\subsubsection{getFragmentDefinition}
+\indexClassMethod{fragmentReference}{getFragmentDefinition}
+@d \classImplementation{fragmentReference}
+@{@%
+    nuweb::fragmentDefinition* nuweb::fragmentReference::getFragmentDefinition(void) const{
+        return m_fragment;
+    }
+@| getFragmentDefinition @}
+\subsubsection{getFragmentName}
+\indexClassMethod{fragmentReference}{getFragmentName}
+@d \classImplementation{fragmentReference}
+@{@%
+    nuweb::documentPart* nuweb::fragmentReference::getFragmentName(void) const{
+       return m_referenceFragmentName; 
+    }
+@| getFragmentName @}

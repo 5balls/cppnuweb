@@ -129,7 +129,7 @@ nuweb::auxFile::auxFile(std::string filename) : nuweb::file(filename) {
         if(m_scrapIds.find(scrapNumber) != m_scrapIds.end())
             return m_scrapIds[scrapNumber];
         else
-            return "";
+            return "?";
     }
 @| scrapId @}
 

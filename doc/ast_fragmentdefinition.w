@@ -43,7 +43,7 @@ public:
     static std::vector<unsigned int> scrapsFromFragmentName(const documentPart* fragmentName);
     static std::vector<documentPart*> fragmentDefinitionsNames(void);
     static std::vector<unsigned int> fragmentDefinitionsScrapNumbers(void);
-    static fragmentNamePartDefinition* findLongFormNamePart(unsigned int argumentNumber);
+    fragmentNamePartDefinition* findLongFormNamePart(unsigned int argumentNumber);
     void addReferenceScrapNumber(unsigned int scrapNumber);
     unsigned int scrapNumber(void);
     static unsigned int totalNumberOfScraps(void);
@@ -473,6 +473,13 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
         usedIdentifiersInFragment = userIdentifiers::uses(m_scrap->utf8());
         for(auto& usedIdentifier: usedIdentifiersInFragment)
             userIdentifiers::setScrapUsingIdentifier(usedIdentifier.first, m_currentScrapNumber);
+        if(m_scrap->empty())
+            m_scrap->resolveReferences2();
+        else
+            for(auto& scrapPart: *m_scrap)
+                scrapPart->resolveReferences2();
+        for(const auto& definitionFragmentNamePart: *m_fragmentName)
+            definitionFragmentNamePart->resolveReferences2();
     }
 @| resolveReferences2 @}
 \subsubsection{usesTexUtf8}
@@ -585,17 +592,20 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
 @d \classImplementation{fragmentDefinition}
 @{@%
     void nuweb::fragmentDefinition::addReference(fragmentReference* reference){
-        if(std::find(m_references.begin(), m_references.end(), reference) != m_references.end())
+        if(std::find(m_references.begin(), m_references.end(), reference) == m_references.end())
             m_references.push_back(reference);
-        else
-            throw std::runtime_error("Internal error, trying to add the same reference twice!");
+        else{
+            std::ostringstream address;
+            address << (void const *)reference;
+            throw std::runtime_error("Internal error, trying to add the same reference \"" + address.str() + "\" twice!");
+        }
     }
 @| addReference @}
 \subsubsection{findLongFormNamePart}
 \indexClassMethod{fragmentDefinition}{findLongFormNamePart}
-@d \classImplementation{}
+@d \classImplementation{fragmentDefinition}
 @{@%
-    fragmentNamePartDefinition* nuweb::fragmentDefinition::findLongFormNamePart(unsigned int namePartNumber){
+    nuweb::fragmentNamePartDefinition* nuweb::fragmentDefinition::findLongFormNamePart(unsigned int namePartNumber){
        if(m_fragmentNameSize>=namePartNumber){
            fragmentNamePartDefinition* possibleLongForm = dynamic_cast<fragmentNamePartDefinition*>(m_fragmentName->at(namePartNumber));
            if(possibleLongForm)
@@ -603,12 +613,14 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
                    return possibleLongForm;
        }
        for(const auto& reference: m_references){
-           if(reference->size() < namePartNumber)
+           documentPart* referenceName = reference->getFragmentName();
+           if(referenceName->size() < namePartNumber)
                continue;
-           fragmentNamePartDefinition* possibleLongForm = dynamic_cast<fragmentNamePartDefinition*>(reference->at(namePartNumber));
+           fragmentNamePartDefinition* possibleLongForm = dynamic_cast<fragmentNamePartDefinition*>(referenceName->at(namePartNumber));
            if(possibleLongForm)
                if(!possibleLongForm->isShortened())
                    return possibleLongForm;
        }
+       return nullptr;
     }
 @| findLongFormNamePart @}

@@ -27,13 +27,14 @@ private:
     documentPart* m_parent = nullptr;
     unsigned int m_namePartNumber = 0;
     static std::vector<fragmentNamePartDefinition*> m_allFragmentPartDefinitions;
+    fragmentNamePartDefinition* m_longForm = nullptr;
 public:
     fragmentNamePartDefinition(filePosition* l_filePosition, bool isArgument);
     fragmentNamePartDefinition(documentPart&& l_documentPart, bool isArgument);
     fragmentNamePartDefinition(unsigned int argumentNumber);
     bool operator==(const fragmentNamePartDefinition& toCompareWith) const;
     virtual std::string texUtf8() const override;
-    virtual void resolveReferences(void) override;
+    virtual void resolveReferences2(void) override;
     bool isArgument(void) const;
     void setParent(documentPart*);
     void setNamePartNumber(unsigned int number);
@@ -110,6 +111,14 @@ std::vector<nuweb::fragmentNamePartDefinition*> nuweb::fragmentNamePartDefinitio
 @d \classImplementation{fragmentNamePartDefinition}
 @{@%
     std::string nuweb::fragmentNamePartDefinition::texUtf8() const{
+        std::string expandedFragmentNamePart;
+        if(m_isShortened)
+            if(!m_longForm)
+                throw std::runtime_error("Could not find long form for argument \"" + utf8() + "\"!");
+            else
+                expandedFragmentNamePart = m_longForm->utf8();
+        else
+            expandedFragmentNamePart = utf8();
         if(m_isArgument)
             if(m_argumentNumber>0){
                 if(m_argumentNumber < 10)
@@ -121,9 +130,9 @@ std::vector<nuweb::fragmentNamePartDefinition*> nuweb::fragmentNamePartDefinitio
                 return "{\\tt @@}";
             }
             else
-                return "\\hbox{\\slshape\\sffamily " + utf8() + "\\/}";
+                return "\\hbox{\\slshape\\sffamily " + expandedFragmentNamePart + "\\/}";
         else
-            return utf8();
+            return expandedFragmentNamePart;
     }
 @| texUtf8 @}
 
@@ -136,15 +145,28 @@ std::vector<nuweb::fragmentNamePartDefinition*> nuweb::fragmentNamePartDefinitio
     }
 @| isArgument @}
 \subsubsection{resolveReferences}
-\indexClassMethod{fragmentNamePartDefinition}{resolveReferences}
+\indexClassMethod{fragmentNamePartDefinition}{resolveReferences2}
 @d \classImplementation{fragmentNamePartDefinition}
 @{@%
-    void nuweb::fragmentNamePartDefinition::resolveReferences(void){
+    void nuweb::fragmentNamePartDefinition::resolveReferences2(void){
         if(m_isShortened){
-            // TODO Find long form alternative
+            if(m_parent)
+            {
+                fragmentDefinition* correspondingFragmentDefinition = dynamic_cast<fragmentDefinition*>(m_parent);
+                if(!correspondingFragmentDefinition){
+                    fragmentReference* parentReference = dynamic_cast<fragmentReference*>(m_parent);
+                    if(!parentReference)
+                        throw std::runtime_error("Could not resolve shortened fragment argument!");
+                    correspondingFragmentDefinition = parentReference->getFragmentDefinition();
+                }
+                m_longForm = correspondingFragmentDefinition->findLongFormNamePart(m_namePartNumber);
+
+            }
+            else
+                throw std::runtime_error("Internal error, fragmentNamePartDefinition::m_parent not set!");
         }
     }
-@| resolveReferences @}
+@| resolveReferences2 @}
 \subsubsection{setParent}
 \indexClassMethod{fragmentNamePartDefinition}{setParent}
 @d \classImplementation{fragmentNamePartDefinition}
