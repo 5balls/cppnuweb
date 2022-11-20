@@ -39,6 +39,7 @@ We store the lines in UTF-16 as well because we need to be able to return UTF-16
 @<Start of class @'indexableText@'@>
 private:
     std::vector<std::string> m_utf8Content;
+    std::vector<std::ios_base::iostate> m_states;
     std::vector<std::u16string> m_utf16Content;
 @}
 
@@ -71,7 +72,7 @@ Currently \lstinline{addLine} is the only way to get data into the class:
 
 @D \classDeclaration{indexableText}
 @{
-    void addLine(const std::string& line);
+    void addLine(const std::string& line, std::ios_base::iostate state);
 @}
 
 For the getter methods we have several overloaded functions. We need to have them with return value \lstinline{std::stringstream} as well because we need it for the lexer class.
@@ -81,7 +82,7 @@ For the getter methods we have several overloaded functions. We need to have the
     unsigned int numberOfLines() const {return m_utf8Content.size();};
     std::string utf8() const;
     std::string utf8(const unsigned int line) const;
-    std::string utf8(const range& fromTo) const;
+    std::string utf8(const range& fromTo, unsigned int indentation = 0) const;
     std::string utf8TillLineEnd(const filePosition& fromHereToLineEnding) const;
     std::string utf8FromLineBeginning(const filePosition& fromLineBeginningToHere) const;
     std::string utf8FromToInLine(const range& fromTo) const;
@@ -102,11 +103,12 @@ The same for UTF-16:
 \indexClassMethod{indexableText}{addLine}
 @d \classImplementation{indexableText}
 @{
-void nuweb::indexableText::addLine(const std::string& line){
+void nuweb::indexableText::addLine(const std::string& line, std::ios_base::iostate state){
     auto endIterator = utf8::find_invalid(line.begin(), line.end());
     if(endIterator != line.end())
         throw std::runtime_error("Invalid UTF8 sequence detected in line " + std::to_string(numberOfLines() + 1));
     m_utf8Content.push_back(line);
+    m_states.push_back(state);
     m_utf16Content.push_back(utf8::utf8to16(line));
 }
 @}
@@ -213,27 +215,27 @@ std::string nuweb::indexableText::utf8FromToInLine(const range& fromTo) const {
 \indexClassMethod{indexableText}{utf8}
 @d \classImplementation{indexableText}
 @{
-std::string nuweb::indexableText::utf8(const range& fromTo) const {
+std::string nuweb::indexableText::utf8(const range& fromTo, unsigned int indentation) const {
     unsigned int firstLine = fromTo.m_from.m_line;
     unsigned int lastLine = fromTo.m_to.m_line;
     std::string returnString;
     for(unsigned int lineNumber = firstLine; lineNumber <= lastLine; lineNumber++){
         if(firstLine == lastLine){
-            //std::cout << "1: " << utf8FromToInLine(fromTo) << "\n";
-            return utf8FromToInLine(fromTo);
+            //std::cout << "1: \"" << std::string(indentation,' ') + utf8FromToInLine(fromTo) << "\"\n";
+            return std::string(indentation,' ') + utf8FromToInLine(fromTo);
         }
         if((lineNumber == firstLine) && (fromTo.m_from.m_character > 0)){
-            //std::cout << "2: " << utf8TillLineEnd(fromTo.m_from) << "\n";
-            returnString += utf8TillLineEnd(fromTo.m_from) + "\n";
+            //std::cout << "2: \"" << std::string(indentation,' ') + utf8TillLineEnd(fromTo.m_from) << "\"\n";
+            returnString += std::string(indentation,' ') + utf8TillLineEnd(fromTo.m_from) + "\n";
             continue;
         }
         if(lineNumber == lastLine){
-            //std::cout << "3: " << utf8FromLineBeginning(fromTo.m_to) << "\n";
-            returnString += utf8FromLineBeginning(fromTo.m_to) + "\n";
+            //std::cout << "3: \"" << std::string(indentation,' ') + utf8FromLineBeginning(fromTo.m_to) << "\"\n";
+            returnString += std::string(indentation,' ') + utf8FromLineBeginning(fromTo.m_to) + "\n";
             continue;
         }
-        //std::cout << "4: " << m_utf8Content.at(lineNumber) << "\n";
-        returnString += m_utf8Content.at(lineNumber) + "\n";
+        //std::cout << "4: \"" << std::string(indentation,' ') + m_utf8Content.at(lineNumber) << "\"\n";
+        returnString += std::string(indentation,' ') + m_utf8Content.at(lineNumber) + "\n";
     }
     returnString.pop_back();
     return returnString;
@@ -338,7 +340,9 @@ nuweb::file::file(std::string filename) : m_filename(filename){
     std::string line;
     try {
         while(std::getline(fileStream, line))
-            addLine(line);
+            addLine(line, fileStream.rdstate());
+        //if(fileStream.rdstate() != std::ios_base::eofbit)
+        //    addLine("\n", fileStream.rdstate());
     }
     catch(const std::runtime_error& error) {
         throw std::runtime_error("Error while reading file \"" + m_filename + "\": " + error.what());

@@ -26,29 +26,48 @@ private:
     documentPart* m_unresolvedFragmentName;
     unsigned int m_scrapNumber;
     bool m_expandReference;
+    unsigned int m_leadingSpaces = 0;
 public:
     fragmentReference(documentPart* fragmentName, bool expandReference=false);
     virtual std::string utf8(void) const override;
     virtual std::string texUtf8(void) const override;
     virtual std::string fileUtf8(void) const override;
     virtual void resolveReferences(void) override;
+    virtual void resolveReferences2(void) override;
     void setExpandReference(bool expandReference);
+    fragmentDefinition* getFragmentDefinition(void) const;
+    documentPart* getFragmentName(void) const;
 };
 @}
 
 \subsection{Implementation}
 \subsubsection{fragmentReference}
-\indexClassMethod{fragmentDefinition}{fragmentReference}
+\indexClassMethod{fragmentReference}{fragmentReference}
 @d \classImplementation{fragmentReference}
 @{@%
     nuweb::fragmentReference::fragmentReference(documentPart* fragmentName, bool expandReference) : m_unresolvedFragmentName(nullptr), m_referenceFragmentName(fragmentName), m_expandReference(expandReference){
+        unsigned int fragmentNamePartNumber = 0;
+        for(auto& fragmentNamePart: *m_referenceFragmentName){
+            fragmentNamePartDefinition* fragmentArgument = dynamic_cast<fragmentNamePartDefinition*>(fragmentNamePart);
+            if(fragmentArgument)
+            {
+                fragmentArgument->setParent(this);
+                fragmentArgument->setNamePartNumber(fragmentNamePartNumber);
+            }
+            fragmentNamePartNumber++;
+        }
         m_fragment = fragmentDefinition::fragmentFromFragmentName(fragmentName);
-        if(!m_fragment) m_unresolvedFragmentName = fragmentName;
+        if(!m_fragment)
+            m_unresolvedFragmentName = fragmentName;
+        else{
+            //std::cout << "DEBUG " << this << " " << __LINE__ << " " << __FUNCTION__ << "\n";
+            m_fragment->addReference(this);
+        }
         m_scrapNumber = fragmentDefinition::totalNumberOfScraps() + 1;
     }
 @}
 \subsubsection{texUtf8}
-\indexClassMethod{fragmentDefinition}{texUtf8}
+\indexClassMethod{fragmentReference}{texUtf8}
 @d \classImplementation{fragmentReference}
 @{@%
     std::string nuweb::fragmentReference::texUtf8(void) const{
@@ -88,7 +107,7 @@ public:
     }
 @}
 \subsubsection{utf8}
-\indexClassMethod{fragmentDefinition}{utf8}
+\indexClassMethod{fragmentReference}{utf8}
 @d \classImplementation{fragmentReference}
 @{@%
     std::string nuweb::fragmentReference::utf8(void) const{
@@ -96,12 +115,15 @@ public:
     }
 @}
 \subsubsection{fileUtf8}
-\indexClassMethod{fragmentDefinition}{fileUtf8}
+\indexClassMethod{fragmentReference}{fileUtf8}
 @d \classImplementation{fragmentReference}
 @{@%
     std::string nuweb::fragmentReference::fileUtf8(void) const{
         if(!m_fragment) throw std::runtime_error("Could not resolve fragment \"" + m_unresolvedFragmentName->texUtf8() + "\" in file " + m_unresolvedFragmentName->filePositionString());
-        return m_fragment->fileUtf8(m_referenceFragmentName);
+        documentPart::m_fileIndentation += m_leadingSpaces;
+        std::string returnString = m_fragment->fileUtf8(m_referenceFragmentName);
+        documentPart::m_fileIndentation -= m_leadingSpaces;
+        return returnString;
     }
 @| fileUtf8 @}
 \subsubsection{resolveReferences}
@@ -109,12 +131,31 @@ public:
 @d \classImplementation{fragmentReference}
 @{@%
     void nuweb::fragmentReference::resolveReferences(void){
-        if(!m_fragment) m_fragment = fragmentDefinition::fragmentFromFragmentName(m_unresolvedFragmentName);
+        m_leadingSpaces = this->leadingSpaces();
+        if(!m_fragment){
+            m_fragment = fragmentDefinition::fragmentFromFragmentName(m_unresolvedFragmentName);
+            // This is inside the if(!m_fragment) because we only want to add the 
+            // reference if we didn't do so already
+            if(m_fragment)
+            {
+                //std::cout << "DEBUG " << this << " " << __LINE__ << " " << __FUNCTION__ << "\n";
+                m_fragment->addReference(this);
+            }
+        }
         if(!m_fragment) throw std::runtime_error("Could not resolve fragment \"" + m_unresolvedFragmentName->texUtf8() + "\" in file " + m_unresolvedFragmentName->filePositionString());
         if(!m_expandReference) 
             m_fragment->addReferenceScrapNumber(m_scrapNumber);
     }
 @| resolveReferences @}
+\subsubsection{resolveReferences2}
+\indexClassMethod{fragmentReference}{resolveReferences2}
+@d \classImplementation{fragmentReference}
+@{@%
+    void nuweb::fragmentReference::resolveReferences2(void){
+        for(const auto& referenceFragmentNamePart: *m_referenceFragmentName)
+            referenceFragmentNamePart->resolveReferences2();
+    }
+@| resolveReferences2 @}
 \subsubsection{setExpandReference}
 \indexClassMethod{fragmentReference}{setExpandReference}
 @d \classImplementation{fragmentReference}
@@ -123,3 +164,19 @@ public:
         m_expandReference = expandReference;
     }
 @| setExpandReference @}
+\subsubsection{getFragmentDefinition}
+\indexClassMethod{fragmentReference}{getFragmentDefinition}
+@d \classImplementation{fragmentReference}
+@{@%
+    nuweb::fragmentDefinition* nuweb::fragmentReference::getFragmentDefinition(void) const{
+        return m_fragment;
+    }
+@| getFragmentDefinition @}
+\subsubsection{getFragmentName}
+\indexClassMethod{fragmentReference}{getFragmentName}
+@d \classImplementation{fragmentReference}
+@{@%
+    nuweb::documentPart* nuweb::fragmentReference::getFragmentName(void) const{
+       return m_referenceFragmentName; 
+    }
+@| getFragmentName @}

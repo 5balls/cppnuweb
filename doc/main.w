@@ -110,13 +110,14 @@ int main(int argc, char *argv[])
             std::string texFileName = filename.substr(0,filename.find_last_of('.')) + ".tex";
             texFile.open(texFileName);
             std::string texContent = nuwebAstEntry->texUtf8();
-            texFile  << texContent + "\n";
+            texFile << texContent;
+            if(texContent.back() != '\n')
+                texFile << "\n";
             texFile.close();
         }    
         catch(std::runtime_error& e){
             std::cout << e.what() << "\n";
             std::cout << "Error when writing .tex file!\n";
-            return EXIT_FAILURE;
         }
     }
     // Generate Output files

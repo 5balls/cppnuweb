@@ -57,6 +57,7 @@ private:
 protected:
     std::string thisString(void) const;
     static int m_texFilePositionColumnCorrection;
+    static unsigned int m_fileIndentation;
 public:
     documentPart(const documentPart&) = delete;
     documentPart(void);
@@ -77,6 +78,8 @@ public:
     static bool listingsPackageEnabled(void);
     void setHyperlinksEnabled(bool hyperlinksEnabled);
     static bool hyperlinksEnabled(void);
+    unsigned int leadingSpaces(void) const;
+    bool setFilePosition(filePosition* l_filePosition);
 };
 @| documentPart utf8 texUtf8 @}
 
@@ -194,6 +197,8 @@ public:
 @d \classImplementation{documentPart}
 @{@%
 std::string nuweb::documentPart::utf8(void) const{
+    static int lastIndentedLine=-1;
+    static int currentLine=0;
     if(empty()){
         // Line numbers in lex start by one, internally we start at 0, so we
         // have to substract one here:
@@ -210,11 +215,36 @@ std::string nuweb::documentPart::utf8(void) const{
             {
                 int columnCorrection = m_texFilePositionColumnCorrection;
                 m_texFilePositionColumnCorrection = 0;
-                return l_file->utf8({{m_filePosition->m_line-1,m_filePosition->m_column+columnCorrection},
-                        {m_filePosition->m_line_end-1,m_filePosition->m_column_end}});
+                if(lastIndentedLine != currentLine){
+                    std::string returnString = l_file->utf8({{m_filePosition->m_line-1,m_filePosition->m_column+columnCorrection},
+                            {m_filePosition->m_line_end-1,m_filePosition->m_column_end}},
+                            m_fileIndentation);
+                    currentLine += std::count(returnString.begin(), returnString.end(), '\n');
+                    lastIndentedLine = currentLine;
+
+                    return returnString;
+                }
+                else{
+                    std::string returnString = l_file->utf8({{m_filePosition->m_line-1,m_filePosition->m_column+columnCorrection},
+                            {m_filePosition->m_line_end-1,m_filePosition->m_column_end}});
+                    currentLine += std::count(returnString.begin(), returnString.end(), '\n');
+                    return returnString;
+                }
             }
-            return l_file->utf8({{m_filePosition->m_line-1,m_filePosition->m_column},
-                    {m_filePosition->m_line_end-1,m_filePosition->m_column_end}});
+            if(lastIndentedLine != currentLine){
+                std::string returnString = l_file->utf8({{m_filePosition->m_line-1,m_filePosition->m_column},
+                        {m_filePosition->m_line_end-1,m_filePosition->m_column_end}},
+                        m_fileIndentation);
+                currentLine += std::count(returnString.begin(), returnString.end(), '\n');
+                lastIndentedLine = currentLine;
+                return returnString;
+            }
+            else{
+                std::string returnString = l_file->utf8({{m_filePosition->m_line-1,m_filePosition->m_column},
+                        {m_filePosition->m_line_end-1,m_filePosition->m_column_end}});
+                currentLine += std::count(returnString.begin(), returnString.end(), '\n');
+                return returnString;
+            }
         }
     }
     else{
@@ -258,6 +288,12 @@ std::string nuweb::documentPart::utf8(void) const{
 std::string nuweb::documentPart::texUtf8() const{
     if(empty()){
         return utf8();
+        /*std::string returnValue = utf8();
+        bool documentPartIsOnlyWhitespace = std::all_of(returnValue.begin(),returnValue.end(),::isspace);
+        if(documentPartIsOnlyWhitespace)
+            return "\n";
+        else
+            return returnValue;*/
     }
     else{
         std::string returnString;
@@ -335,3 +371,38 @@ std::string nuweb::documentPart::fileUtf8() const{
         return thisStream.str();
     }
 @| thisString @}
+\subsubsection{leadingSpaces}
+\indexClassMethod{documentPart}{leadingSpaces}
+@d \classImplementation{documentPart}
+@{@%
+    unsigned int nuweb::documentPart::leadingSpaces(void) const{
+        if(!m_filePosition)
+            return 0;
+        std::string filename = m_filePosition->m_filename;
+        if(filename.empty())
+            return 0;
+        else {
+            file* l_file = file::byName(filename);
+            if(m_filePosition->m_column>0) 
+               if(l_file->utf8({{m_filePosition->m_line-1,0},{m_filePosition->m_line-1,m_filePosition->m_column-1}}).find_first_not_of(' ') != std::string::npos)
+                   return 0;
+               else
+                   return m_filePosition->m_column;
+            else
+                return 0;
+        }
+    }
+@| leadingSpaces @}
+\subsubsection{setFilePosition}
+\indexClassMethod{documentPart}{setFilePosition}
+@d \classImplementation{documentPart}
+@{@%
+    bool nuweb::documentPart::setFilePosition(filePosition* l_filePosition){
+       if(!m_filePosition){
+           m_filePosition = l_filePosition;
+           return true;
+       } 
+       else
+           return false;
+    }
+@| setFilePosition @}

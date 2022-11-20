@@ -106,7 +106,8 @@ public:
                 outputFileContent += outputFragment->fileUtf8();
             }
 
-            std::string outputFileName = outputFile->name().substr(0,outputFile->name().find_last_of('.')) + ".txt";
+            //std::string outputFileName = outputFile->name().substr(0,outputFile->name().find_last_of('.')) + ".txt";
+            std::string outputFileName = outputFile->name();
             outputFileStream.open(outputFileName);
             //outputFileStream.open(outputFile->name());
             outputFileStream << outputFileContent;
