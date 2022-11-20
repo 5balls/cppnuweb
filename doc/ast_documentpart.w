@@ -221,7 +221,6 @@ std::string nuweb::documentPart::utf8(void) const{
                             m_fileIndentation);
                     currentLine += std::count(returnString.begin(), returnString.end(), '\n');
                     lastIndentedLine = currentLine;
-
                     return returnString;
                 }
                 else{
