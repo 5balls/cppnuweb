@@ -258,6 +258,12 @@ std::string nuweb::documentPart::utf8(void) const{
 std::string nuweb::documentPart::texUtf8() const{
     if(empty()){
         return utf8();
+        /*std::string returnValue = utf8();
+        bool documentPartIsOnlyWhitespace = std::all_of(returnValue.begin(),returnValue.end(),::isspace);
+        if(documentPartIsOnlyWhitespace)
+            return "\n";
+        else
+            return returnValue;*/
     }
     else{
         std::string returnString;

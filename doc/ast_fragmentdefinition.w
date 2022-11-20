@@ -382,7 +382,7 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
         returnString += "\\end{list}\n";
         if(!m_pageBreak)
             returnString += "\\end{minipage}";
-        returnString += "\\vspace{4ex}\n\\end{flushleft}";
+        returnString += "\\vspace{4ex}\n\\end{flushleft}\n";
         return returnString;
     }
 @}

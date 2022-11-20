@@ -68,7 +68,7 @@ We try to use the Flex and Bison programs to create our parser.
 @<Lexer rules for regular nuweb commands@>
 @<Lexer rules for fragment headers and references@>
 <INITIAL,outputFileHeader,fragmentHeader>[@@][{] { start(scrapContents); TOKEN(AT_CURLY_BRACKET_OPEN) }
-<scrapContents,userIdentifiers>[@@][}] { start(INITIAL); TOKEN(AT_CURLY_BRACKET_CLOSE) }
+<scrapContents,userIdentifiers>[@@][}][[:space:]]* { start(INITIAL); TOKEN(AT_CURLY_BRACKET_CLOSE) }
 @| AT_AT MINUS_D AT_SMALL_D AT_LARGE_D AT_SMALL_O AT_LARGE_O AT_SMALL_F AT_ANGLE_BRACKET_OPEN AT_ANGLE_BRACKET_CLOSE AT_TICK AT_NUMBER AT_CURLY_BRACKET_OPEN AT_CURLY_BRACKET_CLOSE @}
 
 @O ../src/nuweb.l

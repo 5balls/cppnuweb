@@ -42,7 +42,7 @@ public:
 @{@%
     std::string nuweb::indexFragmentNames::texUtf8(void) const{
         std::string returnString;
-        returnString = "{\\small\\begin{list}{}{\\setlength{\\itemsep}{-\\parsep}\\setlength{\\itemindent}{-\\leftmargin}}\n";
+        returnString = "\n{\\small\\begin{list}{}{\\setlength{\\itemsep}{-\\parsep}\\setlength{\\itemindent}{-\\leftmargin}}\n";
         std::vector<documentPart*> fragmentNames = fragmentDefinition::fragmentDefinitionsNames();
         std::vector<unsigned int> scrapNumbers = fragmentDefinition::fragmentDefinitionsScrapNumbers();
         unsigned int fragmentDefinitionNumber = 0;

@@ -34,6 +34,7 @@ public:
     fragmentNamePartDefinition(unsigned int argumentNumber);
     bool operator==(const fragmentNamePartDefinition& toCompareWith) const;
     virtual std::string texUtf8() const override;
+    virtual std::string utf8() const override;
     virtual void resolveReferences2(void) override;
     bool isArgument(void) const;
     void setParent(documentPart*);
@@ -135,7 +136,17 @@ std::vector<nuweb::fragmentNamePartDefinition*> nuweb::fragmentNamePartDefinitio
             return expandedFragmentNamePart;
     }
 @| texUtf8 @}
-
+\subsubsection{utf8}
+\indexClassMethod{fragmentNamePartDefinition}{utf8}
+@d \classImplementation{fragmentNamePartDefinition}
+@{@%
+    std::string nuweb::fragmentNamePartDefinition::utf8() const{
+        if(m_isArgument && m_argumentNumber>0)
+            return "";
+        else
+            return documentPart::utf8();
+    }
+@| utf8 @}
 \subsubsection{isArgument}
 \indexClassMethod{fragmentNamePartDefinition}{isArgument}
 @d \classImplementation{fragmentNamePartDefinition}
