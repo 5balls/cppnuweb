@@ -278,6 +278,7 @@ fragmentReference
     : AT_ANGLE_BRACKET_OPEN fragmentNameReference AT_ANGLE_BRACKET_CLOSE
     {
         $$ = $fragmentNameReference;
+        $$->setFilePosition($AT_ANGLE_BRACKET_OPEN);
     }
     | AT_ANGLE_BRACKET_OPEN fragmentNameReference fragmentNameArgumentOld AT_ANGLE_BRACKET_CLOSE
     {
@@ -313,6 +314,7 @@ fragmentReference* m_fragmentReference;
 @d \bisonTypeDefinition{fragmentNameReference}
 @{@%
 %type <m_fragmentReference> fragmentNameReference
+%type <m_filePosition> AT_ANGLE_BRACKET_OPEN
 @}
 
 @d \bisonTypeDefinition{fragmentReference}

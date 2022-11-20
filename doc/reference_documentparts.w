@@ -75,6 +75,7 @@ bool nuweb::documentPart::auxFileParsed = false;
 bool nuweb::documentPart::m_listingsPackageEnabled = false;
 bool nuweb::documentPart::m_hyperlinksEnabled = false;
 int nuweb::documentPart::m_texFilePositionColumnCorrection = 0;
+unsigned int nuweb::documentPart::m_fileIndentation = 0;
 @}
 
 @i reference_documentparts_texcode.w

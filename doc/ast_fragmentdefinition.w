@@ -422,7 +422,10 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
 @d \classImplementation{fragmentDefinition}
 @{@%
     std::string nuweb::fragmentDefinition::fileUtf8(documentPart* fragmentName) const{
+        unsigned int cacheIndentation = documentPart::m_fileIndentation;
+        documentPart::m_fileIndentation = 0;
         std::vector<unsigned int> scraps = scrapsFromFragmentName(m_fragmentName);
+        documentPart::m_fileIndentation = cacheIndentation;
         std::string returnString;
         for(const auto& scrap: scraps){
             returnString += fragmentDefinitions[scrap]->scrapFileUtf8(fragmentName);
