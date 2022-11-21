@@ -86,8 +86,22 @@ outputFlag
     {
         $$ = outputFileFlags::FORCE_LINE_NUMBERS;
     }
+    | MINUS_C_C
+    {
+        $$ = outputFileFlags::C_COMMENTS;
+    }
 ;
 @| outputFlag @}
+
+@d Lexer rules for output file flags
+@{<outputFileHeader>-d { TOKEN(MINUS_D) }
+<outputFileHeader>-cc { TOKEN(MINUS_C_C) }
+@}
+
+@d Bison token definitions
+@{%token MINUS_D
+%token MINUS_C_C
+@}
 
 @d Bison rules
 @{

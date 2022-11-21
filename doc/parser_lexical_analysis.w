@@ -59,7 +59,7 @@ We try to use the Flex and Bison programs to create our parser.
  /* rules */
 @<Lexer rule for including files@>
 @<Lexer rule for escape character@>
-<outputFileHeader>-d { TOKEN(MINUS_D) }
+@<Lexer rules for output file flags@>
 @<Lexer rules for text handling@>
 @<Lexer rules for fragment commands@>
 <INITIAL>@@o { start(outputFileHeader); TOKEN(AT_SMALL_O) }
