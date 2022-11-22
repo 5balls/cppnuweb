@@ -120,8 +120,32 @@ public:
 @{@%
     std::string nuweb::fragmentReference::fileUtf8(void) const{
         if(!m_fragment) throw std::runtime_error("Could not resolve fragment \"" + m_unresolvedFragmentName->texUtf8() + "\" in file " + m_unresolvedFragmentName->filePositionString());
+        std::string returnString;
         documentPart::m_fileIndentation += m_leadingSpaces;
-        std::string returnString = m_fragment->fileUtf8(m_referenceFragmentName);
+        std::string fragmentNameString;
+        if(documentPart::m_commentStyle != outputFileFlags::NO_COMMENTS)
+            for(const auto& m_referenceFragmentNamePart: *m_referenceFragmentName){
+                fragmentNamePartDefinition* referenceNamePart = dynamic_cast<fragmentNamePartDefinition*>(m_referenceFragmentNamePart);
+                if(!referenceNamePart) 
+                    throw std::runtime_error("Internal error, could not get fragment reference name correctly!");
+                if(referenceNamePart->isArgument())
+                    fragmentNameString += "'" + referenceNamePart->utf8() + "'";
+                else
+                    fragmentNameString += referenceNamePart->utf8();
+            }
+        switch(documentPart::m_commentStyle){
+            case outputFileFlags::C_COMMENTS:
+                returnString += std::string(documentPart::m_fileIndentation,' ') + "/*" + fragmentNameString + "*/\n";
+                break;
+            case outputFileFlags::CPP_COMMENTS:
+                break;
+            case outputFileFlags::PERL_COMMENTS:
+                break;
+            case outputFileFlags::NO_COMMENTS:
+            default:
+                break;
+        }
+        returnString += m_fragment->fileUtf8(m_referenceFragmentName);
         documentPart::m_fileIndentation -= m_leadingSpaces;
         return returnString;
     }

@@ -84,10 +84,14 @@ public:
 @d \classImplementation{outputFile}
 @{@%
     std::string nuweb::outputFile::fileUtf8(void) const{
+        std::string returnString;
+        documentPart::setCommentStyle(m_flags);
         if(std::find(m_flags.begin(), m_flags.end(), outputFileFlags::FORCE_LINE_NUMBERS) != m_flags.end())
-            return m_scrap->fileUtf8LineNumber();
+            returnString = m_scrap->fileUtf8LineNumber();
         else
-            return m_scrap->fileUtf8();
+            returnString = m_scrap->fileUtf8();
+        documentPart::setCommentStyle({});
+        return returnString;
     }
 @| fileUtf8 @}
 \subsubsection{writeFiles}

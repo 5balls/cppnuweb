@@ -58,6 +58,8 @@ protected:
     std::string thisString(void) const;
     static int m_texFilePositionColumnCorrection;
     static unsigned int m_fileIndentation;
+    static outputFileFlags m_commentStyle;
+    static void setCommentStyle(const std::vector<nuweb::outputFileFlags>& flags);
 public:
     documentPart(const documentPart&) = delete;
     documentPart(void);
@@ -405,3 +407,22 @@ std::string nuweb::documentPart::fileUtf8() const{
            return false;
     }
 @| setFilePosition @}
+\subsubsection{setCommentStyle}
+\indexClassMethod{documentPart}{setCommentStyle}
+@d \classImplementation{documentPart}
+@{@%
+    void nuweb::documentPart::setCommentStyle(const std::vector<nuweb::outputFileFlags>& flags){
+        m_commentStyle = outputFileFlags::NO_COMMENTS;
+        for(const auto& flag: flags){
+            switch(flag){
+                case outputFileFlags::C_COMMENTS:
+                case outputFileFlags::CPP_COMMENTS:
+                case outputFileFlags::PERL_COMMENTS:
+                    m_commentStyle = flag;
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+@| setCommentStyle @}

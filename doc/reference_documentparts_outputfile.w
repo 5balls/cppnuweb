@@ -139,7 +139,8 @@ enum class outputFileFlags {
     SUPPRESS_TAB_EXPANSION,
     C_COMMENTS,
     CPP_COMMENTS,
-    PERL_COMMENTS
+    PERL_COMMENTS,
+    NO_COMMENTS
 };
 @| outputFileFlags @}
 
