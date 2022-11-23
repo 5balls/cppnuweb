@@ -82,7 +82,7 @@ For the getter methods we have several overloaded functions. We need to have the
     unsigned int numberOfLines() const {return m_utf8Content.size();};
     std::string utf8() const;
     std::string utf8(const unsigned int line) const;
-    std::string utf8(const range& fromTo, unsigned int indentation = 0) const;
+    std::string utf8(const range& fromTo, unsigned int indentation = 0, bool suppressIndentationOnFirstLine = false) const;
     std::string utf8TillLineEnd(const filePosition& fromHereToLineEnding) const;
     std::string utf8FromLineBeginning(const filePosition& fromLineBeginningToHere) const;
     std::string utf8FromToInLine(const range& fromTo) const;
@@ -215,27 +215,32 @@ std::string nuweb::indexableText::utf8FromToInLine(const range& fromTo) const {
 \indexClassMethod{indexableText}{utf8}
 @d \classImplementation{indexableText}
 @{
-std::string nuweb::indexableText::utf8(const range& fromTo, unsigned int indentation) const {
+std::string nuweb::indexableText::utf8(const range& fromTo, unsigned int indentation, bool suppressIndentationOnFirstLine) const {
     unsigned int firstLine = fromTo.m_from.m_line;
     unsigned int lastLine = fromTo.m_to.m_line;
     std::string returnString;
+    std::string indentationString;
     for(unsigned int lineNumber = firstLine; lineNumber <= lastLine; lineNumber++){
+        if(suppressIndentationOnFirstLine && lineNumber == firstLine)
+            indentationString = "";
+        else
+            indentationString = std::string(indentation,' ');
         if(firstLine == lastLine){
             //std::cout << "1: \"" << std::string(indentation,' ') + utf8FromToInLine(fromTo) << "\"\n";
-            return std::string(indentation,' ') + utf8FromToInLine(fromTo);
+            return indentationString + utf8FromToInLine(fromTo);
         }
         if((lineNumber == firstLine) && (fromTo.m_from.m_character > 0)){
             //std::cout << "2: \"" << std::string(indentation,' ') + utf8TillLineEnd(fromTo.m_from) << "\"\n";
-            returnString += std::string(indentation,' ') + utf8TillLineEnd(fromTo.m_from) + "\n";
+            returnString += indentationString + utf8TillLineEnd(fromTo.m_from) + "\n";
             continue;
         }
         if(lineNumber == lastLine){
             //std::cout << "3: \"" << std::string(indentation,' ') + utf8FromLineBeginning(fromTo.m_to) << "\"\n";
-            returnString += std::string(indentation,' ') + utf8FromLineBeginning(fromTo.m_to) + "\n";
+            returnString += indentationString + utf8FromLineBeginning(fromTo.m_to) + "\n";
             continue;
         }
         //std::cout << "4: \"" << std::string(indentation,' ') + m_utf8Content.at(lineNumber) << "\"\n";
-        returnString += std::string(indentation,' ') + m_utf8Content.at(lineNumber) + "\n";
+        returnString += indentationString + m_utf8Content.at(lineNumber) + "\n";
     }
     returnString.pop_back();
     return returnString;

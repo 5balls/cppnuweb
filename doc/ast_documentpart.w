@@ -227,7 +227,8 @@ std::string nuweb::documentPart::utf8(void) const{
                 }
                 else{
                     std::string returnString = l_file->utf8({{m_filePosition->m_line-1,m_filePosition->m_column+columnCorrection},
-                            {m_filePosition->m_line_end-1,m_filePosition->m_column_end}});
+                            {m_filePosition->m_line_end-1,m_filePosition->m_column_end}},
+                            m_fileIndentation, true);
                     currentLine += std::count(returnString.begin(), returnString.end(), '\n');
                     return returnString;
                 }
@@ -242,7 +243,8 @@ std::string nuweb::documentPart::utf8(void) const{
             }
             else{
                 std::string returnString = l_file->utf8({{m_filePosition->m_line-1,m_filePosition->m_column},
-                        {m_filePosition->m_line_end-1,m_filePosition->m_column_end}});
+                        {m_filePosition->m_line_end-1,m_filePosition->m_column_end}},
+                        m_fileIndentation, true);
                 currentLine += std::count(returnString.begin(), returnString.end(), '\n');
                 return returnString;
             }
