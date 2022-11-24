@@ -135,7 +135,11 @@ public:
             }
         switch(documentPart::m_commentStyle){
             case outputFileFlags::C_COMMENTS:
-                returnString += std::string(documentPart::m_fileIndentation,' ') + "/*" + fragmentNameString + "*/\n";
+                if(indexableText::isCurrentLineIndented())
+                    returnString += "/* " + fragmentNameString + " */\n" + std::string(documentPart::m_fileIndentation,' ');
+                else
+                    returnString += std::string(documentPart::m_fileIndentation,' ') + "/* " + fragmentNameString + " */\n";
+                indexableText::increaseCurrentLine();
                 break;
             case outputFileFlags::CPP_COMMENTS:
                 break;
