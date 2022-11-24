@@ -199,8 +199,6 @@ public:
 @d \classImplementation{documentPart}
 @{@%
 std::string nuweb::documentPart::utf8(void) const{
-    static int lastIndentedLine=-1;
-    static int currentLine=0;
     if(empty()){
         // Line numbers in lex start by one, internally we start at 0, so we
         // have to substract one here:
@@ -217,37 +215,13 @@ std::string nuweb::documentPart::utf8(void) const{
             {
                 int columnCorrection = m_texFilePositionColumnCorrection;
                 m_texFilePositionColumnCorrection = 0;
-                if(lastIndentedLine != currentLine){
-                    std::string returnString = l_file->utf8({{m_filePosition->m_line-1,m_filePosition->m_column+columnCorrection},
-                            {m_filePosition->m_line_end-1,m_filePosition->m_column_end}},
-                            m_fileIndentation);
-                    currentLine += std::count(returnString.begin(), returnString.end(), '\n');
-                    lastIndentedLine = currentLine;
-                    return returnString;
-                }
-                else{
-                    std::string returnString = l_file->utf8({{m_filePosition->m_line-1,m_filePosition->m_column+columnCorrection},
-                            {m_filePosition->m_line_end-1,m_filePosition->m_column_end}},
-                            m_fileIndentation, true);
-                    currentLine += std::count(returnString.begin(), returnString.end(), '\n');
-                    return returnString;
-                }
-            }
-            if(lastIndentedLine != currentLine){
-                std::string returnString = l_file->utf8({{m_filePosition->m_line-1,m_filePosition->m_column},
+                return l_file->utf8({{m_filePosition->m_line-1,m_filePosition->m_column+columnCorrection},
                         {m_filePosition->m_line_end-1,m_filePosition->m_column_end}},
                         m_fileIndentation);
-                currentLine += std::count(returnString.begin(), returnString.end(), '\n');
-                lastIndentedLine = currentLine;
-                return returnString;
             }
-            else{
-                std::string returnString = l_file->utf8({{m_filePosition->m_line-1,m_filePosition->m_column},
-                        {m_filePosition->m_line_end-1,m_filePosition->m_column_end}},
-                        m_fileIndentation, true);
-                currentLine += std::count(returnString.begin(), returnString.end(), '\n');
-                return returnString;
-            }
+            return l_file->utf8({{m_filePosition->m_line-1,m_filePosition->m_column},
+                    {m_filePosition->m_line_end-1,m_filePosition->m_column_end}},
+                    m_fileIndentation);
         }
     }
     else{
