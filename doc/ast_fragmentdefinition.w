@@ -20,7 +20,7 @@
 @d \classDeclaration{fragmentDefinition}
 @{@%
 class fragmentReference;
-class fragmentNamePartDefinition;
+class fragmentNamePartText;
 
 class fragmentDefinition : public documentPart {
 private:
@@ -43,7 +43,7 @@ public:
     static std::vector<unsigned int> scrapsFromFragmentName(const documentPart* fragmentName);
     static std::vector<documentPart*> fragmentDefinitionsNames(void);
     static std::vector<unsigned int> fragmentDefinitionsScrapNumbers(void);
-    fragmentNamePartDefinition* findLongFormNamePart(unsigned int argumentNumber);
+    fragmentNamePartText* findLongFormNamePart(unsigned int argumentNumber);
     void addReferenceScrapNumber(unsigned int scrapNumber);
     unsigned int scrapNumber(void);
     static unsigned int totalNumberOfScraps(void);
@@ -608,9 +608,9 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
 \indexClassMethod{fragmentDefinition}{findLongFormNamePart}
 @d \classImplementation{fragmentDefinition}
 @{@%
-    nuweb::fragmentNamePartDefinition* nuweb::fragmentDefinition::findLongFormNamePart(unsigned int namePartNumber){
+    nuweb::fragmentNamePartText* nuweb::fragmentDefinition::findLongFormNamePart(unsigned int namePartNumber){
        if(m_fragmentNameSize>=namePartNumber){
-           fragmentNamePartDefinition* possibleLongForm = dynamic_cast<fragmentNamePartDefinition*>(m_fragmentName->at(namePartNumber));
+           fragmentNamePartText* possibleLongForm = dynamic_cast<fragmentNamePartText*>(m_fragmentName->at(namePartNumber));
            if(possibleLongForm)
                if(!possibleLongForm->isShortened())
                    return possibleLongForm;
@@ -619,7 +619,7 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
            documentPart* referenceName = reference->getFragmentName();
            if(referenceName->size() < namePartNumber)
                continue;
-           fragmentNamePartDefinition* possibleLongForm = dynamic_cast<fragmentNamePartDefinition*>(referenceName->at(namePartNumber));
+           fragmentNamePartText* possibleLongForm = dynamic_cast<fragmentNamePartText*>(referenceName->at(namePartNumber));
            if(possibleLongForm)
                if(!possibleLongForm->isShortened())
                    return possibleLongForm;

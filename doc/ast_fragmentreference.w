@@ -81,7 +81,7 @@ public:
                 fragmentNamePartDefinition* referenceNamePart = dynamic_cast<fragmentNamePartDefinition*>(m_referenceFragmentNamePart);
                 if(!referenceNamePart) 
                     throw std::runtime_error("Internal error, could not get fragment reference name correctly!");
-                if(std::dynamic_cast<fragmentNamePartArgument>(referenceNamePart))
+                if(dynamic_cast<fragmentNamePartArgument*>(referenceNamePart))
                     if(listingsPackageEnabled())
                         returnString += "\\lstinline@@" + referenceNamePart->utf8() + "@@";
                     else
@@ -128,7 +128,7 @@ public:
                 fragmentNamePartDefinition* referenceNamePart = dynamic_cast<fragmentNamePartDefinition*>(m_referenceFragmentNamePart);
                 if(!referenceNamePart) 
                     throw std::runtime_error("Internal error, could not get fragment reference name correctly!");
-                if(referenceNamePart->isArgument())
+                if(dynamic_cast<fragmentNamePartArgument*>(referenceNamePart))
                     fragmentNameString += "'" + referenceNamePart->utf8() + "'";
                 else
                     fragmentNameString += referenceNamePart->utf8();

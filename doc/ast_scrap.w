@@ -43,7 +43,7 @@ public:
             fragmentNamePartDefinition* fragmentNamePossibleArgument = dynamic_cast<fragmentNamePartDefinition*>(fragmentNamePart);
             if(!fragmentNamePossibleArgument)
                 throw std::runtime_error("Internal error, could not convert argument to argument type!");
-            if(fragmentNamePossibleArgument->isArgument()) fragmentNameArguments.push_back(fragmentNamePossibleArgument);
+            if(dynamic_cast<fragmentNamePartArgument*>(fragmentNamePossibleArgument)) fragmentNameArguments.push_back(fragmentNamePossibleArgument);
         }
         if(!empty()){
             for(const auto& documentPart: *this){
@@ -53,7 +53,7 @@ public:
                     if(argumentNumber>fragmentNameArguments.size())
                     {
                         std::cout << "  Referencing argument number " + std::to_string(argumentNumber) + " but there are only " + std::to_string(fragmentNameArguments.size()) + " arguments defined in this fragment!\n";
-                        fragmentNamePartDefinition* emptyFragmentArgument = new fragmentNamePartDefinition(argumentNumber);
+                        fragmentNamePartDefinition* emptyFragmentArgument = new fragmentNamePartArgument(argumentNumber);
                         foundFragmentArgument->setNameToExpandTo(emptyFragmentArgument);
                     }
                     else

@@ -28,3 +28,27 @@ public:
     virtual std::string texUtf8(void) const override;
 };
 @| fragmentNamePartArgumentString @}
+\subsubsection{fragmentNamePartArgumentString}
+\indexClassMethod{fragmentNamePartArgumentString}{fragmentNamePartArgumentString}
+@d \classImplementation{fragmentNamePartArgumentString}
+@{@%
+     nuweb::fragmentNamePartArgumentString::fragmentNamePartArgumentString(filePosition* l_filePosition) : fragmentNamePartArgument(l_filePosition) {
+        
+    }
+@| fragmentNamePartArgumentString @}
+\subsubsection{fragmentNamePartArgumentString}
+\indexClassMethod{fragmentNamePartArgumentString}{fragmentNamePartArgumentString}
+@d \classImplementation{fragmentNamePartArgumentString}
+@{@%
+     nuweb::fragmentNamePartArgumentString::fragmentNamePartArgumentString(documentPart&& l_documentPart) : fragmentNamePartArgument(std::move(l_documentPart)){
+        
+    }
+@| fragmentNamePartArgumentString @}
+\subsubsection{texUtf8}
+\indexClassMethod{fragmentNamePartArgumentString}{texUtf8}
+@d \classImplementation{fragmentNamePartArgumentString}
+@{@%
+    std::string nuweb::fragmentNamePartArgumentString::texUtf8(void) const{
+        return "\\hbox{\\slshape\\sffamily " + utf8() + "\\/}";
+    }
+@| texUtf8 @}

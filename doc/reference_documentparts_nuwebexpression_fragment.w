@@ -184,11 +184,11 @@ fragmentNameDefinition
 fragmentNamePartDefinition
     : fragmentNameText
     {
-        $$ = new fragmentNamePartDefinition($fragmentNameText, false);
+        $$ = new fragmentNamePartText($fragmentNameText);
     }
     | fragmentNameArgument
     {
-        $$ = new fragmentNamePartDefinition($fragmentNameArgument, true);
+        $$ = $fragmentNameArgument;
     }
 ;
 @| fragmentNamePartDefinition @}
@@ -208,7 +208,7 @@ fragmentNameArgument
     }
     | AT_TICK TEXT_WITHOUT_AT_OR_NEWLINE AT_TICK
     {
-        $$ = new documentPart($TEXT_WITHOUT_AT_OR_NEWLINE);
+        $$ = new fragmentNamePartArgumentString(new documentPart($TEXT_WITHOUT_AT_OR_NEWLINE));
     }
 ;
 @| fragmentNameArgument @}

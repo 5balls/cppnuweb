@@ -34,6 +34,9 @@ namespace nuweb {
 @<\classDeclaration{scrapVerbatim}@>
 @<\classDeclaration{fragmentDefinition}@>
 @<\classDeclaration{fragmentNamePartDefinition}@>
+@<\classDeclaration{fragmentNamePartText}@>
+@<\classDeclaration{fragmentNamePartArgument}@>
+@<\classDeclaration{fragmentNamePartArgumentString}@>
 @<\classDeclaration{fragmentReference}@>
 @<\classDeclaration{outputFile}@>
 @<\classDeclaration{emptyDocumentPart}@>
@@ -105,6 +108,9 @@ public:
 @<\classImplementation{fragmentDefinition}@>
 @<\classImplementation{fragmentReference}@>
 @<\classImplementation{fragmentNamePartDefinition}@>
+@<\classImplementation{fragmentNamePartText}@>
+@<\classImplementation{fragmentNamePartArgument}@>
+@<\classImplementation{fragmentNamePartArgumentString}@>
 @<\classImplementation{outputFile}@>
 @<\classImplementation{scrapVerbatim}@>
 @<\classImplementation{scrap}@>
