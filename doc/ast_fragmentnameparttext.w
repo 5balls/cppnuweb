@@ -1,0 +1,90 @@
+% Copyright 2022 Florian Pesth
+%
+% This file is part of cppnuweb.
+%
+% cppnuweb is free software: you can redistribute it and/or modify
+% it under the terms of the GNU Affero General Public License as
+% published by the Free Software Foundation version 3 of the
+% License.
+%
+% cppnuweb is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU Affero General Public License for more details.
+%
+% You should have received a copy of the GNU Affero General Public License
+% along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+\section{Class fragmentNamePartText}
+\subsection{Interface}
+@d \classDeclaration{fragmentNamePartText}
+@{@%
+class fragmentNamePartText : public fragmentNamePartDefinition {
+private:
+    bool m_isShortened = false;
+protected:
+    virtual bool isEqualWith(const fragmentNamePartDefinition& toCompareWith) const;
+public:
+    fragmentNamePartText(filePosition* l_filePosition);
+    fragmentNamePartText(documentPart&& l_documentPart);
+    virtual std::string texUtf8(void) const override;
+};
+@| fragmentNamePartText @}
+\subsubsection{fragmentNamePartText}
+\indexClassMethod{fragmentNamePartText}{fragmentNamePartText}
+@d \classImplementation{fragmentNamePartText}
+@{@%
+     nuweb::fragmentNamePartText::fragmentNamePartText(filePosition* l_filePosition) : fragmentNamePartDefinition(l_filePosition){
+         m_isShortened = (utf8().find("...") == utf8().length() - 3);
+    }
+@| fragmentNamePartText @}
+\subsubsection{fragmentNamePartText}
+\indexClassMethod{fragmentNamePartText}{fragmentNamePartText}
+@d \classImplementation{fragmentNamePartText}
+@{@%
+     nuweb::fragmentNamePartText::fragmentNamePartText(documentPart&& l_documentPart) : fragmentNamePartDefinition(l_documentPart){
+         m_isShortened = (utf8().find("...") == utf8().length() - 3);
+    }
+@| fragmentNamePartText @}
+\subsubsection{isEqualWith}
+\indexClassMethod{fragmentNamePartText}{isEqualWith}
+@d \classImplementation{fragmentNamePartText}
+@{@%
+    bool nuweb::fragmentNamePartText::isEqualWith(const fragmentNamePartDefinition& toCompareWith) const{
+       if(typeid(*this)!=typeid(toCompareWith))
+           return false; 
+       const fragmentNamePartText& l_toCompareWith = static_cast<const fragmentNamePartText&>(toCompareWith);
+       std::string leftHandSide = utf8();
+       std::string rightHandSide = l_toCompareWith.utf8();
+       size_t leftHandSideLength = leftHandSide.length();
+       size_t rightHandSideLength = rightHandSide.length();
+       if(m_isShortened){
+           leftHandSide = leftHandSide.substr(0,leftHandSideLength-3);
+           leftHandSideLength -= 3;
+       }
+       if(toCompareWith.m_isShortened){
+           rightHandSide = rightHandSide.substr(0,rightHandSideLength-3); 
+           rightHandSideLength -= 3;
+       }
+       if (l_toCompareWith.m_isShortened ? leftHandSide.substr(0,rightHandSideLength) : leftHandSide)
+           != (m_isShortened ? rightHandSide.substr(0,leftHandSideLength) : rightHandSide)
+               return false;
+       return fragmentNamePartDefinition::isEqualWith(toCompareWith);
+    }
+@| isEqualWith @}
+\subsubsection{texUtf8}
+\indexClassMethod{fragmentNamePartText}{texUtf8}
+@d \classImplementation{fragmentNamePartText}
+@{@%
+    std::string nuweb::fragmentNamePartText::texUtf8(void) const{
+        std::string expandedFragmentNamePart;
+        if(m_isShortened)
+            if(!m_longForm)
+                throw std::runtime_error("Could not find long form for argument \"" + utf8() + "\"!");
+            else
+                expandedFragmentNamePart = m_longForm->utf8();
+        else
+            expandedFragmentNamePart = utf8();
+        return expandedFragmentNamePart;
+    }
+@| texUtf8 @}

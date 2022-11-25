@@ -22,17 +22,18 @@
 class fragmentNamePartDefinition : public documentPart {
 private:
     int m_argumentNumber = 0;
-    bool m_isArgument = false;
-    bool m_isShortened = false;
     documentPart* m_parent = nullptr;
     unsigned int m_namePartNumber = 0;
     static std::vector<fragmentNamePartDefinition*> m_allFragmentPartDefinitions;
     fragmentNamePartDefinition* m_longForm = nullptr;
+protected:
+    virtual bool isEqualWith(const fragmentNamePartDefinition& toCompareWith) const;
 public:
-    fragmentNamePartDefinition(filePosition* l_filePosition, bool isArgument);
-    fragmentNamePartDefinition(documentPart&& l_documentPart, bool isArgument);
+    fragmentNamePartDefinition(filePosition* l_filePosition);
+    fragmentNamePartDefinition(documentPart&& l_documentPart);
     fragmentNamePartDefinition(unsigned int argumentNumber);
     bool operator==(const fragmentNamePartDefinition& toCompareWith) const;
+    bool operator!=(const fragmentNamePartDefinition& toCompareWith) const;
     virtual std::string texUtf8() const override;
     virtual std::string utf8() const override;
     virtual void resolveReferences2(void) override;
@@ -51,22 +52,14 @@ std::vector<nuweb::fragmentNamePartDefinition*> nuweb::fragmentNamePartDefinitio
 \indexClassMethod{fragmentNamePartDefinition}{fragmentNamePartDefinition}
 @d \classImplementation{fragmentNamePartDefinition}
 @{@%
-    nuweb::fragmentNamePartDefinition::fragmentNamePartDefinition(filePosition* l_filePosition, bool isArgument) : documentPart(l_filePosition), m_isArgument(isArgument), m_argumentNumber(0) {
-        if(m_isArgument)
-            m_isShortened = false;
-        else
-            m_isShortened = (utf8().find("...") == utf8().length() - 3);
+    nuweb::fragmentNamePartDefinition::fragmentNamePartDefinition(filePosition* l_filePosition) : documentPart(l_filePosition), m_isArgument(isArgument), m_argumentNumber(0) {
         m_allFragmentPartDefinitions.push_back(this);
     }
 @}
 \indexClassMethod{fragmentNamePartDefinition}{fragmentNamePartDefinition}
 @d \classImplementation{fragmentNamePartDefinition}
 @{@%
-    nuweb::fragmentNamePartDefinition::fragmentNamePartDefinition(documentPart&& l_documentPart, bool isArgument) : documentPart(std::move(l_documentPart)), m_isArgument(isArgument), m_argumentNumber(0) {
-        if(m_isArgument)
-            m_isShortened = false;
-        else
-            m_isShortened = (utf8().find("...") == utf8().length() - 3);
+    nuweb::fragmentNamePartDefinition::fragmentNamePartDefinition(documentPart&& l_documentPart) : documentPart(std::move(l_documentPart)), m_isArgument(isArgument), m_argumentNumber(0) {
         m_allFragmentPartDefinitions.push_back(this);
     }
 @}
@@ -77,50 +70,42 @@ std::vector<nuweb::fragmentNamePartDefinition*> nuweb::fragmentNamePartDefinitio
     {
     }
 @}
-
+\subsubsection{isEqualWith}
+\indexClassMethod{fragmentNamePartDefinition}{isEqualWith}
+@d \classImplementation{fragmentNamePartDefinition}
+@{@%
+    bool nuweb::fragmentNamePartDefinition::isEqualWith(const fragmentNamePartDefinition& toCompareWith) const{
+        // Possible TODO: Comparison part for fragmentNamePartDefinition would go into the else
+        if(typeid(*this) != typeid(toCompareWith))
+            return false;    
+        else
+            return true;
+    }
+@| isEqualWith @}
 \subsubsection{operator==}
 \indexClassMethod{fragmentNamePartDefinition}{operator}
 @d \classImplementation{fragmentNamePartDefinition}
 @{@%
     bool nuweb::fragmentNamePartDefinition::operator==(const fragmentNamePartDefinition& toCompareWith) const{
-        if(m_isArgument && toCompareWith.m_isArgument)
-            return m_isArgument == toCompareWith.m_isArgument;
-        else
-            if(m_isArgument != toCompareWith.m_isArgument)
-                return false;
-            else
-            {
-                std::string leftHandSide = utf8();
-                std::string rightHandSide = toCompareWith.utf8();
-                size_t leftHandSideLength = leftHandSide.length();
-                size_t rightHandSideLength = rightHandSide.length();
-                if(m_isShortened){
-                    leftHandSide = leftHandSide.substr(0,leftHandSideLength-3);
-                    leftHandSideLength -= 3;
-                }
-                if(toCompareWith.m_isShortened){
-                    rightHandSide = rightHandSide.substr(0,rightHandSideLength-3); 
-                    rightHandSideLength -= 3;
-                }
-                return (toCompareWith.m_isShortened ? leftHandSide.substr(0,rightHandSideLength) : leftHandSide)
-                    == (m_isShortened ? rightHandSide.substr(0,leftHandSideLength) : rightHandSide);
-            }
+        return this->isEqualWith(toCompareWith);
     }
 @}
+\subsubsection{operator!=}
+\indexClassMethod{fragmentNamePartDefinition}{operator!=}
+@d \classImplementation{fragmentNamePartDefinition}
+@{@%
+    bool nuweb::fragmentNamePartDefinition::operator!=(const fragmentNamePartDefinition& toCompareWith) const{
+        return !(*this == toCompareWith);
+    }
+@| operator!= @}
 \subsubsection{texUtf8}
 \indexClassMethod{fragmentNamePartDefinition}{texUtf8}
 @d \classImplementation{fragmentNamePartDefinition}
 @{@%
     std::string nuweb::fragmentNamePartDefinition::texUtf8() const{
         std::string expandedFragmentNamePart;
-        if(m_isShortened)
-            if(!m_longForm)
-                throw std::runtime_error("Could not find long form for argument \"" + utf8() + "\"!");
-            else
-                expandedFragmentNamePart = m_longForm->utf8();
-        else
-            expandedFragmentNamePart = utf8();
-        if(m_isArgument)
+        // TODO move to fragmentNamePartArgument
+       if(m_isArgument)
             if(m_argumentNumber>0){
                 if(m_argumentNumber < 10)
                     m_texFilePositionColumnCorrection = -1;

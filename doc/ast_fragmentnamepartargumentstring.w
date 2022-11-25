@@ -15,35 +15,16 @@
 % You should have received a copy of the GNU Affero General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-\chapter{Abstract Syntax Tree Classes}
-We define some classes for our Abstract Syntax Tree. This correspond mostly to the non terminal expressions in the Bison grammar and are used there to build up the tree.
-
-@i ast_definitions.w
-
-@i ast_document.w
-
-@i ast_documentpart.w
-
-@i ast_fragmentdefinition.w
-
-@i ast_fragmentreference.w
-
-@i ast_fragmentnamepartdefinition.w
-
-@i ast_fragmentnameparttext.w
-
-@i ast_fragmentnamepartargument.w
-
-@i ast_fragmentnamepartargumentstring.w
-
-@i ast_outputfile.w
-
-@i ast_scrap.w
-
-@i ast_scrapverbatim.w
-
-@i ast_fragmentargument.w
-
-@i ast_useridentifiers.w
-
-@i ast_index_fragmentnames.w
+\section{Class fragmentNamePartArgumentString}
+\subsection{Interface}
+@d \classDeclaration{fragmentNamePartArgumentString}
+@{@%
+class fragmentNamePartArgumentString : public fragmentNamePartArgument {
+private:
+    
+public:
+    fragmentNamePartArgumentString(filePosition* l_filePosition);
+    fragmentNamePartArgumentString(documentPart&& l_documentPart);
+    virtual std::string texUtf8(void) const override;
+};
+@| fragmentNamePartArgumentString @}
