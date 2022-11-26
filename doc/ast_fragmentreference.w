@@ -29,14 +29,15 @@ private:
     unsigned int m_leadingSpaces = 0;
 public:
     fragmentReference(documentPart* fragmentName, bool expandReference=false);
-    virtual std::string utf8(void) const override;
+    virtual std::string utf8(filePosition& l_filePosition) const override;
     virtual std::string texUtf8(void) const override;
-    virtual std::string fileUtf8(void) const override;
+    virtual std::string fileUtf8(filePosition& l_filePosition) const override;
     virtual void resolveReferences(void) override;
     virtual void resolveReferences2(void) override;
     void setExpandReference(bool expandReference);
     fragmentDefinition* getFragmentDefinition(void) const;
     documentPart* getFragmentName(void) const;
+    unsigned int getScrapNumber(void) const;
 };
 @}
 
@@ -73,7 +74,8 @@ public:
     std::string nuweb::fragmentReference::texUtf8(void) const{
         if(!m_fragment) throw std::runtime_error("Could not resolve fragment \"" + m_unresolvedFragmentName->texUtf8() + "\" in file " + m_unresolvedFragmentName->filePositionString());
         if(m_expandReference){
-            return m_fragment->fileUtf8(m_referenceFragmentName);
+            filePosition l_filePosition;
+            return m_fragment->fileUtf8(l_filePosition, m_referenceFragmentName);
         }
         else {
             std::string returnString = "@@\\hbox{$\\langle\\,${\\itshape ";
@@ -81,13 +83,15 @@ public:
                 fragmentNamePartDefinition* referenceNamePart = dynamic_cast<fragmentNamePartDefinition*>(m_referenceFragmentNamePart);
                 if(!referenceNamePart) 
                     throw std::runtime_error("Internal error, could not get fragment reference name correctly!");
-                if(referenceNamePart->isArgument())
+                if(dynamic_cast<fragmentNamePartArgumentString*>(referenceNamePart)){
+                    filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
                     if(listingsPackageEnabled())
-                        returnString += "\\lstinline@@" + referenceNamePart->utf8() + "@@";
+                        returnString += "\\lstinline@@" + referenceNamePart->utf8(ll_filePosition) + "@@";
                     else
-                        returnString += "\\verb@@" + referenceNamePart->utf8() + "@@";
+                        returnString += "\\verb@@" + referenceNamePart->utf8(ll_filePosition) + "@@";
+                }
                 else
-                    returnString += referenceNamePart->utf8();
+                    returnString += referenceNamePart->texUtf8();
             }
             returnString += "}\\nobreak\\ {\\footnotesize \\NWlink{nuweb";
             std::string scrapNumber = "?";
@@ -110,7 +114,7 @@ public:
 \indexClassMethod{fragmentReference}{utf8}
 @d \classImplementation{fragmentReference}
 @{@%
-    std::string nuweb::fragmentReference::utf8(void) const{
+    std::string nuweb::fragmentReference::utf8(filePosition& l_filePosition) const{
         return "";
     }
 @}
@@ -118,10 +122,41 @@ public:
 \indexClassMethod{fragmentReference}{fileUtf8}
 @d \classImplementation{fragmentReference}
 @{@%
-    std::string nuweb::fragmentReference::fileUtf8(void) const{
+    std::string nuweb::fragmentReference::fileUtf8(filePosition& l_filePosition) const{
         if(!m_fragment) throw std::runtime_error("Could not resolve fragment \"" + m_unresolvedFragmentName->texUtf8() + "\" in file " + m_unresolvedFragmentName->filePositionString());
+        std::string returnString;
         documentPart::m_fileIndentation += m_leadingSpaces;
-        std::string returnString = m_fragment->fileUtf8(m_referenceFragmentName);
+        std::string fragmentNameString;
+        if(documentPart::m_commentStyle != outputFileFlags::NO_COMMENTS)
+            for(const auto& m_referenceFragmentNamePart: *m_referenceFragmentName){
+                fragmentNamePartDefinition* referenceNamePart = dynamic_cast<fragmentNamePartDefinition*>(m_referenceFragmentNamePart);
+                filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
+                if(!referenceNamePart) 
+                    throw std::runtime_error("Internal error, could not get fragment reference name correctly!");
+                if(dynamic_cast<fragmentNamePartArgumentString*>(referenceNamePart))
+                    fragmentNameString += "'" + referenceNamePart->utf8(ll_filePosition) + "'";
+                else
+                    fragmentNameString += referenceNamePart->fileUtf8(ll_filePosition);
+            }
+        if((indexableText::isCurrentLineIndented() && (l_filePosition.m_column == documentPart::m_fileIndentation))||(l_filePosition.m_column == 0)){
+            switch(documentPart::m_commentStyle){
+                case outputFileFlags::C_COMMENTS:
+                    if(indexableText::isCurrentLineIndented())
+                        returnString += indexableText::progressFilePosition(l_filePosition, "/* " + fragmentNameString + " */\n" + std::string(documentPart::m_fileIndentation,' '));
+                    else
+                        returnString += indexableText::progressFilePosition(l_filePosition,std::string(documentPart::m_fileIndentation,' ') + "/* " + fragmentNameString + " */\n");
+                    indexableText::increaseCurrentLine();
+                    break;
+                case outputFileFlags::CPP_COMMENTS:
+                    break;
+                case outputFileFlags::PERL_COMMENTS:
+                    break;
+                case outputFileFlags::NO_COMMENTS:
+                default:
+                    break;
+            }
+        }
+        returnString += m_fragment->fileUtf8(l_filePosition, m_referenceFragmentName);
         documentPart::m_fileIndentation -= m_leadingSpaces;
         return returnString;
     }
@@ -145,6 +180,11 @@ public:
         if(!m_fragment) throw std::runtime_error("Could not resolve fragment \"" + m_unresolvedFragmentName->texUtf8() + "\" in file " + m_unresolvedFragmentName->filePositionString());
         if(!m_expandReference) 
             m_fragment->addReferenceScrapNumber(m_scrapNumber);
+        for(auto& fragmentNamePart: *m_referenceFragmentName){
+            fragmentNamePartDefinition* fragmentArgument = dynamic_cast<fragmentNamePartDefinition*>(fragmentNamePart);
+            if(fragmentArgument)
+                fragmentArgument->resolveReferences();
+        }
     }
 @| resolveReferences @}
 \subsubsection{resolveReferences2}
@@ -154,6 +194,11 @@ public:
     void nuweb::fragmentReference::resolveReferences2(void){
         for(const auto& referenceFragmentNamePart: *m_referenceFragmentName)
             referenceFragmentNamePart->resolveReferences2();
+        for(auto& fragmentNamePart: *m_referenceFragmentName){
+            fragmentNamePartDefinition* fragmentArgument = dynamic_cast<fragmentNamePartDefinition*>(fragmentNamePart);
+            if(fragmentArgument)
+                fragmentArgument->resolveReferences2();
+        }
     }
 @| resolveReferences2 @}
 \subsubsection{setExpandReference}
@@ -180,3 +225,11 @@ public:
        return m_referenceFragmentName; 
     }
 @| getFragmentName @}
+\subsubsection{getScrapNumber}
+\indexClassMethod{fragmentReference}{getScrapNumber}
+@d \classImplementation{fragmentReference}
+@{@%
+    unsigned int nuweb::fragmentReference::getScrapNumber(void) const{
+        return m_scrapNumber;
+    }
+@| getScrapNumber @}

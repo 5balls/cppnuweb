@@ -30,6 +30,14 @@ We define some classes for our Abstract Syntax Tree. This correspond mostly to t
 
 @i ast_fragmentnamepartdefinition.w
 
+@i ast_fragmentnameparttext.w
+
+@i ast_fragmentnamepartargument.w
+
+@i ast_fragmentnamepartargumentstring.w
+
+@i ast_fragmentnamepartargumentfragmentname.w
+
 @i ast_outputfile.w
 
 @i ast_scrap.w

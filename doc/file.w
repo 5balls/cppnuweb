@@ -36,8 +36,10 @@ We store the lines in UTF-16 as well because we need to be able to return UTF-16
 \indexClass{indexableText}\indexClassBaseOf{indexableText}{tagableText}\indexClassBaseOf{indexableText}{file}
 @D \classDeclaration{indexableText}
 @{
-@<Start of class @'indexableText@'@>
+class indexableText {
 private:
+    static unsigned int m_currentLine;
+    static int m_lastIndentedLine;
     std::vector<std::string> m_utf8Content;
     std::vector<std::ios_base::iostate> m_states;
     std::vector<std::u16string> m_utf16Content;
@@ -51,6 +53,9 @@ public:
     indexableText() : m_utf8Content({}), m_utf16Content({}){
         //std::cout << "indexableText()\n";
     };
+    static void increaseCurrentLine(void);
+    static bool isCurrentLineIndented(void);
+    static std::string progressFilePosition(nuweb::filePosition& l_filePosition, const std::string& l_string);
 @}
 
 We define some simple \todorefactor{This is confusingly named the same way as in the nuweb namespace and it has similar functionality. This should be renamed and moved into the nuweb namespace and merged with the existing structures.}filePosition and range structure here:
@@ -219,28 +224,86 @@ std::string nuweb::indexableText::utf8(const range& fromTo, unsigned int indenta
     unsigned int firstLine = fromTo.m_from.m_line;
     unsigned int lastLine = fromTo.m_to.m_line;
     std::string returnString;
+    std::string indentationString;
     for(unsigned int lineNumber = firstLine; lineNumber <= lastLine; lineNumber++){
+        if(m_currentLine == m_lastIndentedLine)
+            indentationString = "";
+        else{
+            indentationString = std::string(indentation,' ');
+            m_lastIndentedLine = m_currentLine; 
+        }
         if(firstLine == lastLine){
             //std::cout << "1: \"" << std::string(indentation,' ') + utf8FromToInLine(fromTo) << "\"\n";
-            return std::string(indentation,' ') + utf8FromToInLine(fromTo);
+            returnString = utf8FromToInLine(fromTo);
+            return indentationString + returnString;
         }
         if((lineNumber == firstLine) && (fromTo.m_from.m_character > 0)){
             //std::cout << "2: \"" << std::string(indentation,' ') + utf8TillLineEnd(fromTo.m_from) << "\"\n";
-            returnString += std::string(indentation,' ') + utf8TillLineEnd(fromTo.m_from) + "\n";
+            m_currentLine++;
+            returnString += indentationString + utf8TillLineEnd(fromTo.m_from) + "\n";
             continue;
         }
         if(lineNumber == lastLine){
             //std::cout << "3: \"" << std::string(indentation,' ') + utf8FromLineBeginning(fromTo.m_to) << "\"\n";
-            returnString += std::string(indentation,' ') + utf8FromLineBeginning(fromTo.m_to) + "\n";
+            m_currentLine++;
+            returnString += indentationString + utf8FromLineBeginning(fromTo.m_to) + "\n";
             continue;
         }
         //std::cout << "4: \"" << std::string(indentation,' ') + m_utf8Content.at(lineNumber) << "\"\n";
-        returnString += std::string(indentation,' ') + m_utf8Content.at(lineNumber) + "\n";
+        m_currentLine++;
+        returnString += indentationString + m_utf8Content.at(lineNumber) + "\n";
     }
+    m_currentLine--;
     returnString.pop_back();
     return returnString;
 }
 @}
+\subsubsection{increaseCurrentLine}
+\indexClassMethod{indexableText}{increaseCurrentLine}
+@d \classImplementation{indexableText}
+@{@%
+    void nuweb::indexableText::increaseCurrentLine(void){
+        m_currentLine++;
+    }
+@| increaseCurrentLine @}
+\subsubsection{isCurrentLineIndented}
+\indexClassMethod{indexableText}{isCurrentLineIndented}
+@d \classImplementation{indexableText}
+@{@%
+    bool nuweb::indexableText::isCurrentLineIndented(void){
+        return m_currentLine == m_lastIndentedLine;
+    }
+@| isCurrentLineIndented @}
+
+\subsubsection{progressFilePosition}
+\indexClassMethod{indexableText}{progressFilePosition}
+@d \classImplementation{indexableText}
+@{@%
+    std::string nuweb::indexableText::progressFilePosition(nuweb::filePosition& l_filePosition, const std::string& l_string){
+        try {
+            if(l_string.empty()) return l_string;
+            std::string::const_iterator currentStringPosition = l_string.begin();
+            std::string::const_iterator endStringPosition = l_string.end();
+            while(currentStringPosition != endStringPosition){
+                uint32_t currentChar = utf8::next(currentStringPosition, endStringPosition);
+                if(currentChar == '\n'){
+                    l_filePosition.m_line++;
+                    l_filePosition.m_line_end++;
+                    l_filePosition.m_column = 0;
+                    l_filePosition.m_column_end = 0;
+                }
+                else {
+                    l_filePosition.m_column++;
+                    l_filePosition.m_column_end++;
+                }
+            }
+        }
+        catch(...){
+            throw std::runtime_error("Error while trying to progress file position in indexableText");
+        }
+        return l_string;
+    }
+@| progressFilePosition @}
 
 \section{Class tagableText}
 
@@ -289,6 +352,7 @@ void nuweb::tagableText::addFeature(const std::string& name, const range& l_rang
 #include "utfcpp-3.2.1/source/utf8.h"
 #include <sstream>
 #include <iostream>
+#include "definitions.h"
 
 namespace nuweb {
 @<\classDeclaration{indexableText}@>
@@ -327,6 +391,8 @@ private:
 @d \classImplementation{file}
 @{
 std::map<std::string, nuweb::file*> nuweb::file::m_allFiles = {};
+int nuweb::indexableText::m_lastIndentedLine = -1;
+unsigned int nuweb::indexableText::m_currentLine = 0;
 @| m_allFiles @}
 
 \subsubsection{file}

@@ -28,7 +28,7 @@ public:
     outputFile(documentPart* l_fileName, documentPart* l_scrap, bool pageBreak = false, std::vector<enum outputFileFlags> flags={});
     virtual std::string headerTexUtf8(void) const override;
     virtual std::string referencesTexUtf8(void) const override;
-    virtual std::string fileUtf8(void) const override;
+    virtual std::string fileUtf8(filePosition& l_filePosition) const override;
     static void writeFiles(void);
 };
 @| outputFile @}
@@ -40,11 +40,12 @@ public:
 
 \subsection{Implementation}
 \subsubsection{outputFile}
-\indexClassMethod{fragmentDefinition}{outputFile}
+\indexClassMethod{outputFile}{outputFile}
 @d \classImplementation{outputFile}
 @{@%
     nuweb::outputFile::outputFile(documentPart* l_fileName, documentPart* l_scrap, bool pageBreak, std::vector<enum outputFileFlags> flags) : fragmentDefinition(l_fileName, l_scrap, pageBreak), m_flags(flags) {
-        m_filename = l_fileName->utf8();
+        filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
+        m_filename = l_fileName->utf8(ll_filePosition);
         fragmentDefinition* firstFragment = fragmentFromFragmentName(m_fragmentName);
         if(!firstFragment)
             throw std::runtime_error("Internal error, could not get first scrap of outputfile!");
@@ -54,7 +55,7 @@ public:
     }
 @| outputFile @}
 \subsubsection{headerTexUtf8}
-\indexClassMethod{fragmentDefinition}{headerTexUtf8}
+\indexClassMethod{outputFile}{headerTexUtf8}
 @d \classImplementation{outputFile}
 @{@%
     std::string nuweb::outputFile::headerTexUtf8(void) const{
@@ -72,7 +73,7 @@ public:
     }
 @| headerTexUtf8 @}
 \subsubsection{referencesTexUtf8}
-\indexClassMethod{fragmentDefinition}{referencesTexUtf8}
+\indexClassMethod{outputFile}{referencesTexUtf8}
 @d \classImplementation{outputFile}
 @{@%
     std::string nuweb::outputFile::referencesTexUtf8(void) const{
@@ -80,22 +81,28 @@ public:
     }
 @| referencesTexUtf8 @}
 \subsubsection{fileUtf8}
-\indexClassMethod{fragmentDefinition}{fileUtf8}
+\indexClassMethod{outputFile}{fileUtf8}
 @d \classImplementation{outputFile}
 @{@%
-    std::string nuweb::outputFile::fileUtf8(void) const{
+    std::string nuweb::outputFile::fileUtf8(filePosition& l_filePosition) const{
+        std::string returnString;
+        documentPart::setCommentStyle(m_flags);
         if(std::find(m_flags.begin(), m_flags.end(), outputFileFlags::FORCE_LINE_NUMBERS) != m_flags.end())
-            return m_scrap->fileUtf8LineNumber();
+            returnString = m_scrap->fileUtf8LineNumber(l_filePosition);
         else
-            return m_scrap->fileUtf8();
+            returnString = m_scrap->fileUtf8(l_filePosition);
+        documentPart::setCommentStyle({});
+        return returnString;
     }
 @| fileUtf8 @}
 \subsubsection{writeFiles}
-\indexClassMethod{fragmentDefinition}{writeFiles}
+\indexClassMethod{outputFile}{writeFiles}
 @d \classImplementation{outputFile}
 @{@%
     void nuweb::outputFile::writeFiles(void){
         for(const auto& outputFile: m_outputFiles){
+            std::string outputFileName = outputFile->name();
+            filePosition l_filePosition(outputFileName, 0, 0, 0, 0);
             std::ofstream outputFileStream;
             std::string outputFileContent;
             std::vector<unsigned int> outputScraps = outputFile->scrapsFromFragment();
@@ -103,11 +110,10 @@ public:
                 fragmentDefinition* outputFragment = fragmentDefinitions[outputScrap];
                 if(!outputFragment)
                     throw std::runtime_error("Internal error, could not get fragment when trying to write output files!");
-                outputFileContent += outputFragment->fileUtf8();
+                outputFileContent += outputFragment->fileUtf8(l_filePosition);
             }
 
             //std::string outputFileName = outputFile->name().substr(0,outputFile->name().find_last_of('.')) + ".txt";
-            std::string outputFileName = outputFile->name();
             outputFileStream.open(outputFileName);
             //outputFileStream.open(outputFile->name());
             outputFileStream << outputFileContent;

@@ -31,7 +31,7 @@ public:
     static std::vector<std::pair<std::string, std::vector<unsigned int> > > uses(const std::string& textToCheck);
     static std::vector<std::pair<std::string, std::vector<unsigned int> > > defines(unsigned int scrapNumber);
     virtual std::string texUtf8(void) const override;
-    virtual std::string fileUtf8(void) const override;
+    virtual std::string fileUtf8(filePosition& l_filePosition) const override;
 };
 @| userIdentifiers @}
 
@@ -80,7 +80,8 @@ std::map<std::string, std::vector<unsigned int> > nuweb::userIdentifiers::m_user
 @d \classImplementation{userIdentifiers}
 @{@%
     void nuweb::userIdentifiers::setScrapNumber(unsigned int scrapNumber){
-        std::vector<unsigned int>& scrapNumbers = m_userIdentifiersToScrapNumbers[utf8()];
+        filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
+        std::vector<unsigned int>& scrapNumbers = m_userIdentifiersToScrapNumbers[utf8(ll_filePosition)];
         if(std::find(scrapNumbers.begin(), scrapNumbers.end(), scrapNumber) == scrapNumbers.end())
             scrapNumbers.push_back(scrapNumber);
     }
@@ -110,7 +111,7 @@ std::map<std::string, std::vector<unsigned int> > nuweb::userIdentifiers::m_user
 \indexClassMethod{userIdentifiers}{fileUtf8}
 @d \classImplementation{userIdentifiers}
 @{@%
-    std::string nuweb::userIdentifiers::fileUtf8(void) const{
+    std::string nuweb::userIdentifiers::fileUtf8(filePosition& l_filePosition) const{
         return "";
     }
 @| fileUtf8 @}

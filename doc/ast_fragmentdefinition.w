@@ -20,7 +20,7 @@
 @d \classDeclaration{fragmentDefinition}
 @{@%
 class fragmentReference;
-class fragmentNamePartDefinition;
+class fragmentNamePartText;
 
 class fragmentDefinition : public documentPart {
 private:
@@ -43,7 +43,7 @@ public:
     static std::vector<unsigned int> scrapsFromFragmentName(const documentPart* fragmentName);
     static std::vector<documentPart*> fragmentDefinitionsNames(void);
     static std::vector<unsigned int> fragmentDefinitionsScrapNumbers(void);
-    fragmentNamePartDefinition* findLongFormNamePart(unsigned int argumentNumber);
+    fragmentNamePartText* findLongFormNamePart(unsigned int argumentNumber);
     void addReferenceScrapNumber(unsigned int scrapNumber);
     unsigned int scrapNumber(void);
     static unsigned int totalNumberOfScraps(void);
@@ -56,13 +56,13 @@ public:
     std::string definesTexUtf8(void) const;
     std::string definedByTexUtf8(void) const;
     virtual std::string texUtf8(void) const override;
-    virtual std::string utf8(void) const override;
-    virtual std::string fileUtf8(void) const override;
-    std::string fileUtf8(documentPart* fragmentName) const;
+    virtual std::string utf8(filePosition& l_filePosition) const override;
+    virtual std::string fileUtf8(filePosition& l_filePosition) const override;
+    std::string fileUtf8(filePosition& l_filePosition, documentPart* fragmentName) const;
     virtual void resolveReferences(void) override;
     virtual void resolveReferences2(void) override;
-    std::string scrapFileUtf8(void) const;
-    std::string scrapFileUtf8(documentPart* fragmentName) const;
+    std::string scrapFileUtf8(filePosition& l_filePosition) const;
+    std::string scrapFileUtf8(filePosition& l_filePosition, documentPart* fragmentName) const;
     void addReference(fragmentReference*);
 };
 @| fragmentDefinition @}
@@ -115,7 +115,8 @@ std::map<unsigned int, std::vector<unsigned int> > nuweb::fragmentDefinition::m_
         if(fragmentNameSize == 0){
             for(const auto& [currentScrapNumber, l_fragmentDefinition]: fragmentDefinitions){
                 if(l_fragmentDefinition->m_fragmentNameSize != 0) continue;
-                if(l_fragmentDefinition->m_fragmentName->utf8().compare(fragmentName->utf8()) == 0)
+                filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
+                if(l_fragmentDefinition->m_fragmentName->utf8(ll_filePosition).compare(fragmentName->utf8(ll_filePosition)) == 0)
                     return l_fragmentDefinition;
             }
             return nullptr;
@@ -126,10 +127,10 @@ std::map<unsigned int, std::vector<unsigned int> > nuweb::fragmentDefinition::m_
             for(unsigned int fragmentNamePart = 0; fragmentNamePart < fragmentNameSize; fragmentNamePart++){
                 fragmentNamePartDefinition* compareFrom = dynamic_cast<fragmentNamePartDefinition*>(l_fragmentDefinition->m_fragmentName->at(fragmentNamePart));
                 if(!compareFrom)
-                    throw ("Internal error, could not compare fragment argument!");
+                    throw std::runtime_error("Internal error, could not compare fragment argument!");
                 fragmentNamePartDefinition* compareTo = dynamic_cast<fragmentNamePartDefinition*>(fragmentName->at(fragmentNamePart));
                 if(!compareTo)
-                    throw ("Internal error, could not compare fragment argument!");
+                    throw std::runtime_error("Internal error, could not compare fragment argument!");
                 if(!(*compareFrom == *compareTo)){
                     fragmentNamesIdentical = false;
                     break;
@@ -159,7 +160,8 @@ std::map<unsigned int, std::vector<unsigned int> > nuweb::fragmentDefinition::m_
         if(fragmentNameSize == 0){
             for(const auto& [currentScrapNumber, l_fragmentDefinition]: fragmentDefinitions){
                 if(l_fragmentDefinition->m_fragmentNameSize != 0) continue;
-                if(l_fragmentDefinition->m_fragmentName->utf8().compare(fragmentName->utf8()) == 0){
+                filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
+                if(l_fragmentDefinition->m_fragmentName->utf8(ll_filePosition).compare(fragmentName->utf8(ll_filePosition)) == 0){
                     // If we reach here we found the group
                     fragmentDefinition* newFragmentDefinition = fragmentFromFragmentName(fragmentName);
                     if(newFragmentDefinition){
@@ -189,7 +191,8 @@ std::map<unsigned int, std::vector<unsigned int> > nuweb::fragmentDefinition::m_
             if(l_fragmentDefinition->m_fragmentNameSize != fragmentNameSize) continue;
             bool fragmentNamesIdentical = true;
             for(unsigned int fragmentNamePart = 0; fragmentNamePart < fragmentNameSize; fragmentNamePart++){
-                if(l_fragmentDefinition->m_fragmentName->at(fragmentNamePart)->utf8().compare(fragmentName->at(fragmentNamePart)->utf8()) != 0){
+                filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
+                if(l_fragmentDefinition->m_fragmentName->at(fragmentNamePart)->utf8(ll_filePosition).compare(fragmentName->at(fragmentNamePart)->utf8(ll_filePosition)) != 0){
                     fragmentNamesIdentical = false;
                     break;
                 }
@@ -390,10 +393,10 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
 \indexClassMethod{fragmentDefinition}{utf8}
 @d \classImplementation{fragmentDefinition}
 @{@%
-    std::string nuweb::fragmentDefinition::utf8(void) const{
+    std::string nuweb::fragmentDefinition::utf8(filePosition& l_filePosition) const{
         if(!m_scrap)
             throw ("Internal error, scrap not set in fragment definition");
-        return m_scrap->utf8();
+        return m_scrap->utf8(l_filePosition);
     }
 @| utf8 @}
 \subsubsection{referencesInScraps}
@@ -408,11 +411,11 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
 \indexClassMethod{fragmentDefinition}{fileUtf8}
 @d \classImplementation{fragmentDefinition}
 @{@%
-    std::string nuweb::fragmentDefinition::fileUtf8(void) const{
+    std::string nuweb::fragmentDefinition::fileUtf8(filePosition& l_filePosition) const{
         std::vector<unsigned int> scraps = scrapsFromFragmentName(m_fragmentName);
         std::string returnString;
         for(const auto& scrap: scraps){
-            returnString += fragmentDefinitions[scrap]->scrapFileUtf8();
+            returnString += fragmentDefinitions[scrap]->scrapFileUtf8(l_filePosition);
         }
         return returnString;
     }
@@ -421,14 +424,14 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
 \indexClassMethod{fragmentDefinition}{fileUtf8}
 @d \classImplementation{fragmentDefinition}
 @{@%
-    std::string nuweb::fragmentDefinition::fileUtf8(documentPart* fragmentName) const{
+    std::string nuweb::fragmentDefinition::fileUtf8(filePosition& l_filePosition, documentPart* fragmentName) const{
         unsigned int cacheIndentation = documentPart::m_fileIndentation;
         documentPart::m_fileIndentation = 0;
         std::vector<unsigned int> scraps = scrapsFromFragmentName(m_fragmentName);
         documentPart::m_fileIndentation = cacheIndentation;
         std::string returnString;
         for(const auto& scrap: scraps){
-            returnString += fragmentDefinitions[scrap]->scrapFileUtf8(fragmentName);
+            returnString += fragmentDefinitions[scrap]->scrapFileUtf8(l_filePosition, fragmentName);
         }
         return returnString;
     }
@@ -437,17 +440,17 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
 \indexClassMethod{fragmentDefinition}{scrapFileUtf8}
 @d \classImplementation{fragmentDefinition}
 @{@%
-    std::string nuweb::fragmentDefinition::scrapFileUtf8(void) const{
-        return m_scrap->fileUtf8();
+    std::string nuweb::fragmentDefinition::scrapFileUtf8(filePosition& l_filePosition) const{
+        return m_scrap->fileUtf8(l_filePosition);
     }
 @| scrapFileUtf8 @}
 \subsubsection{scrapFileUtf8}
 \indexClassMethod{fragmentDefinition}{scrapFileUtf8}
 @d \classImplementation{fragmentDefinition}
 @{@%
-    std::string nuweb::fragmentDefinition::scrapFileUtf8(documentPart* fragmentName) const{
+    std::string nuweb::fragmentDefinition::scrapFileUtf8(filePosition& l_filePosition, documentPart* fragmentName) const{
         m_scrap->resolveFragmentArguments(fragmentName);
-        return m_scrap->fileUtf8();
+        return m_scrap->fileUtf8(l_filePosition);
     }
 @| scrapFileUtf8 @}
 \subsubsection{resolveReferences}
@@ -473,7 +476,8 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
 @{@%
     void nuweb::fragmentDefinition::resolveReferences2(){
         std::vector<std::pair<std::string, std::vector<unsigned int> > > usedIdentifiersInFragment;
-        usedIdentifiersInFragment = userIdentifiers::uses(m_scrap->utf8());
+        filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
+        usedIdentifiersInFragment = userIdentifiers::uses(m_scrap->utf8(ll_filePosition));
         for(auto& usedIdentifier: usedIdentifiersInFragment)
             userIdentifiers::setScrapUsingIdentifier(usedIdentifier.first, m_currentScrapNumber);
         if(m_scrap->empty())
@@ -491,7 +495,8 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
 @{@%
     std::string nuweb::fragmentDefinition::usesTexUtf8(void) const{
         std::vector<std::pair<std::string, std::vector<unsigned int> > > usedIdentifiersInFragment;
-        usedIdentifiersInFragment = userIdentifiers::uses(m_scrap->utf8());
+        filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
+        usedIdentifiersInFragment = userIdentifiers::uses(m_scrap->utf8(ll_filePosition));
         if(usedIdentifiersInFragment.empty()) return "";
         std::string returnString;
         returnString = "\\item \\NWtxtIdentsUsed\\nobreak\\ ";
@@ -608,9 +613,9 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
 \indexClassMethod{fragmentDefinition}{findLongFormNamePart}
 @d \classImplementation{fragmentDefinition}
 @{@%
-    nuweb::fragmentNamePartDefinition* nuweb::fragmentDefinition::findLongFormNamePart(unsigned int namePartNumber){
+    nuweb::fragmentNamePartText* nuweb::fragmentDefinition::findLongFormNamePart(unsigned int namePartNumber){
        if(m_fragmentNameSize>=namePartNumber){
-           fragmentNamePartDefinition* possibleLongForm = dynamic_cast<fragmentNamePartDefinition*>(m_fragmentName->at(namePartNumber));
+           fragmentNamePartText* possibleLongForm = dynamic_cast<fragmentNamePartText*>(m_fragmentName->at(namePartNumber));
            if(possibleLongForm)
                if(!possibleLongForm->isShortened())
                    return possibleLongForm;
@@ -619,7 +624,7 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
            documentPart* referenceName = reference->getFragmentName();
            if(referenceName->size() < namePartNumber)
                continue;
-           fragmentNamePartDefinition* possibleLongForm = dynamic_cast<fragmentNamePartDefinition*>(referenceName->at(namePartNumber));
+           fragmentNamePartText* possibleLongForm = dynamic_cast<fragmentNamePartText*>(referenceName->at(namePartNumber));
            if(possibleLongForm)
                if(!possibleLongForm->isShortened())
                    return possibleLongForm;
