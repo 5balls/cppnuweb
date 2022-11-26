@@ -22,7 +22,10 @@ We have to keep track of the filename and the range we refer to when parsing our
 @d C++ structure definitions in namespace nuweb
 @{
 struct filePosition {
-    filePosition(){};
+    filePosition() :
+        m_filename(""),
+        m_line(0), m_column(0),
+        m_line_end(0), m_column_end(0){};
     filePosition(const std::string& filename,
             unsigned int line, unsigned int column,
             unsigned int line_end, unsigned int column_end):

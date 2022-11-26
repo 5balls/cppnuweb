@@ -85,13 +85,14 @@ private:
     std::vector<std::string> filenameStack = {};
     std::istringstream* utf8Stream;
     //int yylex(void);
+    unsigned int m_fragmentReferenceDepth = 0;
     @<Implementation of additional helpLexer functions@>
 public:
-    helpLexer(std::istream* inputStream, std::ostream* outputStream) : yyFlexLexer(inputStream, outputStream) {
+    helpLexer(std::istream* inputStream, std::ostream* outputStream) : yyFlexLexer(inputStream, outputStream), m_fragmentReferenceDepth(0) {
     }
-    helpLexer(std::istream* inputStream) : yyFlexLexer(inputStream) {
+    helpLexer(std::istream* inputStream) : yyFlexLexer(inputStream), m_fragmentReferenceDepth(0) {
     }
-    helpLexer(std::string inputString) : yyFlexLexer(inputString) {
+    helpLexer(std::string inputString) : yyFlexLexer(inputString), m_fragmentReferenceDepth(0) {
     }
     int yylex(yy::parser::semantic_type& yylval) override;
     int yylex(yy::parser::semantic_type* yylvalue) override{

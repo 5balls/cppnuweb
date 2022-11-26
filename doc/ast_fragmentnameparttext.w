@@ -38,7 +38,8 @@ public:
 @d \classImplementation{fragmentNamePartText}
 @{@%
      nuweb::fragmentNamePartText::fragmentNamePartText(filePosition* l_filePosition) : fragmentNamePartDefinition(l_filePosition){
-         m_isShortened = (utf8().find("...") == utf8().length() - 3);
+         filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
+         m_isShortened = (utf8(ll_filePosition).find("...") == utf8(ll_filePosition).length() - 3);
     }
 @| fragmentNamePartText @}
 \subsubsection{fragmentNamePartText}
@@ -46,7 +47,8 @@ public:
 @d \classImplementation{fragmentNamePartText}
 @{@%
      nuweb::fragmentNamePartText::fragmentNamePartText(documentPart&& l_documentPart) : fragmentNamePartDefinition(std::move(l_documentPart)){
-         m_isShortened = (utf8().find("...") == utf8().length() - 3);
+         filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
+         m_isShortened = (utf8(ll_filePosition).find("...") == utf8(ll_filePosition).length() - 3);
     }
 @| fragmentNamePartText @}
 \subsubsection{isEqualWith}
@@ -57,8 +59,9 @@ public:
        if(typeid(*this)!=typeid(toCompareWith))
            return false; 
        const fragmentNamePartText& l_toCompareWith = static_cast<const fragmentNamePartText&>(toCompareWith);
-       std::string leftHandSide = utf8();
-       std::string rightHandSide = l_toCompareWith.utf8();
+       filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
+       std::string leftHandSide = utf8(ll_filePosition);
+       std::string rightHandSide = l_toCompareWith.utf8(ll_filePosition);
        size_t leftHandSideLength = leftHandSide.length();
        size_t rightHandSideLength = rightHandSide.length();
        if(m_isShortened){
@@ -81,13 +84,14 @@ public:
 @{@%
     std::string nuweb::fragmentNamePartText::texUtf8(void) const{
         std::string expandedFragmentNamePart;
+        filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
         if(m_isShortened)
             if(!m_longForm)
-                throw std::runtime_error("Could not find long form for argument \"" + utf8() + "\"!");
+                throw std::runtime_error("Could not find long form for argument \"" + utf8(ll_filePosition) + "\"!");
             else
-                expandedFragmentNamePart = m_longForm->utf8();
+                expandedFragmentNamePart = m_longForm->utf8(ll_filePosition);
         else
-            expandedFragmentNamePart = utf8();
+            expandedFragmentNamePart = utf8(ll_filePosition);
         return expandedFragmentNamePart;
     }
 @| texUtf8 @}

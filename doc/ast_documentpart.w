@@ -37,6 +37,7 @@ namespace nuweb {
 @<\classDeclaration{fragmentNamePartText}@>
 @<\classDeclaration{fragmentNamePartArgument}@>
 @<\classDeclaration{fragmentNamePartArgumentString}@>
+@<\classDeclaration{fragmentNamePartArgumentFragmentName}@>
 @<\classDeclaration{fragmentReference}@>
 @<\classDeclaration{outputFile}@>
 @<\classDeclaration{emptyDocumentPart}@>
@@ -70,11 +71,11 @@ public:
     documentPart(documentPart* l_documentPart);
     documentPart(filePosition* l_filePosition);
     std::string filePositionString() const;
-    virtual std::string utf8() const;
-    virtual std::string utf8LineNumber(void) const;
+    virtual std::string utf8(filePosition& l_filePosition) const;
+    virtual std::string utf8LineNumber(filePosition& l_filePosition) const;
     virtual std::string texUtf8() const;
-    virtual std::string fileUtf8() const;
-    virtual std::string fileUtf8LineNumber(void) const;
+    virtual std::string fileUtf8(filePosition& l_filePosition) const;
+    virtual std::string fileUtf8LineNumber(filePosition& l_filePosition) const;
     virtual void resolveReferences(void);
     virtual void resolveReferences2(void);
     void setAuxFileParsed(bool wasParsed);
@@ -111,6 +112,7 @@ public:
 @<\classImplementation{fragmentNamePartText}@>
 @<\classImplementation{fragmentNamePartArgument}@>
 @<\classImplementation{fragmentNamePartArgumentString}@>
+@<\classImplementation{fragmentNamePartArgumentFragmentName}@>
 @<\classImplementation{outputFile}@>
 @<\classImplementation{scrapVerbatim}@>
 @<\classImplementation{scrap}@>
@@ -204,7 +206,7 @@ public:
 \indexClassMethod{documentPart}{utf8}
 @d \classImplementation{documentPart}
 @{@%
-std::string nuweb::documentPart::utf8(void) const{
+std::string nuweb::documentPart::utf8(filePosition& l_filePosition) const{
     if(empty()){
         // Line numbers in lex start by one, internally we start at 0, so we
         // have to substract one here:
@@ -221,19 +223,21 @@ std::string nuweb::documentPart::utf8(void) const{
             {
                 int columnCorrection = m_texFilePositionColumnCorrection;
                 m_texFilePositionColumnCorrection = 0;
-                return l_file->utf8({{m_filePosition->m_line-1,m_filePosition->m_column+columnCorrection},
+                return indexableText::progressFilePosition(l_filePosition,
+                        l_file->utf8({{m_filePosition->m_line-1,m_filePosition->m_column+columnCorrection},
                         {m_filePosition->m_line_end-1,m_filePosition->m_column_end}},
-                        m_fileIndentation);
+                        m_fileIndentation));
             }
-            return l_file->utf8({{m_filePosition->m_line-1,m_filePosition->m_column},
+            return indexableText::progressFilePosition(l_filePosition,
+                    l_file->utf8({{m_filePosition->m_line-1,m_filePosition->m_column},
                     {m_filePosition->m_line_end-1,m_filePosition->m_column_end}},
-                    m_fileIndentation);
+                    m_fileIndentation));
         }
     }
     else{
         std::string returnString;
         for(auto documentPart: *this)
-            returnString += documentPart->utf8();
+            returnString += documentPart->utf8(l_filePosition);
         return returnString;
     }
 }
@@ -243,23 +247,24 @@ std::string nuweb::documentPart::utf8(void) const{
 \indexClassMethod{documentPart}{utf8LineNumber}
 @d \classImplementation{documentPart}
 @{@%
-    std::string nuweb::documentPart::utf8LineNumber(void) const{
+    std::string nuweb::documentPart::utf8LineNumber(filePosition& l_filePosition) const{
         if(empty()){
             if(!m_filePosition)
                 throw std::runtime_error("Internal error: documentPart without file pointer!" + std::string(typeid(*this).name()) + " " + thisString() + "\n");
             std::string filename = m_filePosition->m_filename;
             if(filename.empty())
                 return "";
+            filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
             std::string returnString = "\n#line ";
             returnString += std::to_string(m_filePosition->m_line) + " ";
             returnString += "\"" + filename + "\"\n";
-            returnString += utf8();
-            return returnString;    
+            returnString += utf8(ll_filePosition);
+            return indexableText::progressFilePosition(l_filePosition, returnString);
         }
         else{
             std::string returnString;
             for(auto documentPart: *this)
-                returnString += documentPart->utf8LineNumber();
+                returnString += documentPart->utf8LineNumber(l_filePosition);
             return returnString;
         }
     }
@@ -270,7 +275,8 @@ std::string nuweb::documentPart::utf8(void) const{
 @{@%
 std::string nuweb::documentPart::texUtf8() const{
     if(empty()){
-        return utf8();
+        filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
+        return utf8(ll_filePosition);
         /*std::string returnValue = utf8();
         bool documentPartIsOnlyWhitespace = std::all_of(returnValue.begin(),returnValue.end(),::isspace);
         if(documentPartIsOnlyWhitespace)
@@ -290,30 +296,27 @@ std::string nuweb::documentPart::texUtf8() const{
 \indexClassMethod{documentPart}{fileUtf8}
 @d \classImplementation{documentPart}
 @{@%
-std::string nuweb::documentPart::fileUtf8() const{
-    if(empty()){
-        return utf8();
-    }
-    else{
-        std::string returnString;
+std::string nuweb::documentPart::fileUtf8(filePosition& l_filePosition) const{
+    std::string returnString;
+    if(empty())
+        return utf8(l_filePosition);
+    else
         for(auto& documentPart: *this)
-            returnString += documentPart->fileUtf8();
-        return returnString;
-    }
+            returnString += documentPart->fileUtf8(l_filePosition);
+    return returnString;
 }
 @}
 \subsubsection{fileUtf8LineNumber}
 \indexClassMethod{documentPart}{fileUtf8LineNumber}
 @d \classImplementation{documentPart}
 @{@%
-    std::string nuweb::documentPart::fileUtf8LineNumber(void) const{
-        if(empty()){
-            return utf8LineNumber();
-        }
+    std::string nuweb::documentPart::fileUtf8LineNumber(filePosition& l_filePosition) const{
+        if(empty())
+            return utf8LineNumber(l_filePosition);
         else{
             std::string returnString;
             for(auto& documentPart: *this)
-                returnString += documentPart->fileUtf8LineNumber();
+                returnString += documentPart->fileUtf8LineNumber(l_filePosition);
             return returnString;
         }
     }

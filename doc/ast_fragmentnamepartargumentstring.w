@@ -49,6 +49,7 @@ public:
 @d \classImplementation{fragmentNamePartArgumentString}
 @{@%
     std::string nuweb::fragmentNamePartArgumentString::texUtf8(void) const{
-        return "\\hbox{\\slshape\\sffamily " + utf8() + "\\/}";
+        filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
+        return "\\hbox{\\slshape\\sffamily " + utf8(ll_filePosition) + "\\/}";
     }
 @| texUtf8 @}

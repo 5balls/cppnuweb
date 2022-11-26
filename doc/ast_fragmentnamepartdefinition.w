@@ -62,14 +62,16 @@ std::vector<nuweb::fragmentNamePartDefinition*> nuweb::fragmentNamePartDefinitio
 @{@%
     bool nuweb::fragmentNamePartDefinition::isEqualWith(const fragmentNamePartDefinition& toCompareWith) const{
         // Possible TODO: Comparison part for fragmentNamePartDefinition would go into the else
-        if(typeid(*this) != typeid(toCompareWith))
-            return false;    
+        if(typeid(*this) != typeid(toCompareWith)){
+            filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
+            return false;
+        }
         else
             return true;
     }
 @| isEqualWith @}
 \subsubsection{operator==}
-\indexClassMethod{fragmentNamePartDefinition}{operator}
+\indexClassMethod{fragmentNamePartDefinition}{operator==}
 @d \classImplementation{fragmentNamePartDefinition}
 @{@%
     bool nuweb::fragmentNamePartDefinition::operator==(const fragmentNamePartDefinition& toCompareWith) const{

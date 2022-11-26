@@ -55,6 +55,7 @@ public:
     };
     static void increaseCurrentLine(void);
     static bool isCurrentLineIndented(void);
+    static std::string progressFilePosition(nuweb::filePosition& l_filePosition, const std::string& l_string);
 @}
 
 We define some simple \todorefactor{This is confusingly named the same way as in the nuweb namespace and it has similar functionality. This should be renamed and moved into the nuweb namespace and merged with the existing structures.}filePosition and range structure here:
@@ -233,7 +234,8 @@ std::string nuweb::indexableText::utf8(const range& fromTo, unsigned int indenta
         }
         if(firstLine == lastLine){
             //std::cout << "1: \"" << std::string(indentation,' ') + utf8FromToInLine(fromTo) << "\"\n";
-            return indentationString + utf8FromToInLine(fromTo);
+            returnString = utf8FromToInLine(fromTo);
+            return indentationString + returnString;
         }
         if((lineNumber == firstLine) && (fromTo.m_from.m_character > 0)){
             //std::cout << "2: \"" << std::string(indentation,' ') + utf8TillLineEnd(fromTo.m_from) << "\"\n";
@@ -272,6 +274,36 @@ std::string nuweb::indexableText::utf8(const range& fromTo, unsigned int indenta
         return m_currentLine == m_lastIndentedLine;
     }
 @| isCurrentLineIndented @}
+
+\subsubsection{progressFilePosition}
+\indexClassMethod{indexableText}{progressFilePosition}
+@d \classImplementation{indexableText}
+@{@%
+    std::string nuweb::indexableText::progressFilePosition(nuweb::filePosition& l_filePosition, const std::string& l_string){
+        try {
+            if(l_string.empty()) return l_string;
+            std::string::const_iterator currentStringPosition = l_string.begin();
+            std::string::const_iterator endStringPosition = l_string.end();
+            while(currentStringPosition != endStringPosition){
+                uint32_t currentChar = utf8::next(currentStringPosition, endStringPosition);
+                if(currentChar == '\n'){
+                    l_filePosition.m_line++;
+                    l_filePosition.m_line_end++;
+                    l_filePosition.m_column = 0;
+                    l_filePosition.m_column_end = 0;
+                }
+                else {
+                    l_filePosition.m_column++;
+                    l_filePosition.m_column_end++;
+                }
+            }
+        }
+        catch(...){
+            throw std::runtime_error("Error while trying to progress file position in indexableText");
+        }
+        return l_string;
+    }
+@| progressFilePosition @}
 
 \section{Class tagableText}
 
@@ -320,6 +352,7 @@ void nuweb::tagableText::addFeature(const std::string& name, const range& l_rang
 #include "utfcpp-3.2.1/source/utf8.h"
 #include <sstream>
 #include <iostream>
+#include "definitions.h"
 
 namespace nuweb {
 @<\classDeclaration{indexableText}@>

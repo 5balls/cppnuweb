@@ -210,6 +210,11 @@ fragmentNameArgument
     {
         $$ = new fragmentNamePartArgumentString(new documentPart($TEXT_WITHOUT_AT_OR_NEWLINE));
     }
+    | AT_ANGLE_BRACKET_OPEN fragmentNameReference AT_ANGLE_BRACKET_CLOSE
+    {
+        $fragmentNameReference->setFilePosition($AT_ANGLE_BRACKET_OPEN);
+        $$ = new fragmentNamePartArgumentFragmentName($fragmentNameReference);
+    }
 ;
 @| fragmentNameArgument @}
 
@@ -289,8 +294,8 @@ fragmentReference
 
 @d Lexer rules for fragment headers and references
 @{@%
-<scrapContents>@@< { start(fragmentReference); TOKEN(AT_ANGLE_BRACKET_OPEN) }
-<fragmentReference>@@> { start(scrapContents); TOKEN(AT_ANGLE_BRACKET_CLOSE) }
+<scrapContents,fragmentReference>@@< { start(fragmentReference); m_fragmentReferenceDepth++; TOKEN(AT_ANGLE_BRACKET_OPEN) }
+<fragmentReference>@@> { m_fragmentReferenceDepth--; if(m_fragmentReferenceDepth == 0) start(scrapContents); TOKEN(AT_ANGLE_BRACKET_CLOSE) }
 <INITIAL>@@< { start(fragmentReferenceExpanded); TOKEN(AT_ANGLE_BRACKET_OPEN) }
 <fragmentReferenceExpanded>@@> { start(INITIAL); TOKEN(AT_ANGLE_BRACKET_CLOSE) }
 <fragmentHeader,fragmentReference,fragmentReferenceExpanded>@@' {  TOKEN(AT_TICK) }

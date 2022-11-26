@@ -22,11 +22,13 @@
 class fragmentNamePartArgument : public fragmentNamePartDefinition {
 private:
     int m_argumentNumber = 0;
+protected:
+    virtual bool isEqualWith(const fragmentNamePartDefinition& toCompareWith) const override;
 public:
     fragmentNamePartArgument(filePosition* l_filePosition);
     fragmentNamePartArgument(documentPart&& l_documentPart);
     fragmentNamePartArgument(unsigned int argumentNumber);
-    virtual std::string utf8(void) const override;
+    virtual std::string utf8(filePosition& l_filePosition) const override;
     virtual std::string texUtf8(void) const override;
 };
 @| fragmentNamePartArgument @}
@@ -58,11 +60,11 @@ public:
 \indexClassMethod{fragmentNamePartArgument}{utf8}
 @d \classImplementation{fragmentNamePartArgument}
 @{@%
-    std::string nuweb::fragmentNamePartArgument::utf8(void) const{
+    std::string nuweb::fragmentNamePartArgument::utf8(filePosition& l_filePosition) const{
         if(m_argumentNumber > 0)
             return "";
         else
-            return documentPart::utf8();
+            return documentPart::utf8(l_filePosition);
     }
 @| utf8 @}
 \subsubsection{texUtf8}
@@ -83,3 +85,18 @@ public:
             return "";
     }
 @| texUtf8 @}
+\subsubsection{isEqualWith}
+\indexClassMethod{fragmentNamePartArgument}{isEqualWith}
+@d \classImplementation{fragmentNamePartArgument}
+@{@%
+    bool nuweb::fragmentNamePartArgument::isEqualWith(const fragmentNamePartDefinition& toCompareWith) const{
+        // Type does not need to be equal for different types of arguments
+        // so we only check for castibility to fragmentNamePartArgument.
+        // typeid would return the more specific type
+        if(dynamic_cast<const fragmentNamePartArgument*>(&toCompareWith))
+            return true;
+        else
+            return false;
+        // We are done here, we don't need to look for base class equality
+    }
+@| isEqualWith @}
