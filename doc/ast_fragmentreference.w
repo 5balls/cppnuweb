@@ -127,7 +127,7 @@ public:
         std::string returnString;
         documentPart::m_fileIndentation += m_leadingSpaces;
         std::string fragmentNameString;
-        if(documentPart::m_commentStyle != outputFileFlags::NO_COMMENTS)
+        if(documentPart::m_commentStyle != outputFileFlags::NO_COMMENTS){
             for(const auto& m_referenceFragmentNamePart: *m_referenceFragmentName){
                 fragmentNamePartDefinition* referenceNamePart = dynamic_cast<fragmentNamePartDefinition*>(m_referenceFragmentNamePart);
                 filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
@@ -138,6 +138,13 @@ public:
                 else
                     fragmentNameString += referenceNamePart->fileUtf8(ll_filePosition);
             }
+            if(documentPart::auxFileWasParsed()){
+                std::string scrapNumber = auxFile::scrapId(m_fragment->scrapNumber());
+                fragmentNameString += " " + scrapNumber;
+            }
+            else
+                std::cout << "No aux file yet, need to run Latex again!\n";
+        }
         if((indexableText::isCurrentLineIndented() && (l_filePosition.m_column == documentPart::m_fileIndentation))||(l_filePosition.m_column == 0)){
             switch(documentPart::m_commentStyle){
                 case outputFileFlags::C_COMMENTS:
