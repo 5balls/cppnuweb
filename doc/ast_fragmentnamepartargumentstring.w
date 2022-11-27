@@ -26,6 +26,7 @@ public:
     fragmentNamePartArgumentString(filePosition* l_filePosition);
     fragmentNamePartArgumentString(documentPart&& l_documentPart);
     virtual std::string texUtf8(void) const override;
+    virtual void resolveReferences2(void) override;
 };
 @| fragmentNamePartArgumentString @}
 \subsubsection{fragmentNamePartArgumentString}
@@ -53,3 +54,28 @@ public:
         return "\\hbox{\\slshape\\sffamily " + utf8(ll_filePosition) + "\\/}";
     }
 @| texUtf8 @}
+\subsubsection{resolveReferences2}
+\indexClassMethod{fragmentNamePartArgumentString}{resolveReferences2}
+@d \classImplementation{fragmentNamePartArgumentString}
+@{@%
+    void nuweb::fragmentNamePartArgumentString::resolveReferences2(void){
+        if(!m_parent)
+            throw std::runtime_error("Internal error, fragmentNamePartArgumentString::m_parent not set!");
+        fragmentDefinition* correspondingFragmentDefinition = dynamic_cast<fragmentDefinition*>(m_parent);
+        unsigned int scrapNumber;
+        if(correspondingFragmentDefinition){
+            scrapNumber = correspondingFragmentDefinition->scrapNumber();
+        }
+        else{
+            fragmentReference* parentReference = dynamic_cast<fragmentReference*>(m_parent);
+            if(!parentReference)
+                throw std::runtime_error("Could not resolve shortened fragment argument!");
+            scrapNumber = parentReference->getScrapNumber();
+        }
+        std::vector<std::pair<std::string, std::vector<unsigned int> > > usedIdentifiersInFragment;
+        filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
+        usedIdentifiersInFragment = userIdentifiers::uses(utf8(ll_filePosition));
+        for(auto& usedIdentifier: usedIdentifiersInFragment)
+            userIdentifiers::setScrapUsingIdentifier(usedIdentifier.first, scrapNumber);
+    }
+@| resolveReferences2 @}

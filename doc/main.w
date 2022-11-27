@@ -52,9 +52,9 @@ int main(int argc, char *argv[])
     auto prependPath = l_optionParser.add<popl::Value<std::string> >("p","path","Prepend path to the filenames for all the output files.");*/
     auto listingsPackage = l_optionParser.add<popl::Switch>("l","listings","Use the listings package for formatting scraps.");
     /*auto versionOption = l_optionParser.add<popl::Value<std::string> >("V","","Provide string as the replacement for the @@v operation.");
-    auto suppressScrapList = l_optionParser.add<popl::Switch>("s","","Don't print list of scraps making up a file at end of each scrap.");
+    auto suppressScrapList = l_optionParser.add<popl::Switch>("s","","Don't print list of scraps making up a file at end of each scrap.");*/
     auto includeCrossReference = l_optionParser.add<popl::Switch>("x","","Include cross-reference numbers in the comments of scraps.");
-    auto hyperrefOptions = l_optionParser.add<popl::Value<std::string> >("h","","Provide options for the hyperref package.");*/
+    /*auto hyperrefOptions = l_optionParser.add<popl::Value<std::string> >("h","","Provide options for the hyperref package.");*/
     auto hyperLinks = l_optionParser.add<popl::Switch>("r","hyperlinks","Turn on hyperlinks. You must include the —usepackage— options in the text");
     l_optionParser.parse(argc, argv);
     if(l_optionParser.non_option_args().size() != 1){
@@ -83,6 +83,7 @@ int main(int argc, char *argv[])
     // Set some command line options
     nuwebAstEntry->setListingsPackageEnabled(listingsPackage->is_set());
     nuwebAstEntry->setHyperlinksEnabled(hyperLinks->is_set());
+    nuwebAstEntry->setIncludeCrossReferenceEnabled(includeCrossReference->is_set());
     // Parse aux file
     std::string auxFileName;
     try{

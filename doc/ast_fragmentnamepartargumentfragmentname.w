@@ -135,10 +135,27 @@ public:
 @d \classImplementation{fragmentNamePartArgumentFragmentName}
 @{@%
     void nuweb::fragmentNamePartArgumentFragmentName::resolveReferences2(void){
-     if(m_fragmentReference)
-            m_fragmentReference->resolveReferences2();
-     else
-         throw std::runtime_error("Internal error, unresolved fragmentNamePartArgumentFragmentName!");
-        
+        if(!m_fragmentReference)
+            throw std::runtime_error("Internal error, unresolved fragmentNamePartArgumentFragmentName!");
+        documentPart* l_referenceFragmentName = m_fragmentReference->getFragmentName();
+        if(!l_referenceFragmentName)
+            throw std::runtime_error("Internal error, could not get fragment name in fragmentNamePartArgumentFragmentName!");
+        std::string stringWithPossibleUserIdentifiers;
+        for(const auto& referenceFragmentNamePart: *l_referenceFragmentName){
+            fragmentNamePartDefinition* referenceNamePart = dynamic_cast<fragmentNamePartDefinition*>(referenceFragmentNamePart);
+            if(!referenceNamePart) 
+                throw std::runtime_error("Internal error, could not get fragment reference name correctly!");
+            if(dynamic_cast<fragmentNamePartArgumentString*>(referenceNamePart)){
+                filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
+                stringWithPossibleUserIdentifiers += referenceNamePart->utf8(ll_filePosition);
+            }
+            else
+                stringWithPossibleUserIdentifiers += referenceNamePart->texUtf8();
+        }
+        std::vector<std::pair<std::string, std::vector<unsigned int> > > usedIdentifiersInFragment;
+        usedIdentifiersInFragment = userIdentifiers::uses(stringWithPossibleUserIdentifiers);
+        for(auto& usedIdentifier: usedIdentifiersInFragment)
+            userIdentifiers::setScrapUsingIdentifier(usedIdentifier.first, m_fragmentReference->getScrapNumber());
+        m_fragmentReference->resolveReferences2();
     }
 @| resolveReferences2 @}

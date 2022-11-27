@@ -101,20 +101,16 @@ public:
 @{@%
     void nuweb::fragmentNamePartText::resolveReferences2(void){
         if(m_isShortened){
-            if(m_parent)
-            {
-                fragmentDefinition* correspondingFragmentDefinition = dynamic_cast<fragmentDefinition*>(m_parent);
-                if(!correspondingFragmentDefinition){
-                    fragmentReference* parentReference = dynamic_cast<fragmentReference*>(m_parent);
-                    if(!parentReference)
-                        throw std::runtime_error("Could not resolve shortened fragment argument!");
-                    correspondingFragmentDefinition = parentReference->getFragmentDefinition();
-                }
-                m_longForm = correspondingFragmentDefinition->findLongFormNamePart(m_namePartNumber);
-
-            }
-            else
+            if(!m_parent)
                 throw std::runtime_error("Internal error, fragmentNamePartDefinition::m_parent not set!");
+            fragmentDefinition* correspondingFragmentDefinition = dynamic_cast<fragmentDefinition*>(m_parent);
+            if(!correspondingFragmentDefinition){
+                fragmentReference* parentReference = dynamic_cast<fragmentReference*>(m_parent);
+                if(!parentReference)
+                    throw std::runtime_error("Could not resolve shortened fragment argument!");
+                correspondingFragmentDefinition = parentReference->getFragmentDefinition();
+            }
+            m_longForm = correspondingFragmentDefinition->findLongFormNamePart(m_namePartNumber);
         }
     }
 @| resolveReferences2 @}
