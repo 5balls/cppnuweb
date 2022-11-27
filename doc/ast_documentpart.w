@@ -64,6 +64,7 @@ protected:
     static unsigned int m_fileIndentation;
     static outputFileFlags m_commentStyle;
     static void setCommentStyle(const std::vector<nuweb::outputFileFlags>& flags);
+    static bool m_includeCrossReferenceEnabled;
 public:
     documentPart(const documentPart&) = delete;
     documentPart(void);
@@ -84,6 +85,8 @@ public:
     static bool listingsPackageEnabled(void);
     void setHyperlinksEnabled(bool hyperlinksEnabled);
     static bool hyperlinksEnabled(void);
+    void setIncludeCrossReferenceEnabled(bool includeCrossReferenceEnabled);
+    static bool includeCrossReferenceEnabled(void);
     unsigned int leadingSpaces(void) const;
     bool setFilePosition(filePosition* l_filePosition);
 };
@@ -201,6 +204,24 @@ public:
         return m_hyperlinksEnabled;
     }
 @| hyperlinksEnabled @}
+
+\subsubsection{setIncludeCrossReferenceEnabled}
+\indexClassMethod{documentPart}{setIncludeCrossReferenceEnabled}
+@d \classImplementation{documentPart}
+@{@%
+    void nuweb::documentPart::setIncludeCrossReferenceEnabled(bool includeCrossReferenceEnabled){
+       m_includeCrossReferenceEnabled = includeCrossReferenceEnabled; 
+    }
+@| setIncludeCrossReferenceEnabled @}
+
+\subsubsection{includeCrossReferenceEnabled}
+\indexClassMethod{documentPart}{includeCrossReferenceEnabled}
+@d \classImplementation{documentPart}
+@{@%
+    bool nuweb::documentPart::includeCrossReferenceEnabled(void){
+        return m_includeCrossReferenceEnabled;
+    }
+@| includeCrossReferenceEnabled @}
 
 \subsubsection{utf8}
 \indexClassMethod{documentPart}{utf8}

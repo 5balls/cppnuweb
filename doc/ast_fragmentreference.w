@@ -115,7 +115,27 @@ public:
 @d \classImplementation{fragmentReference}
 @{@%
     std::string nuweb::fragmentReference::utf8(filePosition& l_filePosition) const{
-        return "";
+        if(!m_fragment) throw std::runtime_error("Could not resolve fragment \"" + m_unresolvedFragmentName->texUtf8() + "\" in file " + m_unresolvedFragmentName->filePositionString());
+
+        std::string returnString;
+        if(m_expandReference){
+            filePosition l_filePosition;
+            returnString = m_fragment->fileUtf8(l_filePosition, m_referenceFragmentName);
+        }
+        else{
+            if(!m_referenceFragmentName)
+                throw std::runtime_error("Internal error, reference name in fragmentReference::utf8 not resolved!");
+            for(const auto& m_referenceFragmentNamePart: *m_referenceFragmentName){
+                fragmentNamePartDefinition* referenceNamePart = dynamic_cast<fragmentNamePartDefinition*>(m_referenceFragmentNamePart);
+                if(!referenceNamePart) 
+                    throw std::runtime_error("Internal error, could not get fragment reference name correctly!");
+                if(dynamic_cast<fragmentNamePartArgumentString*>(referenceNamePart))
+                    returnString += "'" + referenceNamePart->utf8(l_filePosition) + "'";
+                else
+                    returnString += referenceNamePart->texUtf8();
+            }
+        }
+        return returnString;
     }
 @}
 \subsubsection{fileUtf8}
@@ -138,12 +158,14 @@ public:
                 else
                     fragmentNameString += referenceNamePart->fileUtf8(ll_filePosition);
             }
-            if(documentPart::auxFileWasParsed()){
-                std::string scrapNumber = auxFile::scrapId(m_fragment->scrapNumber());
-                fragmentNameString += " " + scrapNumber;
+            if(m_includeCrossReferenceEnabled){
+                if(documentPart::auxFileWasParsed()){
+                    std::string scrapNumber = auxFile::scrapId(m_fragment->scrapNumber());
+                    fragmentNameString += " " + scrapNumber;
+                }
+                else
+                    std::cout << "No aux file yet, need to run Latex again!\n";
             }
-            else
-                std::cout << "No aux file yet, need to run Latex again!\n";
         }
         if((indexableText::isCurrentLineIndented() && (l_filePosition.m_column == documentPart::m_fileIndentation))||(l_filePosition.m_column == 0)){
             switch(documentPart::m_commentStyle){
@@ -187,11 +209,8 @@ public:
         if(!m_fragment) throw std::runtime_error("Could not resolve fragment \"" + m_unresolvedFragmentName->texUtf8() + "\" in file " + m_unresolvedFragmentName->filePositionString());
         if(!m_expandReference) 
             m_fragment->addReferenceScrapNumber(m_scrapNumber);
-        for(auto& fragmentNamePart: *m_referenceFragmentName){
-            fragmentNamePartDefinition* fragmentArgument = dynamic_cast<fragmentNamePartDefinition*>(fragmentNamePart);
-            if(fragmentArgument)
-                fragmentArgument->resolveReferences();
-        }
+        for(const auto& referenceFragmentNamePart: *m_referenceFragmentName)
+            referenceFragmentNamePart->resolveReferences();
     }
 @| resolveReferences @}
 \subsubsection{resolveReferences2}
@@ -201,11 +220,6 @@ public:
     void nuweb::fragmentReference::resolveReferences2(void){
         for(const auto& referenceFragmentNamePart: *m_referenceFragmentName)
             referenceFragmentNamePart->resolveReferences2();
-        for(auto& fragmentNamePart: *m_referenceFragmentName){
-            fragmentNamePartDefinition* fragmentArgument = dynamic_cast<fragmentNamePartDefinition*>(fragmentNamePart);
-            if(fragmentArgument)
-                fragmentArgument->resolveReferences2();
-        }
     }
 @| resolveReferences2 @}
 \subsubsection{setExpandReference}
