@@ -178,6 +178,10 @@ scrapElement
     {
         $$ = $fragmentReference;
     }
+    | AT_SMALL_V
+    {
+        $$ = new versionString($AT_SMALL_V);
+    }
 ;
 @| scrapElement @}
 

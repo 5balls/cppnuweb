@@ -78,6 +78,7 @@ bool nuweb::documentPart::auxFileParsed = false;
 bool nuweb::documentPart::m_listingsPackageEnabled = false;
 bool nuweb::documentPart::m_hyperlinksEnabled = false;
 bool nuweb::documentPart::m_includeCrossReferenceEnabled = false;
+std::string nuweb::documentPart::m_versionString = "";
 nuweb::outputFileFlags nuweb::documentPart::m_commentStyle = outputFileFlags::NO_COMMENTS;
 int nuweb::documentPart::m_texFilePositionColumnCorrection = 0;
 unsigned int nuweb::documentPart::m_fileIndentation = 0;

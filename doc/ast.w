@@ -49,3 +49,5 @@ We define some classes for our Abstract Syntax Tree. This correspond mostly to t
 @i ast_useridentifiers.w
 
 @i ast_index_fragmentnames.w
+
+@i ast_versionstring.w

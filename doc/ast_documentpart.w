@@ -44,6 +44,7 @@ namespace nuweb {
 @<\classDeclaration{fragmentArgument}@>
 @<\classDeclaration{userIdentifiers}@>
 @<\classDeclaration{indexFragmentNames}@>
+@<\classDeclaration{versionString}@>
 }
 @<End of header@>
 @}
@@ -65,6 +66,7 @@ protected:
     static outputFileFlags m_commentStyle;
     static void setCommentStyle(const std::vector<nuweb::outputFileFlags>& flags);
     static bool m_includeCrossReferenceEnabled;
+    static std::string m_versionString;
 public:
     documentPart(const documentPart&) = delete;
     documentPart(void);
@@ -87,6 +89,8 @@ public:
     static bool hyperlinksEnabled(void);
     void setIncludeCrossReferenceEnabled(bool includeCrossReferenceEnabled);
     static bool includeCrossReferenceEnabled(void);
+    void setVersionString(const std::string & versionString);
+    static std::string versionString(void);
     unsigned int leadingSpaces(void) const;
     bool setFilePosition(filePosition* l_filePosition);
 };
@@ -122,6 +126,7 @@ public:
 @<\classImplementation{fragmentArgument}@>
 @<\classImplementation{userIdentifiers}@>
 @<\classImplementation{indexFragmentNames}@>
+@<\classImplementation{versionString}@>
 @}
 
 \subsubsection{documentPart}
@@ -213,6 +218,24 @@ public:
        m_includeCrossReferenceEnabled = includeCrossReferenceEnabled; 
     }
 @| setIncludeCrossReferenceEnabled @}
+
+\subsubsection{setVersionString}
+\indexClassMethod{documentPart}{setVersionString}
+@d \classImplementation{documentPart}
+@{@%
+    void nuweb::documentPart::setVersionString(const std::string& versionString){
+        m_versionString = versionString;
+    }
+@| setVersionString @}
+
+\subsubsection{versionString}
+\indexClassMethod{documentPart}{versionString}
+@d \classImplementation{documentPart}
+@{@%
+    std::string nuweb::documentPart::versionString(void){
+        return m_versionString;
+    }
+@| versionString @}
 
 \subsubsection{includeCrossReferenceEnabled}
 \indexClassMethod{documentPart}{includeCrossReferenceEnabled}
