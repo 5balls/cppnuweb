@@ -64,6 +64,10 @@ nuwebExpression
     {
         $$ = new indexFragmentNames($AT_SMALL_M);
     }
+    | AT_SMALL_V
+    {
+        $$ = new versionString($AT_SMALL_V);
+    }
     | NOT_IMPLEMENTED
     {
         throw std::runtime_error($NOT_IMPLEMENTED->m_filename + ":" + std::to_string($NOT_IMPLEMENTED->m_line) + ":" + std::to_string($NOT_IMPLEMENTED->m_column) + " command \"" + $NOT_IMPLEMENTED->m_value + "\" not implemented!\n");
@@ -73,13 +77,16 @@ nuwebExpression
 
 
 @d Lexer rules for regular nuweb commands
-@{<INITIAL>@@m { TOKEN(AT_SMALL_M) }@| AT_SMALL_M @}
+@{<INITIAL>@@m { TOKEN(AT_SMALL_M) }
+<INITIAL,scrapContents>@@v { TOKEN(AT_SMALL_V) } @| AT_SMALL_M AT_SMALL_V @}
 
 @d Bison token definitions
-@{%token AT_SMALL_M@| AT_SMALL_M @}
+@{%token AT_SMALL_M
+%token AT_SMALL_V @| AT_SMALL_M AT_SMALL_V @}
 
 @d Bison type definitions
 @{%type <m_filePosition> AT_SMALL_M;
+%type <m_filePosition> AT_SMALL_V;
 @}
 
 @i reference_documentparts_nuwebexpression_includefile.w
