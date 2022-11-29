@@ -72,8 +72,11 @@ public:
 @d \classImplementation{fragmentReference}
 @{@%
     std::string nuweb::fragmentReference::texUtf8(void) const{
-        if(!m_fragment) throw std::runtime_error("Could not resolve fragment \"" + m_unresolvedFragmentName->texUtf8() + "\" in file " + m_unresolvedFragmentName->filePositionString());
         if(m_expandReference){
+            if(!m_fragment){
+                std::cout << "Could not resolve fragment \"" + m_unresolvedFragmentName->texUtf8() + "\" in file " + m_unresolvedFragmentName->filePositionString() + "\n";
+                return m_unresolvedFragmentName->texUtf8();
+            }
             filePosition l_filePosition;
             return m_fragment->fileUtf8(l_filePosition, m_referenceFragmentName);
         }
@@ -93,15 +96,16 @@ public:
                 else
                     returnString += referenceNamePart->texUtf8();
             }
-            returnString += "}\\nobreak\\ {\\footnotesize \\NWlink{nuweb";
+            returnString += "}\\nobreak\\ {\\footnotesize ";
             std::string scrapNumber = "?";
-            if(documentPart::auxFileWasParsed())
+            if(documentPart::auxFileWasParsed() && m_fragment)
                 scrapNumber = auxFile::scrapId(m_fragment->scrapNumber());
             else
                 std::cout << "No aux file yet, need to run Latex again!\n";
-            returnString += scrapNumber + "}{" + scrapNumber + "}";
-            if(m_fragment->scrapsFromFragment().size() > 1)
-                returnString += ", \\ldots\\ ";
+            returnString += "\\NWlink{nuweb" + scrapNumber + "}{" + scrapNumber + "}";
+            if(m_fragment)
+                if(m_fragment->scrapsFromFragment().size() > 1)
+                    returnString += ", \\ldots\\ ";
             if(listingsPackageEnabled())
                 returnString += "}$\\,\\rangle$}\\lstinline@@";
             else
@@ -115,10 +119,12 @@ public:
 @d \classImplementation{fragmentReference}
 @{@%
     std::string nuweb::fragmentReference::utf8(filePosition& l_filePosition) const{
-        if(!m_fragment) throw std::runtime_error("Could not resolve fragment \"" + m_unresolvedFragmentName->texUtf8() + "\" in file " + m_unresolvedFragmentName->filePositionString());
-
         std::string returnString;
         if(m_expandReference){
+            if(!m_fragment){
+                std::cout << "Could not resolve fragment \"" + m_unresolvedFragmentName->texUtf8() + "\" in file " + m_unresolvedFragmentName->filePositionString() + "\n";
+                return "";
+            }
             filePosition l_filePosition;
             returnString = m_fragment->fileUtf8(l_filePosition, m_referenceFragmentName);
         }
@@ -143,7 +149,10 @@ public:
 @d \classImplementation{fragmentReference}
 @{@%
     std::string nuweb::fragmentReference::fileUtf8(filePosition& l_filePosition) const{
-        if(!m_fragment) throw std::runtime_error("Could not resolve fragment \"" + m_unresolvedFragmentName->texUtf8() + "\" in file " + m_unresolvedFragmentName->filePositionString());
+        if(!m_fragment){
+            std::cout << "Could not resolve fragment \"" + m_unresolvedFragmentName->texUtf8() + "\" in file " + m_unresolvedFragmentName->filePositionString() + "\n";
+            return "@@<" + m_unresolvedFragmentName->texUtf8() + "@@>";
+        }
         std::string returnString;
         documentPart::m_fileIndentation += m_leadingSpaces;
         std::string fragmentNameString;
@@ -206,7 +215,10 @@ public:
                 m_fragment->addReference(this);
             }
         }
-        if(!m_fragment) throw std::runtime_error("Could not resolve fragment \"" + m_unresolvedFragmentName->texUtf8() + "\" in file " + m_unresolvedFragmentName->filePositionString());
+        if(!m_fragment){
+            std::cout << "Could not resolve fragment \"" + m_unresolvedFragmentName->texUtf8() + "\" in file " + m_unresolvedFragmentName->filePositionString() + "\n";
+            return;
+        }
         if(!m_expandReference) 
             m_fragment->addReferenceScrapNumber(m_scrapNumber);
         for(const auto& referenceFragmentNamePart: *m_referenceFragmentName)

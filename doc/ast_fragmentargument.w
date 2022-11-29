@@ -53,8 +53,10 @@ public:
                 return "@@" + m_nameToExpandTo->texUtf8() + "\\lstinline@@";
             else
                 return "@@" + m_nameToExpandTo->texUtf8() + "\\verb@@";
-        else
-            throw std::runtime_error("Could not resolve argument name at runtime!");
+        else{
+            std::cout << "Could not resolve argument name at runtime!";
+            return "";
+        }
     }
 @| texUtf8 @}
 
