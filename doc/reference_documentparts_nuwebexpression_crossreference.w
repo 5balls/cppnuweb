@@ -22,3 +22,18 @@
 
 @d Bison token definitions
 @{%token AT_SMALL_X @| AT_SMALL_X @}
+
+@d Bison rules
+@{
+crossReference
+    : AT_SMALL_X TEXT_WITHOUT_AT AT_SMALL_X
+    {
+        $$ = new crossReference($TEXT_WITHOUT_AT);
+    }
+;
+@}
+
+@d \bisonTypeDefinition{crossReference}
+@{@%
+%type <m_documentPart> crossReference;
+@}

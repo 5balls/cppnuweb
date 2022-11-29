@@ -51,3 +51,6 @@ We define some classes for our Abstract Syntax Tree. This correspond mostly to t
 @i ast_index_fragmentnames.w
 
 @i ast_versionstring.w
+
+@i ast_crossreference.w
+

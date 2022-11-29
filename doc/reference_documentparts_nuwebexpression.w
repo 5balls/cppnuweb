@@ -26,6 +26,8 @@ A ``\lstinline{nuwebExpression}'' is basically every nuweb command\footnote{Anyt
 \alt <fragmentDefinition>
 \alt <fragmentReference>
 \alt AT_SMALL_F
+\alt AT_SMALL_M
+\alt AT_SMALL_V
 \alt NOT_IMPLEMENTED
 \end{grammar}
 \caption{BNF for nuwebExpression}
@@ -67,6 +69,10 @@ nuwebExpression
     | AT_SMALL_V
     {
         $$ = new versionString($AT_SMALL_V);
+    }
+    | crossReference
+    {
+        $$ = $crossReference;
     }
     | NOT_IMPLEMENTED
     {

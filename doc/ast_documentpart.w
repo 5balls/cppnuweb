@@ -45,6 +45,7 @@ namespace nuweb {
 @<\classDeclaration{userIdentifiers}@>
 @<\classDeclaration{indexFragmentNames}@>
 @<\classDeclaration{versionString}@>
+@<\classDeclaration{crossReference}@>
 }
 @<End of header@>
 @}
@@ -111,6 +112,7 @@ public:
 @<\staticDefinitions{fragmentNamePartDefinition}@>
 @<\staticDefinitions{outputFile}@>
 @<\staticDefinitions{userIdentifier}@>
+@<\staticDefinitions{crossReference}@>
 
 @<\classImplementation{documentPart}@>
 @<\classImplementation{fragmentDefinition}@>
@@ -127,6 +129,7 @@ public:
 @<\classImplementation{userIdentifiers}@>
 @<\classImplementation{indexFragmentNames}@>
 @<\classImplementation{versionString}@>
+@<\classImplementation{crossReference}@>
 @}
 
 \subsubsection{documentPart}
