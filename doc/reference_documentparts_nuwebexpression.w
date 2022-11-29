@@ -26,6 +26,8 @@ A ``\lstinline{nuwebExpression}'' is basically every nuweb command\footnote{Anyt
 \alt <fragmentDefinition>
 \alt <fragmentReference>
 \alt AT_SMALL_F
+\alt AT_SMALL_M
+\alt AT_SMALL_V
 \alt NOT_IMPLEMENTED
 \end{grammar}
 \caption{BNF for nuwebExpression}
@@ -68,6 +70,10 @@ nuwebExpression
     {
         $$ = new versionString($AT_SMALL_V);
     }
+    | crossReference
+    {
+        $$ = $crossReference;
+    }
     | NOT_IMPLEMENTED
     {
         throw std::runtime_error($NOT_IMPLEMENTED->m_filename + ":" + std::to_string($NOT_IMPLEMENTED->m_line) + ":" + std::to_string($NOT_IMPLEMENTED->m_column) + " command \"" + $NOT_IMPLEMENTED->m_value + "\" not implemented!\n");
@@ -97,3 +103,4 @@ nuwebExpression
 
 @i reference_documentparts_nuwebexpression_scrap.w
 
+@i reference_documentparts_nuwebexpression_crossreference.w

@@ -28,6 +28,7 @@ public:
     }
     bool resolveFragmentArguments(documentPart* fragmentName);
     void setUserIdentifiersScrapNumber(unsigned int scrapNumber);
+    void setCrossReferencesScrapNumber(unsigned int scrapNumber);
 };
 @| scrap @}
 
@@ -90,4 +91,16 @@ public:
            }
     }
 @| setUserIdentifiersScrapNumber @}
-
+\subsubsection{setCrossReferencesScrapNumber}
+\indexClassMethod{scrap}{setCrossReferencesScrapNumber}
+@d \classImplementation{scrap}
+@{@%
+    void nuweb::scrap::setCrossReferencesScrapNumber(unsigned int scrapNumber){
+        if(!empty())
+            for(auto& documentPart: *this){
+                crossReference* l_crossReference = dynamic_cast<crossReference*>(documentPart);
+                if(l_crossReference)
+                    l_crossReference->setScrapNumber(scrapNumber);
+            }
+    }
+@| setCrossReferencesScrapNumber @}

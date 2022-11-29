@@ -182,10 +182,15 @@ scrapElement
     {
         $$ = new versionString($AT_SMALL_V);
     }
+    | crossReference
+    {
+        $$ = $crossReference;
+    }
 ;
 @| scrapElement @}
 
 @d Bison type definitions
-@{%type <m_documentPart> scrapElement
+@{%type <m_documentPart> scrapElement;
+%type <m_documentPart> crossReference;
 @}
 

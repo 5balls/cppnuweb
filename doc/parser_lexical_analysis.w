@@ -62,6 +62,7 @@ We try to use the Flex and Bison programs to create our parser.
 @<Lexer rules for output file flags@>
 @<Lexer rules for text handling@>
 @<Lexer rules for fragment commands@>
+@<Lexer rule for cross reference@>
 <INITIAL>@@o { start(outputFileHeader); TOKEN(AT_SMALL_O) }
 <INITIAL>@@O { start(outputFileHeader); TOKEN(AT_LARGE_O) }
 <INITIAL>@@f { TOKEN(AT_SMALL_F) }

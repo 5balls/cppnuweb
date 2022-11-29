@@ -69,9 +69,9 @@ public:
 
 @d \staticDefinitions{fragmentDefinition}
 @{@%
-unsigned int nuweb::fragmentDefinition::m_scrapNumber = 0;
-std::map<unsigned int, nuweb::fragmentDefinition*> nuweb::fragmentDefinition::fragmentDefinitions = {};
-std::map<unsigned int, std::vector<unsigned int> > nuweb::fragmentDefinition::m_scrapsDefiningAFragment = {};
+    unsigned int nuweb::fragmentDefinition::m_scrapNumber = 0;
+    std::map<unsigned int, nuweb::fragmentDefinition*> nuweb::fragmentDefinition::fragmentDefinitions = {};
+    std::map<unsigned int, std::vector<unsigned int> > nuweb::fragmentDefinition::m_scrapsDefiningAFragment = {};
 @}
 
 \subsection{Implementation}
@@ -463,6 +463,7 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
             throw std::runtime_error("Internal error, could resolve to first defining fragment!");
         m_scrap->resolveFragmentArguments(m_fragmentName);
         m_scrap->setUserIdentifiersScrapNumber(m_currentScrapNumber);
+        m_scrap->setCrossReferencesScrapNumber(m_currentScrapNumber);
         if(m_scrap->empty())
             m_scrap->resolveReferences();
         else
