@@ -104,3 +104,5 @@ nuwebExpression
 @i reference_documentparts_nuwebexpression_scrap.w
 
 @i reference_documentparts_nuwebexpression_crossreference.w
+
+@i reference_documentparts_nuwebexpression_blockcomment.w
