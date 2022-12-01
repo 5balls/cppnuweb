@@ -47,12 +47,12 @@ As mentioned in the previous section, a ``\codebisonflex\lstinline{documentPart}
 @d Bison rules
 @{
 documentPart
-    : texCode
+    : nuwebExpression
+    | outputFile
+    | texCode
     {
         $$ = $texCode;
     }
-    | nuwebExpression
-    | outputFile
 ;
 @| documentPart @}
 

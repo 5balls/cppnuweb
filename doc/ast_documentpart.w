@@ -46,6 +46,7 @@ namespace nuweb {
 @<\classDeclaration{indexFragmentNames}@>
 @<\classDeclaration{versionString}@>
 @<\classDeclaration{crossReference}@>
+@<\classDeclaration{blockComment}@>
 }
 @<End of header@>
 @}
@@ -130,6 +131,7 @@ public:
 @<\classImplementation{indexFragmentNames}@>
 @<\classImplementation{versionString}@>
 @<\classImplementation{crossReference}@>
+@<\classImplementation{blockComment}@>
 @}
 
 \subsubsection{documentPart}

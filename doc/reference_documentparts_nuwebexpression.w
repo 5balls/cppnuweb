@@ -74,6 +74,10 @@ nuwebExpression
     {
         $$ = $crossReference;
     }
+    | AT_SMALL_C TEXT_WITHOUT_AT
+    {
+        $$ = new blockComment($TEXT_WITHOUT_AT);
+    }
     | NOT_IMPLEMENTED
     {
         throw std::runtime_error($NOT_IMPLEMENTED->m_filename + ":" + std::to_string($NOT_IMPLEMENTED->m_line) + ":" + std::to_string($NOT_IMPLEMENTED->m_column) + " command \"" + $NOT_IMPLEMENTED->m_value + "\" not implemented!\n");
