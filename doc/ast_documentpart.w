@@ -69,6 +69,7 @@ protected:
     static void setCommentStyle(const std::vector<nuweb::outputFileFlags>& flags);
     static bool m_includeCrossReferenceEnabled;
     static std::string m_versionString;
+    static bool m_insideBlock;
 public:
     documentPart(const documentPart&) = delete;
     documentPart(void);

@@ -41,7 +41,14 @@ public:
 @d \classImplementation{blockComment}
 @{@%
     std::string nuweb::blockComment::texUtf8(void) const{
+        std::string returnString;
+        if(!m_insideBlock){
+            returnString += "\\begin{flushleft} \\small";
+            returnString += "\n\\begin{minipage}{\\linewidth}";
+            m_insideBlock = true;
+        }
         filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
-        return utf8(ll_filePosition);
+        returnString += utf8(ll_filePosition); 
+        return returnString;
     }
 @| texUtf8 @}
