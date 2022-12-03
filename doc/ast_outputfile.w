@@ -29,6 +29,7 @@ public:
     virtual std::string headerTexUtf8(void) const override;
     virtual std::string referencesTexUtf8(void) const override;
     virtual std::string fileUtf8(filePosition& l_filePosition) const override;
+    virtual std::string definedByTexUtf8(void) const override;
     static void writeFiles(void);
 };
 @| outputFile @}
@@ -121,3 +122,44 @@ public:
         }
     }
 @| writeFiles @}
+\subsubsection{definedByTexUtf8}
+\indexClassMethod{outputFile}{definedByTexUtf8}
+@d \classImplementation{outputFile}
+@{@%
+    std::string nuweb::outputFile::definedByTexUtf8(void) const{
+        unsigned int firstFragmentNumber = m_firstFragment->scrapNumber();
+        if(m_scrapsDefiningAFragment[firstFragmentNumber].size()>1){
+            std::string returnString = "\\item \\NWtxtFileDefBy\\ ";
+            unsigned int lastPage = 0;
+            for(const auto & scrapDefiningFragment: m_scrapsDefiningAFragment[firstFragmentNumber]){
+                std::string scrapId = "?"; 
+                unsigned int currentPage = 1;
+                if(auxFileWasParsed()){
+                    scrapId = auxFile::scrapId(scrapDefiningFragment);
+                    currentPage = auxFile::scrapPage(scrapDefiningFragment);
+                }
+                returnString += "\\NWlink{nuweb" + scrapId + "}{";
+                if(lastPage == 0){
+                    returnString += scrapId + "}";
+                    lastPage = currentPage;
+                    continue;
+                }
+                if(currentPage != lastPage){
+                    returnString += ", " + scrapId + "}";
+                    lastPage = currentPage;
+                    continue;
+                }
+                if(auxFileWasParsed())
+                    returnString += std::string(1, auxFile::scrapLetter(scrapDefiningFragment)) + "}";
+                else
+                    returnString += ", ?}";
+                lastPage = currentPage;
+            }
+            returnString += ".\n";
+            return returnString;
+        }
+        else
+            return "";
+
+    }
+@| definedByTexUtf8 @}

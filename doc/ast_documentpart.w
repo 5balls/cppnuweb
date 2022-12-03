@@ -47,6 +47,7 @@ namespace nuweb {
 @<\classDeclaration{versionString}@>
 @<\classDeclaration{crossReference}@>
 @<\classDeclaration{blockComment}@>
+@<\classDeclaration{blockCommentReference}@>
 }
 @<End of header@>
 @}
@@ -115,6 +116,7 @@ public:
 @<\staticDefinitions{outputFile}@>
 @<\staticDefinitions{userIdentifier}@>
 @<\staticDefinitions{crossReference}@>
+@<\staticDefinitions{blockComment}@>
 
 @<\classImplementation{documentPart}@>
 @<\classImplementation{fragmentDefinition}@>
@@ -133,6 +135,7 @@ public:
 @<\classImplementation{versionString}@>
 @<\classImplementation{crossReference}@>
 @<\classImplementation{blockComment}@>
+@<\classImplementation{blockCommentReference}@>
 @}
 
 \subsubsection{documentPart}

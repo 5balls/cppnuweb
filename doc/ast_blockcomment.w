@@ -21,10 +21,11 @@
 @{@%
 class blockComment : public documentPart {
 private:
-    
+    static blockComment* m_lastBlockComment;    
 public:
     blockComment(filePosition* l_filePosition);
     virtual std::string texUtf8(void) const override;
+    static blockComment* lastBlockComment(void);
 };
 @| blockComment @}
 \subsubsection{blockComment}
@@ -32,9 +33,15 @@ public:
 @d \classImplementation{blockComment}
 @{@%
      nuweb::blockComment::blockComment(filePosition* l_filePosition) : documentPart(l_filePosition){
-        
+        m_lastBlockComment = this;
     }
 @| blockComment @}
+
+@d \staticDefinitions{blockComment}
+@{@%
+    nuweb::blockComment* nuweb::blockComment::m_lastBlockComment = nullptr;
+@}
+
 
 \subsubsection{texUtf8}
 \indexClassMethod{blockComment}{texUtf8}
@@ -52,3 +59,11 @@ public:
         return returnString;
     }
 @| texUtf8 @}
+\subsubsection{lastBlockComment}
+\indexClassMethod{blockComment}{lastBlockComment}
+@d \classImplementation{blockComment}
+@{@%
+    nuweb::blockComment* nuweb::blockComment::lastBlockComment(void){
+       return m_lastBlockComment; 
+    }
+@| lastBlockComment @}

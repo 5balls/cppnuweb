@@ -188,9 +188,7 @@ scrapElement
     }
     | AT_SMALL_C
     {
-        //throw std::runtime_error("Block comment reference not implemented in scraps!");
-        std::cout << ("Block comment reference not implemented in scraps!");
-        $$ = new emptyDocumentPart();
+        $$ = new blockCommentReference();
     }
     | NOT_IMPLEMENTED
     {

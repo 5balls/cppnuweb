@@ -55,3 +55,5 @@ We define some classes for our Abstract Syntax Tree. This correspond mostly to t
 @i ast_crossreference.w
 
 @i ast_blockcomment.w
+
+@i ast_blockcommentreference.w
