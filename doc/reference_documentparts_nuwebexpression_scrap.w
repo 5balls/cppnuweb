@@ -186,6 +186,15 @@ scrapElement
     {
         $$ = $crossReference;
     }
+    | AT_SMALL_C
+    {
+        $$ = new blockCommentReference();
+    }
+    | NOT_IMPLEMENTED
+    {
+        throw std::runtime_error($NOT_IMPLEMENTED->m_filename + ":" + std::to_string($NOT_IMPLEMENTED->m_line) + ":" + std::to_string($NOT_IMPLEMENTED->m_column) + " command \"" + $NOT_IMPLEMENTED->m_value + "\" not implemented in scraps!\n");
+    }
+
 ;
 @| scrapElement @}
 

@@ -46,6 +46,8 @@ namespace nuweb {
 @<\classDeclaration{indexFragmentNames}@>
 @<\classDeclaration{versionString}@>
 @<\classDeclaration{crossReference}@>
+@<\classDeclaration{blockComment}@>
+@<\classDeclaration{blockCommentReference}@>
 }
 @<End of header@>
 @}
@@ -68,6 +70,7 @@ protected:
     static void setCommentStyle(const std::vector<nuweb::outputFileFlags>& flags);
     static bool m_includeCrossReferenceEnabled;
     static std::string m_versionString;
+    static bool m_insideBlock;
 public:
     documentPart(const documentPart&) = delete;
     documentPart(void);
@@ -113,6 +116,7 @@ public:
 @<\staticDefinitions{outputFile}@>
 @<\staticDefinitions{userIdentifier}@>
 @<\staticDefinitions{crossReference}@>
+@<\staticDefinitions{blockComment}@>
 
 @<\classImplementation{documentPart}@>
 @<\classImplementation{fragmentDefinition}@>
@@ -130,6 +134,8 @@ public:
 @<\classImplementation{indexFragmentNames}@>
 @<\classImplementation{versionString}@>
 @<\classImplementation{crossReference}@>
+@<\classImplementation{blockComment}@>
+@<\classImplementation{blockCommentReference}@>
 @}
 
 \subsubsection{documentPart}

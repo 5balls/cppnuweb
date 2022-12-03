@@ -24,7 +24,6 @@ class fragmentNamePartText;
 
 class fragmentDefinition : public documentPart {
 private:
-    fragmentDefinition* m_firstFragment;
 protected:
     static unsigned int m_scrapNumber;
     static std::map<unsigned int, fragmentDefinition*> fragmentDefinitions;
@@ -36,6 +35,7 @@ protected:
     std::vector<unsigned int> m_referencesInScraps;
     bool m_pageBreak;
     std::vector<fragmentReference*> m_references;
+    fragmentDefinition* m_firstFragment;
 public:
     fragmentDefinition(documentPart* l_fragmentName, documentPart* l_scrap, bool pageBreak = false); 
     static fragmentDefinition* fragmentFromFragmentName(const documentPart* fragmentName);
@@ -54,7 +54,7 @@ public:
     virtual std::string referencesTexUtf8(void) const;
     virtual std::string usesTexUtf8(void) const;
     std::string definesTexUtf8(void) const;
-    std::string definedByTexUtf8(void) const;
+    virtual std::string definedByTexUtf8(void) const;
     virtual std::string texUtf8(void) const override;
     virtual std::string utf8(filePosition& l_filePosition) const override;
     virtual std::string fileUtf8(filePosition& l_filePosition) const override;
@@ -361,9 +361,17 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
 @d \classImplementation{fragmentDefinition}
 @{@%
     std::string nuweb::fragmentDefinition::texUtf8(void) const{
-        std::string returnString = "\\begin{flushleft} \\small";
-        if(!m_pageBreak)
-            returnString += "\n\\begin{minipage}{\\linewidth}";
+        std::string returnString;
+        if(!m_insideBlock)
+            returnString += "\\begin{flushleft} \\small";
+        if(!m_pageBreak){
+            if(!m_insideBlock){
+                returnString += "\n\\begin{minipage}{\\linewidth}";
+                m_insideBlock = true;
+            }
+            else
+                returnString += "\\par\\vspace{\\baselineskip}\n";
+        }
         returnString += "\\label{scrap";
         returnString += std::to_string(m_currentScrapNumber) + "}\\raggedright\\small\n";
         returnString += headerTexUtf8();
@@ -383,9 +391,10 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
         returnString += usesTexUtf8();
         returnString += "\n\\item{}\n";
         returnString += "\\end{list}\n";
-        if(!m_pageBreak)
+        if(!m_pageBreak && m_insideBlock)
             returnString += "\\end{minipage}";
         returnString += "\\vspace{4ex}\n\\end{flushleft}\n";
+        m_insideBlock = false;
         return returnString;
     }
 @}

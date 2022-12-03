@@ -47,12 +47,12 @@ As mentioned in the previous section, a ``\codebisonflex\lstinline{documentPart}
 @d Bison rules
 @{
 documentPart
-    : texCode
+    : nuwebExpression
+    | outputFile
+    | texCode
     {
         $$ = $texCode;
     }
-    | nuwebExpression
-    | outputFile
 ;
 @| documentPart @}
 
@@ -82,6 +82,7 @@ std::string nuweb::documentPart::m_versionString = "";
 nuweb::outputFileFlags nuweb::documentPart::m_commentStyle = outputFileFlags::NO_COMMENTS;
 int nuweb::documentPart::m_texFilePositionColumnCorrection = 0;
 unsigned int nuweb::documentPart::m_fileIndentation = 0;
+bool nuweb::documentPart::m_insideBlock = false;
 @}
 
 @i reference_documentparts_texcode.w
