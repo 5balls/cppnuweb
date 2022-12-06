@@ -485,16 +485,17 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
 @d \classImplementation{fragmentDefinition}
 @{@%
     void nuweb::fragmentDefinition::resolveReferences2(){
-        std::vector<std::pair<std::string, std::vector<unsigned int> > > usedIdentifiersInFragment;
-        filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
-        usedIdentifiersInFragment = userIdentifiers::uses(m_scrap->utf8(ll_filePosition));
-        for(auto& usedIdentifier: usedIdentifiersInFragment)
-            userIdentifiers::setScrapUsingIdentifier(usedIdentifier.first, m_currentScrapNumber);
         if(m_scrap->empty())
             m_scrap->resolveReferences2();
         else
             for(auto& scrapPart: *m_scrap)
                 scrapPart->resolveReferences2();
+
+        std::vector<std::pair<std::string, std::vector<unsigned int> > > usedIdentifiersInFragment;
+        filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
+        usedIdentifiersInFragment = userIdentifiers::uses(m_scrap->utf8(ll_filePosition));
+        for(auto& usedIdentifier: usedIdentifiersInFragment)
+            userIdentifiers::setScrapUsingIdentifier(usedIdentifier.first, m_currentScrapNumber);
         for(const auto& definitionFragmentNamePart: *m_fragmentName)
             definitionFragmentNamePart->resolveReferences2();
     }
