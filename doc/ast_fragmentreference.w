@@ -120,26 +120,13 @@ public:
 @{@%
     std::string nuweb::fragmentReference::utf8(filePosition& l_filePosition) const{
         std::string returnString;
-        if(m_expandReference){
-            if(!m_fragment){
-                std::cout << "Could not resolve fragment \"" + m_unresolvedFragmentName->texUtf8() + "\" in file " + m_unresolvedFragmentName->filePositionString() + "\n";
-                return "";
-            }
-            filePosition l_filePosition;
-            returnString = m_fragment->fileUtf8(l_filePosition, m_referenceFragmentName);
-        }
-        else{
-            if(!m_referenceFragmentName)
-                throw std::runtime_error("Internal error, reference name in fragmentReference::utf8 not resolved!");
-            for(const auto& m_referenceFragmentNamePart: *m_referenceFragmentName){
-                fragmentNamePartDefinition* referenceNamePart = dynamic_cast<fragmentNamePartDefinition*>(m_referenceFragmentNamePart);
-                if(!referenceNamePart) 
-                    throw std::runtime_error("Internal error, could not get fragment reference name correctly!");
-                if(dynamic_cast<fragmentNamePartArgumentString*>(referenceNamePart))
-                    returnString += "'" + referenceNamePart->utf8(l_filePosition) + "'";
-                else
-                    returnString += referenceNamePart->texUtf8();
-            }
+        filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
+        for(auto& fragmentNamePart: *m_referenceFragmentName)
+            if(dynamic_cast<fragmentNamePartArgumentString*>(fragmentNamePart))
+                returnString += fragmentNamePart->utf8(ll_filePosition) + " ";
+        if(!returnString.empty()){
+            returnString.pop_back();
+            indexableText::progressFilePosition(l_filePosition,returnString);
         }
         return returnString;
     }
