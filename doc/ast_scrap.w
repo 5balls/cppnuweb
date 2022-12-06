@@ -29,6 +29,7 @@ public:
     bool resolveFragmentArguments(documentPart* fragmentName);
     void setUserIdentifiersScrapNumber(unsigned int scrapNumber);
     void setCrossReferencesScrapNumber(unsigned int scrapNumber);
+    virtual std::string utf8(filePosition& l_filePosition) const override;
 };
 @| scrap @}
 
@@ -104,3 +105,20 @@ public:
             }
     }
 @| setCrossReferencesScrapNumber @}
+\subsubsection{utf8}
+\indexClassMethod{scrap}{utf8}
+@d \classImplementation{scrap}
+@{@%
+    std::string nuweb::scrap::utf8(filePosition& l_filePosition) const{
+        if(empty())
+            return documentPart::utf8(l_filePosition);
+        else{
+            std::string returnString;
+            for(const auto& scrapPart: *this)
+                if(!dynamic_cast<blockCommentReference*>(scrapPart))
+                    if(!dynamic_cast<fragmentReference*>(scrapPart))
+                        returnString += scrapPart->utf8(l_filePosition);
+            return returnString;
+        }
+    }
+@| utf8 @}
