@@ -25,14 +25,21 @@
 class escapeCharacterDocumentPart : public documentPart {
 private:
     static std::string m_escapementString;
+    bool m_insideScrap;
 public:
-    escapeCharacterDocumentPart(filePosition* l_filePosition) : documentPart(l_filePosition){
+    escapeCharacterDocumentPart(filePosition* l_filePosition, bool insideScrap = false) : documentPart(l_filePosition), m_insideScrap(insideScrap) {
     }
     void setEscapeCharacter(const std::string& escape_Character){
         m_escapementString = escape_Character;
     };
     virtual std::string texUtf8(void) const override {
-        return m_escapementString;
+        if(m_insideScrap)
+            return "@@{\\tt " + m_escapementString + "}\\verb@@";
+        else
+            return m_escapementString;
+    }
+    virtual std::string fileUtf8(filePosition& l_filePosition) const override {
+        return indexableText::progressFilePosition(l_filePosition, m_escapementString);
     }
 };
 @}
