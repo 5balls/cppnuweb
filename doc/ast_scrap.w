@@ -116,8 +116,7 @@ public:
             std::string returnString;
             for(const auto& scrapPart: *this)
                 if(!dynamic_cast<blockCommentReference*>(scrapPart))
-                    if(!dynamic_cast<fragmentReference*>(scrapPart))
-                        returnString += scrapPart->utf8(l_filePosition);
+                    returnString += scrapPart->utf8(l_filePosition);
             return returnString;
         }
     }
