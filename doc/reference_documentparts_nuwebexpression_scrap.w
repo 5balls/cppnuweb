@@ -164,7 +164,7 @@ scrapElement
     }
     | AT_AT
     {
-        throw std::runtime_error("AT_AT\n");
+        $$ = new escapeCharacterDocumentPart($AT_AT,true);
     }
     | WHITESPACE
     {
