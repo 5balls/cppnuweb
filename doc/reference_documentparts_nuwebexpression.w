@@ -47,7 +47,7 @@ nuwebExpression
     }
     | scrap
     {
-        throw std::runtime_error("scrap not implemented\n");
+        $$ = $scrap;
     }
     | fragmentDefinition
     {

@@ -122,9 +122,10 @@ public:
             return nullptr;
         } 
         for(const auto& [currentScrapNumber, l_fragmentDefinition]: fragmentDefinitions){
-            if(l_fragmentDefinition->m_fragmentNameSize != fragmentNameSize) continue;
+            //if(l_fragmentDefinition->m_fragmentNameSize != fragmentNameSize) continue;
             bool fragmentNamesIdentical = true;
             for(unsigned int fragmentNamePart = 0; fragmentNamePart < fragmentNameSize; fragmentNamePart++){
+                if(fragmentNamePart >= l_fragmentDefinition->m_fragmentNameSize) break;
                 fragmentNamePartDefinition* compareFrom = dynamic_cast<fragmentNamePartDefinition*>(l_fragmentDefinition->m_fragmentName->at(fragmentNamePart));
                 if(!compareFrom)
                     throw std::runtime_error("Internal error, could not compare fragment argument!");
