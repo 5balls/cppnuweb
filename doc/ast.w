@@ -44,6 +44,8 @@ We define some classes for our Abstract Syntax Tree. This correspond mostly to t
 
 @i ast_scrapverbatim.w
 
+@i ast_scrapstandalone.w
+
 @i ast_fragmentargument.w
 
 @i ast_useridentifiers.w

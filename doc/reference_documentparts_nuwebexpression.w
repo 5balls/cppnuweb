@@ -47,7 +47,7 @@ nuwebExpression
     }
     | scrap
     {
-        $$ = $scrap;
+        $$ = new scrapStandalone($scrap);
     }
     | fragmentDefinition
     {
