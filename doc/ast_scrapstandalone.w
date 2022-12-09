@@ -25,6 +25,7 @@ private:
 public:
     scrapStandalone(documentPart&& l_documentPart);
     virtual std::string texUtf8(void) const override;
+    virtual void resolveReferences(void) override;
 };
 @| scrapStandalone @}
 
@@ -45,3 +46,17 @@ public:
         return scrap::texUtf8();
     }
 @| texUtf8 @}
+\subsubsection{resolveReferences}
+\indexClassMethod{scrapStandalone}{resolveReferences}
+@d \classImplementation{scrapStandalone}
+@{@%
+    void nuweb::scrapStandalone::resolveReferences(void){
+        if(!empty())
+            for(auto& scrapPart: *this){
+                scrapPart->resolveReferences();
+                fragmentReference* possibleFragmentReference = dynamic_cast<fragmentReference*>(scrapPart);
+                if(possibleFragmentReference)
+                    possibleFragmentReference->setOutsideFragment(true);
+            }
+    }
+@| resolveReferences @}
