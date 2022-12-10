@@ -50,7 +50,7 @@ public:
     unsigned int scrapNumber(void);
     static unsigned int totalNumberOfScraps(void);
     std::string name(void) const;
-    documentPart* scrap(void);
+    documentPart* getScrap(void);
     unsigned int fragmentNameSize(void) const;
     std::vector<unsigned int> referencesInScraps(void) const;
     virtual std::string headerTexUtf8(void) const;
@@ -128,7 +128,10 @@ public:
             //if(l_fragmentDefinition->m_fragmentNameSize != fragmentNameSize) continue;
             bool fragmentNamesIdentical = true;
             for(unsigned int fragmentNamePart = 0; fragmentNamePart < fragmentNameSize; fragmentNamePart++){
-                if(fragmentNamePart >= l_fragmentDefinition->m_fragmentNameSize) break;
+                if(fragmentNamePart >= l_fragmentDefinition->m_fragmentNameSize){
+                    fragmentNamesIdentical = false;
+                    break;
+                }
                 fragmentNamePartDefinition* compareFrom = dynamic_cast<fragmentNamePartDefinition*>(l_fragmentDefinition->m_fragmentName->at(fragmentNamePart));
                 if(!compareFrom)
                     throw std::runtime_error("Internal error, could not compare fragment argument!");
@@ -258,17 +261,20 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
 @d \classImplementation{fragmentDefinition}
 @{@%
     std::string nuweb::fragmentDefinition::name(void) const {
-        return m_fragmentName->texUtf8();
+        if(m_fragmentName)
+            return m_fragmentName->texUtf8();
+        else
+            return "";
     }
 @}
-\subsubsection{scrap}
-\indexClassMethod{fragmentDefinition}{scrap}
+\subsubsection{getScrap}
+\indexClassMethod{fragmentDefinition}{getScrap}
 @d \classImplementation{fragmentDefinition}
 @{@%
-    nuweb::documentPart* nuweb::fragmentDefinition::scrap(void){
+    nuweb::documentPart* nuweb::fragmentDefinition::getScrap(void){
         return m_scrap;
     }
-@}
+@| getScrap @}
 \subsubsection{fragmentNameSize}
 \indexClassMethod{fragmentDefinition}{fragmentNameSize}
 @d \classImplementation{fragmentDefinition}
