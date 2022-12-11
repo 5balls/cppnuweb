@@ -24,6 +24,8 @@ public:
     scrap(const scrap&) = delete;
     scrap(scrap&& l_scrap) : documentPart(std::move(l_scrap)){
     }
+    scrap(documentPart&& l_documentPart) : documentPart(std::move(l_documentPart)){
+    }
     scrap(documentPart* l_documentPart) : documentPart(l_documentPart){
     }
     bool resolveFragmentArguments(documentPart* fragmentName);

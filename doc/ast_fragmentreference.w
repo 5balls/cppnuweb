@@ -26,6 +26,7 @@ private:
     documentPart* m_unresolvedFragmentName;
     unsigned int m_scrapNumber;
     bool m_expandReference;
+    bool m_outsideFragment;
     unsigned int m_leadingSpaces = 0;
 public:
     fragmentReference(documentPart* fragmentName, bool expandReference=false);
@@ -35,6 +36,7 @@ public:
     virtual void resolveReferences(void) override;
     virtual void resolveReferences2(void) override;
     void setExpandReference(bool expandReference);
+    void setOutsideFragment(bool outsideFragment);
     fragmentDefinition* getFragmentDefinition(void) const;
     documentPart* getFragmentName(void) const;
     unsigned int getScrapNumber(void) const;
@@ -46,7 +48,7 @@ public:
 \indexClassMethod{fragmentReference}{fragmentReference}
 @d \classImplementation{fragmentReference}
 @{@%
-    nuweb::fragmentReference::fragmentReference(documentPart* fragmentName, bool expandReference) : m_unresolvedFragmentName(nullptr), m_referenceFragmentName(fragmentName), m_expandReference(expandReference){
+    nuweb::fragmentReference::fragmentReference(documentPart* fragmentName, bool expandReference) : m_unresolvedFragmentName(nullptr), m_referenceFragmentName(fragmentName), m_expandReference(expandReference), m_outsideFragment(false){
         unsigned int fragmentNamePartNumber = 0;
         for(auto& fragmentNamePart: *m_referenceFragmentName){
             fragmentNamePartDefinition* fragmentArgument = dynamic_cast<fragmentNamePartDefinition*>(fragmentNamePart);
@@ -57,13 +59,9 @@ public:
             }
             fragmentNamePartNumber++;
         }
-        m_fragment = fragmentDefinition::fragmentFromFragmentName(fragmentName);
+        m_fragment = fragmentDefinition::fragmentFromFragmentName(m_referenceFragmentName);
         if(!m_fragment)
-            m_unresolvedFragmentName = fragmentName;
-        else{
-            //std::cout << "DEBUG " << this << " " << __LINE__ << " " << __FUNCTION__ << "\n";
-            m_fragment->addReference(this);
-        }
+            m_unresolvedFragmentName = m_referenceFragmentName;
         m_scrapNumber = fragmentDefinition::totalNumberOfScraps() + 1;
     }
 @}
@@ -81,7 +79,12 @@ public:
             return m_fragment->fileUtf8(l_filePosition, m_referenceFragmentName);
         }
         else {
-            std::string returnString = "@@\\hbox{$\\langle\\,${\\itshape ";
+            std::string returnString;
+            if(m_outsideFragment)
+                returnString += "\\verb@@@@";
+            else
+                returnString += "@@\\hbox{";
+            returnString += "$\\langle\\,${\\itshape ";
             for(const auto& m_referenceFragmentNamePart: *m_referenceFragmentName){
                 fragmentNamePartDefinition* referenceNamePart = dynamic_cast<fragmentNamePartDefinition*>(m_referenceFragmentNamePart);
                 if(!referenceNamePart) 
@@ -106,10 +109,15 @@ public:
             if(m_fragment)
                 if(m_fragment->scrapsFromFragment().size() > 1)
                     returnString += ", \\ldots\\ ";
+            returnString += "}$\\,\\rangle$";
+            if(!m_outsideFragment)
+                returnString += "}";
             if(listingsPackageEnabled())
-                returnString += "}$\\,\\rangle$}\\lstinline@@";
+                returnString += "\\lstinline@@";
             else
-                returnString += "}$\\,\\rangle$}\\verb@@";
+                returnString += "\\verb@@";
+            if(m_outsideFragment)
+                returnString += "@@ ";
             return returnString;
         }
     }
@@ -194,20 +202,17 @@ public:
         m_leadingSpaces = this->leadingSpaces();
         if(!m_fragment){
             m_fragment = fragmentDefinition::fragmentFromFragmentName(m_unresolvedFragmentName);
-            // This is inside the if(!m_fragment) because we only want to add the 
-            // reference if we didn't do so already
-            if(m_fragment)
-            {
-                //std::cout << "DEBUG " << this << " " << __LINE__ << " " << __FUNCTION__ << "\n";
-                m_fragment->addReference(this);
-            }
         }
-        if(!m_fragment){
+        if(!m_fragment)
             std::cout << "Could not resolve fragment \"" + m_unresolvedFragmentName->texUtf8() + "\" in file " + m_unresolvedFragmentName->filePositionString() + "\n";
-            return;
-        }
-        if(!m_expandReference) 
-            m_fragment->addReferenceScrapNumber(m_scrapNumber);
+        if(m_fragment && m_fragment->fragmentNameSize() > m_referenceFragmentName->size())
+            for(unsigned int missingFragmentPart = m_referenceFragmentName->size(); missingFragmentPart<m_fragment->fragmentNameSize(); missingFragmentPart++){
+                fragmentNamePartDefinition* fragmentNamePart = m_fragment->findNamePart(missingFragmentPart);
+                if(fragmentNamePart)
+                    m_referenceFragmentName->push_back(fragmentNamePart);
+                else
+                    throw std::runtime_error("Internal error, could not resolve incomplete fragment name in fragmentReference!");
+            }
         for(const auto& referenceFragmentNamePart: *m_referenceFragmentName)
             referenceFragmentNamePart->resolveReferences();
     }
@@ -217,8 +222,12 @@ public:
 @d \classImplementation{fragmentReference}
 @{@%
     void nuweb::fragmentReference::resolveReferences2(void){
+        if(m_fragment && !m_expandReference && !m_outsideFragment)
+            m_fragment->addReferenceScrapNumber(m_scrapNumber);
         for(const auto& referenceFragmentNamePart: *m_referenceFragmentName)
             referenceFragmentNamePart->resolveReferences2();
+        if(m_fragment && !m_outsideFragment)
+            m_fragment->addReference(this);
     }
 @| resolveReferences2 @}
 \subsubsection{setExpandReference}
@@ -229,6 +238,14 @@ public:
         m_expandReference = expandReference;
     }
 @| setExpandReference @}
+\subsubsection{setOutsideFragment}
+\indexClassMethod{fragmentReference}{setOutsideFragment}
+@d \classImplementation{fragmentReference}
+@{@%
+    void nuweb::fragmentReference::setOutsideFragment(bool outsideFragment){
+        m_outsideFragment = outsideFragment;
+    }
+@| setOutsideFragment @}
 \subsubsection{getFragmentDefinition}
 \indexClassMethod{fragmentReference}{getFragmentDefinition}
 @d \classImplementation{fragmentReference}

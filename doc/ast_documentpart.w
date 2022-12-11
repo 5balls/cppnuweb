@@ -32,6 +32,7 @@ namespace nuweb {
 @<\classDeclaration{escapeCharacterDocumentPart}@>
 @<\classDeclaration{scrap}@>
 @<\classDeclaration{scrapVerbatim}@>
+@<\classDeclaration{scrapStandalone}@>
 @<\classDeclaration{fragmentDefinition}@>
 @<\classDeclaration{fragmentNamePartDefinition}@>
 @<\classDeclaration{fragmentNamePartText}@>
@@ -127,8 +128,9 @@ public:
 @<\classImplementation{fragmentNamePartArgumentString}@>
 @<\classImplementation{fragmentNamePartArgumentFragmentName}@>
 @<\classImplementation{outputFile}@>
-@<\classImplementation{scrapVerbatim}@>
 @<\classImplementation{scrap}@>
+@<\classImplementation{scrapVerbatim}@>
+@<\classImplementation{scrapStandalone}@>
 @<\classImplementation{fragmentArgument}@>
 @<\classImplementation{userIdentifiers}@>
 @<\classImplementation{indexFragmentNames}@>

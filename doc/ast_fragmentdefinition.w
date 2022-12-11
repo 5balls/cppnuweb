@@ -21,6 +21,7 @@
 @{@%
 class fragmentReference;
 class fragmentNamePartText;
+class fragmentNamePartDefinition;
 
 class fragmentDefinition : public documentPart {
 private:
@@ -44,11 +45,13 @@ public:
     static std::vector<documentPart*> fragmentDefinitionsNames(void);
     static std::vector<unsigned int> fragmentDefinitionsScrapNumbers(void);
     fragmentNamePartText* findLongFormNamePart(unsigned int argumentNumber);
+    fragmentNamePartDefinition* findNamePart(unsigned int argumentNumber);
     void addReferenceScrapNumber(unsigned int scrapNumber);
     unsigned int scrapNumber(void);
     static unsigned int totalNumberOfScraps(void);
     std::string name(void) const;
-    documentPart* scrap(void);
+    documentPart* getScrap(void);
+    unsigned int fragmentNameSize(void) const;
     std::vector<unsigned int> referencesInScraps(void) const;
     virtual std::string headerTexUtf8(void) const;
     virtual std::string referencesTexUtf8(void) const;
@@ -79,7 +82,7 @@ public:
 \indexClassMethod{fragmentDefinition}{fragmentDefinition}
 @d \classImplementation{fragmentDefinition}
 @{@%
-    nuweb::fragmentDefinition::fragmentDefinition(documentPart* l_fragmentName, documentPart* l_scrap, bool pageBreak) : m_fragmentName(l_fragmentName), m_currentScrapNumber(++m_scrapNumber), m_fragmentNameSize(m_fragmentName->size()), m_pageBreak(pageBreak){
+    nuweb::fragmentDefinition::fragmentDefinition(documentPart* l_fragmentName, documentPart* l_scrap, bool pageBreak) : m_fragmentName(l_fragmentName), m_currentScrapNumber(++m_scrapNumber), m_fragmentNameSize(m_fragmentName->size()), m_pageBreak(pageBreak), m_referencesInScraps({}){
         unsigned int fragmentNamePartNumber = 0;
         for(auto& fragmentNamePart: *m_fragmentName){
             fragmentNamePartDefinition* fragmentArgument = dynamic_cast<fragmentNamePartDefinition*>(fragmentNamePart);
@@ -122,9 +125,13 @@ public:
             return nullptr;
         } 
         for(const auto& [currentScrapNumber, l_fragmentDefinition]: fragmentDefinitions){
-            if(l_fragmentDefinition->m_fragmentNameSize != fragmentNameSize) continue;
+            //if(l_fragmentDefinition->m_fragmentNameSize != fragmentNameSize) continue;
             bool fragmentNamesIdentical = true;
             for(unsigned int fragmentNamePart = 0; fragmentNamePart < fragmentNameSize; fragmentNamePart++){
+                if(fragmentNamePart >= l_fragmentDefinition->m_fragmentNameSize){
+                    fragmentNamesIdentical = false;
+                    break;
+                }
                 fragmentNamePartDefinition* compareFrom = dynamic_cast<fragmentNamePartDefinition*>(l_fragmentDefinition->m_fragmentName->at(fragmentNamePart));
                 if(!compareFrom)
                     throw std::runtime_error("Internal error, could not compare fragment argument!");
@@ -254,17 +261,28 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
 @d \classImplementation{fragmentDefinition}
 @{@%
     std::string nuweb::fragmentDefinition::name(void) const {
-        return m_fragmentName->texUtf8();
+        if(m_fragmentName)
+            return m_fragmentName->texUtf8();
+        else
+            return "";
     }
 @}
-\subsubsection{scrap}
-\indexClassMethod{fragmentDefinition}{scrap}
+\subsubsection{getScrap}
+\indexClassMethod{fragmentDefinition}{getScrap}
 @d \classImplementation{fragmentDefinition}
 @{@%
-    nuweb::documentPart* nuweb::fragmentDefinition::scrap(void){
+    nuweb::documentPart* nuweb::fragmentDefinition::getScrap(void){
         return m_scrap;
     }
-@}
+@| getScrap @}
+\subsubsection{fragmentNameSize}
+\indexClassMethod{fragmentDefinition}{fragmentNameSize}
+@d \classImplementation{fragmentDefinition}
+@{@%
+    unsigned int nuweb::fragmentDefinition::fragmentNameSize(void) const{
+        return m_fragmentNameSize;
+    }
+@| fragmentNameSize @}
 \subsubsection{headerTexUtf8}
 \indexClassMethod{fragmentDefinition}{headerTexUtf8}
 @d \classImplementation{fragmentDefinition}
@@ -625,7 +643,7 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
 @d \classImplementation{fragmentDefinition}
 @{@%
     nuweb::fragmentNamePartText* nuweb::fragmentDefinition::findLongFormNamePart(unsigned int namePartNumber){
-       if(m_fragmentNameSize>=namePartNumber){
+       if(m_fragmentNameSize>namePartNumber){
            fragmentNamePartText* possibleLongForm = dynamic_cast<fragmentNamePartText*>(m_fragmentName->at(namePartNumber));
            if(possibleLongForm)
                if(!possibleLongForm->isShortened())
@@ -633,7 +651,7 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
        }
        for(const auto& reference: m_references){
            documentPart* referenceName = reference->getFragmentName();
-           if(referenceName->size() < namePartNumber)
+           if(referenceName->size() <= namePartNumber)
                continue;
            fragmentNamePartText* possibleLongForm = dynamic_cast<fragmentNamePartText*>(referenceName->at(namePartNumber));
            if(possibleLongForm)
@@ -643,3 +661,16 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
        return nullptr;
     }
 @| findLongFormNamePart @}
+\subsubsection{findNamePart}
+\indexClassMethod{fragmentDefinition}{findNamePart}
+@d \classImplementation{fragmentDefinition}
+@{@%
+    nuweb::fragmentNamePartDefinition* nuweb::fragmentDefinition::findNamePart(unsigned int namePartNumber){
+        fragmentNamePartText* possibleLongFormNamePart = findLongFormNamePart(namePartNumber);
+        if(possibleLongFormNamePart)
+            return possibleLongFormNamePart;
+        if(m_fragmentNameSize>namePartNumber)
+            return dynamic_cast<fragmentNamePartDefinition*>(m_fragmentName->at(namePartNumber));
+        return nullptr;
+    }
+@| findNamePart @}
