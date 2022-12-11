@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
     auto versionOption = l_optionParser.add<popl::Value<std::string> >("V","","Provide string as the replacement for the @@v operation.");
     /*auto suppressScrapList = l_optionParser.add<popl::Switch>("s","","Don't print list of scraps making up a file at end of each scrap.");*/
     auto includeCrossReference = l_optionParser.add<popl::Switch>("x","","Include cross-reference numbers in the comments of scraps.");
-    /*auto hyperrefOptions = l_optionParser.add<popl::Value<std::string> >("h","","Provide options for the hyperref package.");*/
+    auto hyperrefOptions = l_optionParser.add<popl::Value<std::string> >("h","","Provide options for the hyperref package.");
     auto hyperLinks = l_optionParser.add<popl::Switch>("r","hyperlinks","Turn on hyperlinks. You must include the —usepackage— options in the text");
     l_optionParser.parse(argc, argv);
     if(l_optionParser.non_option_args().size() != 1){
@@ -82,12 +82,14 @@ int main(int argc, char *argv[])
     }
     // Set some command line options
     nuwebAstEntry->setListingsPackageEnabled(listingsPackage->is_set());
-    nuwebAstEntry->setHyperlinksEnabled(hyperLinks->is_set());
+    nuwebAstEntry->setHyperlinksEnabled(hyperLinks->is_set() || hyperrefOptions->is_set());
     nuwebAstEntry->setIncludeCrossReferenceEnabled(includeCrossReference->is_set());
     if(versionOption->is_set())
         nuwebAstEntry->setVersionString(versionOption->value(0));
     else
         nuwebAstEntry->setVersionString("no version");
+    if(hyperrefOptions->is_set())
+        nuwebAstEntry->setHyperrefOptions(hyperrefOptions->value(0));
     // Parse aux file
     std::string auxFileName;
     try{

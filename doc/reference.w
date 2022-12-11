@@ -127,8 +127,11 @@ public:
 \newcommand{\NWtxtIdentsDefed}{Defines:}
 \newcommand{\NWsep}{${\diamond}$}
 \newcommand{\NWnotglobal}{(not defined globally)}
-\newcommand{\NWuseHyperlinks}{}
 )definitions";
+        if(m_hypperrefOptions.empty())
+            returnString += "\\newcommand{\\NWuseHyperlinks}{}\n";
+        else
+            returnString += "\\newcommand{\\NWuseHyperlinks}{\\usepackage[" + m_hypperrefOptions + "]{hyperref}}\n";
         returnString += documentPart::texUtf8();
         return returnString;
     }
