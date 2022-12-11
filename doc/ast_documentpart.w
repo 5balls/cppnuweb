@@ -34,6 +34,7 @@ namespace nuweb {
 @<\classDeclaration{scrapVerbatim}@>
 @<\classDeclaration{scrapStandalone}@>
 @<\classDeclaration{fragmentDefinition}@>
+@<\classDeclaration{fragmentQuoted}@>
 @<\classDeclaration{fragmentNamePartDefinition}@>
 @<\classDeclaration{fragmentNamePartText}@>
 @<\classDeclaration{fragmentNamePartArgument}@>
@@ -49,6 +50,7 @@ namespace nuweb {
 @<\classDeclaration{crossReference}@>
 @<\classDeclaration{blockComment}@>
 @<\classDeclaration{blockCommentReference}@>
+@<\classDeclaration{currentFile}@>
 }
 @<End of header@>
 @}
@@ -83,6 +85,7 @@ public:
     virtual std::string utf8LineNumber(filePosition& l_filePosition) const;
     virtual std::string texUtf8() const;
     virtual std::string fileUtf8(filePosition& l_filePosition) const;
+    virtual std::string quotedFileUtf8(filePosition& l_filePosition) const;
     virtual std::string fileUtf8LineNumber(filePosition& l_filePosition) const;
     virtual void resolveReferences(void);
     virtual void resolveReferences2(void);
@@ -121,6 +124,7 @@ public:
 
 @<\classImplementation{documentPart}@>
 @<\classImplementation{fragmentDefinition}@>
+@<\classImplementation{fragmentQuoted}@>
 @<\classImplementation{fragmentReference}@>
 @<\classImplementation{fragmentNamePartDefinition}@>
 @<\classImplementation{fragmentNamePartText}@>
@@ -138,6 +142,7 @@ public:
 @<\classImplementation{crossReference}@>
 @<\classImplementation{blockComment}@>
 @<\classImplementation{blockCommentReference}@>
+@<\classImplementation{currentFile}@>
 @}
 
 \subsubsection{documentPart}
@@ -361,6 +366,21 @@ std::string nuweb::documentPart::fileUtf8(filePosition& l_filePosition) const{
     return returnString;
 }
 @}
+\subsubsection{quotedFileUtf8}
+\indexClassMethod{documentPart}{quotedFileUtf8}
+@d \classImplementation{documentPart}
+@{@%
+    std::string nuweb::documentPart::quotedFileUtf8(filePosition& l_filePosition) const{
+        std::string returnString;
+        if(empty())
+            return fileUtf8(l_filePosition);
+        else
+            for(auto& documentPart: *this)
+                returnString += documentPart->quotedFileUtf8(l_filePosition);
+        return returnString;
+
+    }
+@| quotedFileUtf8 @}
 \subsubsection{fileUtf8LineNumber}
 \indexClassMethod{documentPart}{fileUtf8LineNumber}
 @d \classImplementation{documentPart}

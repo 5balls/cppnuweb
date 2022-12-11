@@ -65,7 +65,7 @@ We try to use the Flex and Bison programs to create our parser.
 @<Lexer rule for cross reference@>
 <INITIAL>@@o { start(outputFileHeader); TOKEN(AT_SMALL_O) }
 <INITIAL>@@O { start(outputFileHeader); TOKEN(AT_LARGE_O) }
-<INITIAL>@@f { TOKEN(AT_SMALL_F) }
+<scrapContents>@@f { TOKEN(AT_SMALL_F) }
 @<Lexer rules for regular nuweb commands@>
 @<Lexer rules for fragment headers and references@>
 <INITIAL,outputFileHeader,fragmentHeader>[@@][{] { start(scrapContents); TOKEN(AT_CURLY_BRACKET_OPEN) }

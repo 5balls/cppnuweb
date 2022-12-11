@@ -33,6 +33,7 @@ public:
     virtual std::string utf8(filePosition& l_filePosition) const override;
     virtual std::string texUtf8(void) const override;
     virtual std::string fileUtf8(filePosition& l_filePosition) const override;
+    virtual std::string quotedFileUtf8(filePosition& l_filePosition) const override;
     virtual void resolveReferences(void) override;
     virtual void resolveReferences2(void) override;
     void setExpandReference(bool expandReference);
@@ -194,6 +195,26 @@ public:
         return returnString;
     }
 @| fileUtf8 @}
+\subsubsection{quotedFileUtf8}
+\indexClassMethod{fragmentReference}{quotedFileUtf8}
+@d \classImplementation{fragmentReference}
+@{@%
+    std::string nuweb::fragmentReference::quotedFileUtf8(filePosition& l_filePosition) const{
+        std::string fragmentNameString;
+        for(const auto& m_referenceFragmentNamePart: *m_referenceFragmentName){
+            fragmentNamePartDefinition* referenceNamePart = dynamic_cast<fragmentNamePartDefinition*>(m_referenceFragmentNamePart);
+            filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
+            if(!referenceNamePart) 
+                throw std::runtime_error("Internal error, could not get fragment reference name correctly!");
+            if(dynamic_cast<fragmentNamePartArgumentString*>(referenceNamePart))
+                fragmentNameString += "@@'" + referenceNamePart->utf8(ll_filePosition) + "@@'";
+            else
+                fragmentNameString += referenceNamePart->fileUtf8(ll_filePosition);
+        }
+        return "@@<" + fragmentNameString + "@@>";
+    }
+@| quotedFileUtf8 @}
+
 \subsubsection{resolveReferences}
 \indexClassMethod{fragmentReference}{resolveReferences}
 @d \classImplementation{fragmentReference}

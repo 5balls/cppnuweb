@@ -29,6 +29,7 @@ public:
     fragmentNamePartText(filePosition* l_filePosition);
     fragmentNamePartText(documentPart&& l_documentPart);
     virtual std::string texUtf8(void) const override;
+    virtual std::string fileUtf8(filePosition& l_filePosition) const override;
     virtual void resolveReferences2(void) override;
     bool isShortened(void);
 };
@@ -95,6 +96,17 @@ public:
         return expandedFragmentNamePart;
     }
 @| texUtf8 @}
+\subsubsection{fileUtf8}
+\indexClassMethod{fragmentNamePartText}{fileUtf8}
+@d \classImplementation{fragmentNamePartText}
+@{@%
+    std::string nuweb::fragmentNamePartText::fileUtf8(filePosition& l_filePosition) const{
+        if(m_isShortened && m_longForm)
+            return m_longForm->fileUtf8(l_filePosition);
+        else
+            return fragmentNamePartDefinition::fileUtf8(l_filePosition);
+    }
+@| fileUtf8 @}
 \subsubsection{resolveReferences2}
 \indexClassMethod{fragmentNamePartText}{resolveReferences2}
 @d \classImplementation{fragmentNamePartText}

@@ -26,6 +26,8 @@ We define some classes for our Abstract Syntax Tree. This correspond mostly to t
 
 @i ast_fragmentdefinition.w
 
+@i ast_fragmentquoted.w
+
 @i ast_fragmentreference.w
 
 @i ast_fragmentnamepartdefinition.w
@@ -59,3 +61,5 @@ We define some classes for our Abstract Syntax Tree. This correspond mostly to t
 @i ast_blockcomment.w
 
 @i ast_blockcommentreference.w
+
+@i ast_currentfile.w
