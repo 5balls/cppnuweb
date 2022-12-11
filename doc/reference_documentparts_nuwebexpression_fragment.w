@@ -86,10 +86,10 @@ fragmentDefinition
                 $$ = new fragmentDefinition($fragmentNameDefinition, $scrap, true);
                 break;
             case fragmentType::QUOTED:
-                throw std::runtime_error("fragmentType::QUOTED not implemented\n");
+                $$ = new fragmentQuoted($fragmentNameDefinition, $scrap);
                 break;
             case fragmentType::QUOTED_PAGEBREAK:
-                throw std::runtime_error("fragmentType::QUOTED_PAGEBREAK not implemented\n");
+                $$ = new fragmentQuoted($fragmentNameDefinition, $scrap, true);
                 break;
             default:
                 throw std::runtime_error("Unknown fragmentType in fragmentDefinition!\n");

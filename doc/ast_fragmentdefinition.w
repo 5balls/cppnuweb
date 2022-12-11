@@ -64,8 +64,8 @@ public:
     std::string fileUtf8(filePosition& l_filePosition, documentPart* fragmentName) const;
     virtual void resolveReferences(void) override;
     virtual void resolveReferences2(void) override;
-    std::string scrapFileUtf8(filePosition& l_filePosition) const;
-    std::string scrapFileUtf8(filePosition& l_filePosition, documentPart* fragmentName) const;
+    virtual std::string scrapFileUtf8(filePosition& l_filePosition) const;
+    virtual std::string scrapFileUtf8(filePosition& l_filePosition, documentPart* fragmentName) const;
     void addReference(fragmentReference*);
 };
 @| fragmentDefinition @}
