@@ -74,6 +74,7 @@ protected:
     static bool m_includeCrossReferenceEnabled;
     static std::string m_versionString;
     static bool m_insideBlock;
+    static std::string m_hypperrefOptions;
 public:
     documentPart(const documentPart&) = delete;
     documentPart(void);
@@ -99,6 +100,8 @@ public:
     static bool includeCrossReferenceEnabled(void);
     void setVersionString(const std::string & versionString);
     static std::string versionString(void);
+    void setHyperrefOptions(const std::string & hypperrefOptionsString);
+    static std::string hypperrefOptions(void);
     unsigned int leadingSpaces(void) const;
     bool setFilePosition(filePosition* l_filePosition);
 };
@@ -244,6 +247,15 @@ public:
     }
 @| setVersionString @}
 
+\subsubsection{setHyperrefOptions}
+\indexClassMethod{documentPart}{setHyperrefOptions}
+@d \classImplementation{documentPart}
+@{@%
+    void nuweb::documentPart::setHyperrefOptions(const std::string& hypperrefOptionsString){
+       m_hypperrefOptions = hypperrefOptionsString; 
+    }
+@| setHyperrefOptions @}
+
 \subsubsection{versionString}
 \indexClassMethod{documentPart}{versionString}
 @d \classImplementation{documentPart}
@@ -252,6 +264,15 @@ public:
         return m_versionString;
     }
 @| versionString @}
+
+\subsubsection{hypperrefOptions}
+\indexClassMethod{documentPart}{hypperrefOptions}
+@d \classImplementation{documentPart}
+@{@%
+    std::string nuweb::documentPart::hypperrefOptions(void){
+       return m_hypperrefOptions; 
+    }
+@| hypperrefOptions @}
 
 \subsubsection{includeCrossReferenceEnabled}
 \indexClassMethod{documentPart}{includeCrossReferenceEnabled}
