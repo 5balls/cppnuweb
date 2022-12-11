@@ -203,11 +203,9 @@ public:
         if(!m_fragment){
             m_fragment = fragmentDefinition::fragmentFromFragmentName(m_unresolvedFragmentName);
         }
-        if(!m_fragment){
+        if(!m_fragment)
             std::cout << "Could not resolve fragment \"" + m_unresolvedFragmentName->texUtf8() + "\" in file " + m_unresolvedFragmentName->filePositionString() + "\n";
-            return;
-        }
-        if(m_fragment->fragmentNameSize() > m_referenceFragmentName->size())
+        if(m_fragment && m_fragment->fragmentNameSize() > m_referenceFragmentName->size())
             for(unsigned int missingFragmentPart = m_referenceFragmentName->size(); missingFragmentPart<m_fragment->fragmentNameSize(); missingFragmentPart++){
                 fragmentNamePartDefinition* fragmentNamePart = m_fragment->findNamePart(missingFragmentPart);
                 if(fragmentNamePart)
@@ -215,11 +213,8 @@ public:
                 else
                     throw std::runtime_error("Internal error, could not resolve incomplete fragment name in fragmentReference!");
             }
-        if(!m_expandReference) 
-            m_fragment->addReferenceScrapNumber(m_scrapNumber);
         for(const auto& referenceFragmentNamePart: *m_referenceFragmentName)
             referenceFragmentNamePart->resolveReferences();
-std::cout << "DEBUG " << __FILE__ << " " << __FUNCTION__ << " " << __LINE__ << " " << "\n"; 
     }
 @| resolveReferences @}
 \subsubsection{resolveReferences2}
@@ -227,15 +222,12 @@ std::cout << "DEBUG " << __FILE__ << " " << __FUNCTION__ << " " << __LINE__ << "
 @d \classImplementation{fragmentReference}
 @{@%
     void nuweb::fragmentReference::resolveReferences2(void){
+        if(m_fragment && !m_expandReference && !m_outsideFragment)
+            m_fragment->addReferenceScrapNumber(m_scrapNumber);
         for(const auto& referenceFragmentNamePart: *m_referenceFragmentName)
             referenceFragmentNamePart->resolveReferences2();
-
         if(m_fragment && !m_outsideFragment)
-        {
-std::cout << "DEBUG " << __FILE__ << " " << __FUNCTION__ << " " << __LINE__ << " " << "\n"; 
             m_fragment->addReference(this);
-        }
-std::cout << "DEBUG " << __FILE__ << " " << __FUNCTION__ << " " << __LINE__ << " " << "\n"; 
     }
 @| resolveReferences2 @}
 \subsubsection{setExpandReference}
@@ -252,7 +244,6 @@ std::cout << "DEBUG " << __FILE__ << " " << __FUNCTION__ << " " << __LINE__ << "
 @{@%
     void nuweb::fragmentReference::setOutsideFragment(bool outsideFragment){
         m_outsideFragment = outsideFragment;
-std::cout << "DEBUG " << __FILE__ << " " << __FUNCTION__ << " " << __LINE__ << " " << "\n"; 
     }
 @| setOutsideFragment @}
 \subsubsection{getFragmentDefinition}

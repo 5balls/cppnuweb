@@ -82,7 +82,7 @@ public:
 \indexClassMethod{fragmentDefinition}{fragmentDefinition}
 @d \classImplementation{fragmentDefinition}
 @{@%
-    nuweb::fragmentDefinition::fragmentDefinition(documentPart* l_fragmentName, documentPart* l_scrap, bool pageBreak) : m_fragmentName(l_fragmentName), m_currentScrapNumber(++m_scrapNumber), m_fragmentNameSize(m_fragmentName->size()), m_pageBreak(pageBreak){
+    nuweb::fragmentDefinition::fragmentDefinition(documentPart* l_fragmentName, documentPart* l_scrap, bool pageBreak) : m_fragmentName(l_fragmentName), m_currentScrapNumber(++m_scrapNumber), m_fragmentNameSize(m_fragmentName->size()), m_pageBreak(pageBreak), m_referencesInScraps({}){
         unsigned int fragmentNamePartNumber = 0;
         for(auto& fragmentNamePart: *m_fragmentName){
             fragmentNamePartDefinition* fragmentArgument = dynamic_cast<fragmentNamePartDefinition*>(fragmentNamePart);
