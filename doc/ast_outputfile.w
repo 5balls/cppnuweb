@@ -24,6 +24,8 @@ private:
     std::string m_filename;
     static std::vector<fragmentDefinition*> m_outputFiles;
     std::vector<enum outputFileFlags> m_flags;
+    static std::vector<std::vector<enum outputFileFlags> > m_allFlags;
+    static std::vector<enum outputFileFlags> m_currentFlags;
 public:
     outputFile(documentPart* l_fileName, documentPart* l_scrap, bool pageBreak = false, std::vector<enum outputFileFlags> flags={});
     virtual std::string headerTexUtf8(void) const override;
@@ -31,12 +33,15 @@ public:
     virtual std::string fileUtf8(filePosition& l_filePosition) const override;
     virtual std::string definedByTexUtf8(void) const override;
     static void writeFiles(void);
+    static std::vector<enum outputFileFlags> currentFlags(void);
 };
 @| outputFile @}
 
 @d \staticDefinitions{outputFile}
 @{@%
     std::vector<nuweb::fragmentDefinition*> nuweb::outputFile::m_outputFiles = {};
+    std::vector<enum nuweb::outputFileFlags> nuweb::outputFile::m_currentFlags = {};
+    std::vector<std::vector<enum nuweb::outputFileFlags> > nuweb::outputFile::m_allFlags = {};
 @| m_outputFiles @}
 
 \subsection{Implementation}
@@ -50,8 +55,10 @@ public:
         fragmentDefinition* firstFragment = fragmentFromFragmentName(m_fragmentName);
         if(!firstFragment)
             throw std::runtime_error("Internal error, could not get first scrap of outputfile!");
-        if(find(m_outputFiles.begin(),m_outputFiles.end(),firstFragment)==m_outputFiles.end())
+        if(find(m_outputFiles.begin(),m_outputFiles.end(),firstFragment)==m_outputFiles.end()){
             m_outputFiles.push_back(firstFragment);
+            m_allFlags.push_back(flags);
+        }
 
     }
 @| outputFile @}
@@ -101,7 +108,9 @@ public:
 @d \classImplementation{outputFile}
 @{@%
     void nuweb::outputFile::writeFiles(void){
+        unsigned int currentOutputFileIndex = 0;
         for(const auto& outputFile: m_outputFiles){
+            m_currentFlags = m_allFlags.at(currentOutputFileIndex);
             std::string outputFileName = outputFile->name();
             filePosition l_filePosition(outputFileName, 0, 0, 0, 0);
             std::ofstream outputFileStream;
@@ -119,9 +128,18 @@ public:
             //outputFileStream.open(outputFile->name());
             outputFileStream << outputFileContent;
             outputFileStream.close();
+            currentOutputFileIndex++;
         }
     }
 @| writeFiles @}
+\subsubsection{currentFlags}
+\indexClassMethod{outputFile}{currentFlags}
+@d \classImplementation{outputFile}
+@{@%
+    std::vector<enum nuweb::outputFileFlags> nuweb::outputFile::currentFlags(void){
+       return m_currentFlags; 
+    }
+@| currentFlags @}
 \subsubsection{definedByTexUtf8}
 \indexClassMethod{outputFile}{definedByTexUtf8}
 @d \classImplementation{outputFile}

@@ -90,17 +90,23 @@ outputFlag
     {
         $$ = outputFileFlags::C_COMMENTS;
     }
+    | MINUS_C_PLUS
+    {
+        $$ = outputFileFlags::CPP_COMMENTS;
+    }
 ;
 @| outputFlag @}
 
 @d Lexer rules for output file flags
 @{<outputFileHeader>-d { TOKEN(MINUS_D) }
 <outputFileHeader>-cc { TOKEN(MINUS_C_C) }
+<outputFileHeader>-c\+ { TOKEN(MINUS_C_PLUS) }
 @}
 
 @d Bison token definitions
 @{%token MINUS_D
 %token MINUS_C_C
+%token MINUS_C_PLUS
 @}
 
 @d Bison rules
