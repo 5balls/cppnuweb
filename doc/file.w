@@ -352,6 +352,7 @@ void nuweb::tagableText::addFeature(const std::string& name, const range& l_rang
 #include "utfcpp-3.2.1/source/utf8.h"
 #include <sstream>
 #include <iostream>
+#include <filesystem>
 #include "definitions.h"
 
 namespace nuweb {
@@ -369,9 +370,11 @@ class file : public indexableText {
 public:
     file(std::string filename);
     static file* byName(const std::string& filename);
+    static void addPath(const std::string& path);
 private:
-    std::string m_filename;
+    std::filesystem::path m_filename;
     static std::map<std::string, file*> m_allFiles;
+    static std::vector<std::filesystem::path> m_includePaths;
 };
 @}
 \subsection{Implementation}
@@ -391,6 +394,7 @@ private:
 @d \classImplementation{file}
 @{
 std::map<std::string, nuweb::file*> nuweb::file::m_allFiles = {};
+std::vector<std::filesystem::path> nuweb::file::m_includePaths = {};
 int nuweb::indexableText::m_lastIndentedLine = -1;
 unsigned int nuweb::indexableText::m_currentLine = 0;
 @| m_allFiles @}
@@ -400,21 +404,31 @@ unsigned int nuweb::indexableText::m_currentLine = 0;
 @d \classImplementation{file}
 @{
 nuweb::file::file(std::string filename) : m_filename(filename){
+    if(!std::filesystem::exists(m_filename))
+        for(const auto& includePath: m_includePaths)
+            if(std::filesystem::exists(includePath / m_filename)){
+                m_filename = includePath / m_filename;
+                break;
+            }
     std::ifstream fileStream(m_filename);
-    if(!fileStream.is_open())
-        throw std::runtime_error("Could not open file \"" + m_filename + "\"");
-    std::string line;
-    try {
-        while(std::getline(fileStream, line))
-            addLine(line, fileStream.rdstate());
-        //if(fileStream.rdstate() != std::ios_base::eofbit)
-        //    addLine("\n", fileStream.rdstate());
+    if(!fileStream.is_open()){
+        std::cout << "Could not open file \"" + std::string(m_filename) + "\"\n";
+        addLine("",std::ios_base::eofbit);
     }
-    catch(const std::runtime_error& error) {
-        throw std::runtime_error("Error while reading file \"" + m_filename + "\": " + error.what());
-    }
-    catch(...) {
-        throw std::runtime_error("Error while reading file \"" + m_filename + "\"");
+    else{
+        std::string line;
+        try {
+            while(std::getline(fileStream, line))
+                addLine(line, fileStream.rdstate());
+            //if(fileStream.rdstate() != std::ios_base::eofbit)
+            //    addLine("\n", fileStream.rdstate());
+        }
+        catch(const std::runtime_error& error) {
+            throw std::runtime_error("Error while reading file \"" + std::string(m_filename) + "\": " + error.what());
+        }
+        catch(...) {
+            throw std::runtime_error("Error while reading file \"" + std::string(m_filename) + "\"");
+        }
     }
     m_allFiles[filename] = this;
 }
@@ -429,4 +443,12 @@ nuweb::file* nuweb::file::byName(const std::string& filename){
 }
 @| file byName @}
 
+\subsubsection{addPath}
+\indexClassMethod{file}{addPath}
+@d \classImplementation{file}
+@{@%
+    void nuweb::file::addPath(const std::string& path){
+        m_includePaths.push_back(std::filesystem::path(path));
+    }
+@| addPath @}
 
