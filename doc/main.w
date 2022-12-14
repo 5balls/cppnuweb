@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
     try{
         auxFileName = filename.substr(0,filename.find_last_of('.')) + ".aux";
         nuweb::auxFile l_auxFile(auxFileName);
-        nuwebAstEntry->setAuxFileParsed(true);
+        nuwebAstEntry->setAuxFileParsed(file::byName(auxFileName));
     }
     catch(std::runtime_error& e){
         std::cout << "Parsing aux file \"" + auxFileName + "\" failed with error:\n  " << e.what() << std::endl;

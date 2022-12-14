@@ -429,8 +429,8 @@ nuweb::file::file(std::string filename) : m_filename(filename){
         catch(...) {
             throw std::runtime_error("Error while reading file \"" + std::string(m_filename) + "\"");
         }
+        m_allFiles[filename] = this;
     }
-    m_allFiles[filename] = this;
 }
 @| file @}
 
