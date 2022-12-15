@@ -38,20 +38,22 @@ Treating include files is interesting, because we do it on the lexer level in th
 \indexFlexRule{INCLUDE_FILE}
 @d Lexer rule for including files
 @{@%
-@@i[ ][^\n]+[[:space:]]* { include_file(); return yy::parser::token::yytokentype::INCLUDE_FILE; }@| INCLUDE_FILE @}
+@@i[ ][^\n]+[[:space:]]* { if(include_file()) return yy::parser::token::yytokentype::INCLUDE_FILE; else return yy::parser::token::yytokentype::INCLUDE_FILE_ACCESS_ERROR; }@| INCLUDE_FILE @}
 
 Token\footnote{\begin{samepage}\noindent Token:@d Bison token definitions
 @{%token INCLUDE_FILE
-@| INCLUDE_FILE @}\end{samepage}} and type\footnote{\begin{samepage}\noindent Type:@d Bison type definitions
+%token INCLUDE_FILE_ACCESS_ERROR
+@| INCLUDE_FILE INCLUDE_FILE_ACCESS_ERROR @}\end{samepage}} and type\footnote{\begin{samepage}\noindent Type:@d Bison type definitions
 @{%type <m_filePosition> INCLUDE_FILE;
-@| INCLUDE_FILE @}\end{samepage}} are defined as usual.
+%type <m_filePosition> INCLUDE_FILE_ACCESS_ERROR;
+@| INCLUDE_FILE INCLUDE_FILE_ACCESS_ERROR @}\end{samepage}} are defined as usual.
 
 Now let's get to the magic function \codecpp\lstinline{include_file()}:
 
 \indexClassMethod{helpLexer}{include\_file}
 @D Implementation of additional helpLexer functions
 @{
-void include_file(){
+bool include_file(){
     // @xinclude_file_1@x Get filename:
     std::string filename = std::string(yytext, yyleng);
     // @xinclude_file_2@x Remove '@@i '
@@ -67,12 +69,16 @@ void include_file(){
     // @xinclude_file_4@x Read file:
     nuweb::file* currentFile = new nuweb::file(filename);
     // @xinclude_file_5@x Remember current file:
-    filenameStack.push_back(filename);
+    if(file::byName(filename))
+        filenameStack.push_back(filename);
+    else
+        return false;
     // @xinclude_file_6@x Start new matcher:
     utf8Stream = new std::istringstream(currentFile->utf8());
     push_matcher(new_matcher(*utf8Stream));
     if(!has_matcher())
         throw std::runtime_error("Internal program error, current parser matcher not usable!\n");
+    return true;
 }
 @| include_file() @}
 

@@ -420,8 +420,8 @@ nuweb::file::file(std::string filename) : m_filename(filename){
         try {
             while(std::getline(fileStream, line))
                 addLine(line, fileStream.rdstate());
-            //if(fileStream.rdstate() != std::ios_base::eofbit)
-            //    addLine("\n", fileStream.rdstate());
+            if(fileStream.rdstate() != std::ios_base::eofbit)
+                addLine("", fileStream.rdstate());
         }
         catch(const std::runtime_error& error) {
             throw std::runtime_error("Error while reading file \"" + std::string(m_filename) + "\": " + error.what());
