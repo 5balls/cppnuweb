@@ -56,6 +56,7 @@ int main(int argc, char *argv[])
     auto includeCrossReference = l_optionParser.add<popl::Switch>("x","","Include cross-reference numbers in the comments of scraps.");
     auto hyperrefOptions = l_optionParser.add<popl::Value<std::string> >("h","","Provide options for the hyperref package.");
     auto hyperLinks = l_optionParser.add<popl::Switch>("r","hyperlinks","Turn on hyperlinks. You must include the —usepackage— options in the text");
+    auto includePath = l_optionParser.add<popl::Value<std::string> >("I","","Provide additional directories to be searched for include files.");
     l_optionParser.parse(argc, argv);
     if(l_optionParser.non_option_args().size() != 1){
         std::cout << l_optionParser;
@@ -67,6 +68,10 @@ int main(int argc, char *argv[])
     }
     std::string filename = l_optionParser.non_option_args().front();
     document* nuwebAstEntry = nullptr;
+    // Set additional include pathes:
+    if(includePath->is_set())
+        for(size_t includePathIndex = 0; includePathIndex < includePath->count(); includePathIndex++)
+            file::addPath(includePath->value(includePathIndex));
     // Parse nuweb file 
     try{
         std::stringstream entryStream("@@i " + filename);
@@ -95,7 +100,7 @@ int main(int argc, char *argv[])
     try{
         auxFileName = filename.substr(0,filename.find_last_of('.')) + ".aux";
         nuweb::auxFile l_auxFile(auxFileName);
-        nuwebAstEntry->setAuxFileParsed(true);
+        nuwebAstEntry->setAuxFileParsed(file::byName(auxFileName));
     }
     catch(std::runtime_error& e){
         std::cout << "Parsing aux file \"" + auxFileName + "\" failed with error:\n  " << e.what() << std::endl;

@@ -299,6 +299,8 @@ std::string nuweb::documentPart::utf8(filePosition& l_filePosition) const{
             return "";
         else {
             file* l_file = file::byName(filename);
+            if(!l_file)
+                return indexableText::progressFilePosition(l_filePosition,"\n");
             //std::cout << "File access in \"" << m_filePosition->m_filename << "\": " << m_filePosition->m_line-1 << "," << m_filePosition->m_column << " " << m_filePosition->m_line_end-1 << "," << m_filePosition->m_column_end << "\n";
             if(m_texFilePositionColumnCorrection != 0)
             {

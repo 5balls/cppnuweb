@@ -21,6 +21,7 @@ A ``\lstinline{nuwebExpression}'' is basically every nuweb command\footnote{Anyt
 \indexBackusNaur{nuwebExpression}\begin{figure}[ht]
 \begin{grammar}
 <nuwebExpression> ::= INCLUDE_FILE
+\alt INCLUDE_FILE_ACCESS_ERROR
 \alt AT_AT
 \alt <scrap>
 \alt <fragmentDefinition>
@@ -40,6 +41,12 @@ nuwebExpression
     : INCLUDE_FILE
     {
         $$ = new emptyDocumentPart($INCLUDE_FILE);
+    }
+    | INCLUDE_FILE_ACCESS_ERROR
+    {
+        escapeCharacterDocumentPart* replacementText = new escapeCharacterDocumentPart($INCLUDE_FILE_ACCESS_ERROR);
+        replacementText->setEscapeCharacter("\n");
+        $$ = replacementText;
     }
     | AT_AT
     {
