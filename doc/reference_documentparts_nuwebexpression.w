@@ -44,9 +44,7 @@ nuwebExpression
     }
     | INCLUDE_FILE_ACCESS_ERROR
     {
-        escapeCharacterDocumentPart* replacementText = new escapeCharacterDocumentPart($INCLUDE_FILE_ACCESS_ERROR);
-        replacementText->setEscapeCharacter("\n");
-        $$ = replacementText;
+        $$ = new emptyDocumentPart($INCLUDE_FILE_ACCESS_ERROR);
     }
     | AT_AT
     {
