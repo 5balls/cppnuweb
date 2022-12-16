@@ -70,6 +70,10 @@ public:
                     break;
                 case outputFileFlags::PERL_COMMENTS:
                     m_commentStyle = flag;
+                    commentStart = "#";
+                    commentMiddle = "#";
+                    commentMiddleEnd = "";
+                    commentEnd = "";
                     break;
                 default:
                     break;
@@ -116,6 +120,9 @@ public:
                         break;
                     case outputFileFlags::CPP_COMMENTS:
                         returnString.pop_back();
+                        returnString.pop_back();
+                        break;
+                    case outputFileFlags::PERL_COMMENTS:
                         returnString.pop_back();
                         break;
                     default:

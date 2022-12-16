@@ -94,6 +94,10 @@ outputFlag
     {
         $$ = outputFileFlags::CPP_COMMENTS;
     }
+    | MINUS_C_P
+    {
+        $$ = outputFileFlags::PERL_COMMENTS;
+    }
 ;
 @| outputFlag @}
 
@@ -101,12 +105,14 @@ outputFlag
 @{<outputFileHeader>-d { TOKEN(MINUS_D) }
 <outputFileHeader>-cc { TOKEN(MINUS_C_C) }
 <outputFileHeader>-c\+ { TOKEN(MINUS_C_PLUS) }
+<outputFileHeader>-cp { TOKEN(MINUS_C_P) }
 @}
 
 @d Bison token definitions
 @{%token MINUS_D
 %token MINUS_C_C
 %token MINUS_C_PLUS
+%token MINUS_C_P
 @}
 
 @d Bison rules

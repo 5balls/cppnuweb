@@ -189,6 +189,13 @@ public:
                     indexableText::increaseCurrentLine();
                     break;
                 case outputFileFlags::PERL_COMMENTS:
+                    if(indexableText::isCurrentLineIndented())
+                        returnString += indexableText::progressFilePosition(l_filePosition, "# " + fragmentNameString + "\n" + std::string(documentPart::m_fileIndentation,' '));
+                    else
+                        returnString += indexableText::progressFilePosition(l_filePosition,std::string(documentPart::m_fileIndentation,' ') + "# " + fragmentNameString + "\n");
+                    indexableText::increaseCurrentLine();
+                    break;
+
                     break;
                 case outputFileFlags::NO_COMMENTS:
                 default:
