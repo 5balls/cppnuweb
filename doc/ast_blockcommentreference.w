@@ -113,7 +113,7 @@ public:
             }
             if(l_filePosition.m_column == 0)
                 returnString += std::string(indentation, ' ') + indexableText::progressFilePosition(l_filePosition, commentEnd);
-            else if(l_filePosition.m_column == indentation + 2){
+            else if(l_filePosition.m_column == indentation + commentMiddle.length()){
                 switch(m_commentStyle){
                     case outputFileFlags::C_COMMENTS:
                         returnString += indexableText::progressFilePosition(l_filePosition, commentMiddleEnd);
