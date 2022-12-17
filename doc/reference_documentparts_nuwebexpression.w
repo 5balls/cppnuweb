@@ -29,6 +29,8 @@ A ``\lstinline{nuwebExpression}'' is basically every nuweb command\footnote{Anyt
 \alt AT_SMALL_F
 \alt AT_SMALL_M
 \alt AT_SMALL_V
+\alt AT_SMALL_S
+\alt AT_LARGE_S
 \alt NOT_IMPLEMENTED
 \end{grammar}
 \caption{BNF for nuwebExpression}
@@ -75,6 +77,16 @@ nuwebExpression
     {
         $$ = new versionString($AT_SMALL_V);
     }
+    | AT_SMALL_S
+    {
+        $$ = new emptyDocumentPart();
+        documentPart::newSection();
+    }
+    | AT_LARGE_S
+    {
+        $$ = new emptyDocumentPart();
+        documentPart::closeSection();
+    }
     | crossReference
     {
         $$ = $crossReference;
@@ -93,15 +105,23 @@ nuwebExpression
 
 @d Lexer rules for regular nuweb commands
 @{<INITIAL>@@m { TOKEN(AT_SMALL_M) }
-<INITIAL,scrapContents>@@v { TOKEN(AT_SMALL_V) } @| AT_SMALL_M AT_SMALL_V @}
+<INITIAL,scrapContents>@@v { TOKEN(AT_SMALL_V) } 
+<INITIAL>@@s { TOKEN(AT_SMALL_S) } 
+<INITIAL>@@S { TOKEN(AT_LARGE_S) } 
+@| AT_SMALL_M AT_SMALL_V AT_SMALL_S AT_LARGE_S @}
 
 @d Bison token definitions
 @{%token AT_SMALL_M
-%token AT_SMALL_V @| AT_SMALL_M AT_SMALL_V @}
+%token AT_SMALL_V
+%token AT_SMALL_S
+%token AT_LARGE_S
+@| AT_SMALL_M AT_SMALL_V AT_SMALL_S AT_LARGE_S @}
 
 @d Bison type definitions
 @{%type <m_filePosition> AT_SMALL_M;
 %type <m_filePosition> AT_SMALL_V;
+%type <m_filePosition> AT_SMALL_S;
+%type <m_filePosition> AT_LARGE_S;
 @}
 
 @i reference_documentparts_nuwebexpression_includefile.w

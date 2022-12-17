@@ -84,6 +84,8 @@ nuweb::outputFileFlags nuweb::documentPart::m_commentStyle = outputFileFlags::NO
 int nuweb::documentPart::m_texFilePositionColumnCorrection = 0;
 unsigned int nuweb::documentPart::m_fileIndentation = 0;
 bool nuweb::documentPart::m_insideBlock = false;
+unsigned int nuweb::documentPart::m_sectionLevel = 0;
+unsigned int nuweb::documentPart::m_nextSectionLevel = 1;
 @}
 
 @i reference_documentparts_texcode.w

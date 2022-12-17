@@ -26,6 +26,7 @@ class fragmentNamePartDefinition;
 class fragmentDefinition : public documentPart {
 private:
 protected:
+    unsigned int m_definitionSectionLevel;
     static unsigned int m_scrapNumber;
     static std::map<unsigned int, fragmentDefinition*> fragmentDefinitions;
     static std::map<unsigned int, std::vector<unsigned int> > m_scrapsDefiningAFragment;
@@ -39,9 +40,9 @@ protected:
     fragmentDefinition* m_firstFragment;
 public:
     fragmentDefinition(documentPart* l_fragmentName, documentPart* l_scrap, bool pageBreak = false); 
-    static fragmentDefinition* fragmentFromFragmentName(const documentPart* fragmentName);
+    static fragmentDefinition* fragmentFromFragmentName(unsigned int sectionLevel, const documentPart* fragmentName);
     std::vector<unsigned int> scrapsFromFragment(void);
-    static std::vector<unsigned int> scrapsFromFragmentName(const documentPart* fragmentName);
+    static std::vector<unsigned int> scrapsFromFragmentName(unsigned int sectionLevel, const documentPart* fragmentName);
     static std::vector<documentPart*> fragmentDefinitionsNames(void);
     static std::vector<unsigned int> fragmentDefinitionsScrapNumbers(void);
     fragmentNamePartText* findLongFormNamePart(unsigned int argumentNumber);
@@ -82,7 +83,8 @@ public:
 \indexClassMethod{fragmentDefinition}{fragmentDefinition}
 @d \classImplementation{fragmentDefinition}
 @{@%
-    nuweb::fragmentDefinition::fragmentDefinition(documentPart* l_fragmentName, documentPart* l_scrap, bool pageBreak) : m_fragmentName(l_fragmentName), m_currentScrapNumber(++m_scrapNumber), m_fragmentNameSize(m_fragmentName->size()), m_pageBreak(pageBreak), m_referencesInScraps({}){
+    nuweb::fragmentDefinition::fragmentDefinition(documentPart* l_fragmentName, documentPart* l_scrap, bool pageBreak) : m_fragmentName(l_fragmentName), m_currentScrapNumber(++m_scrapNumber), m_fragmentNameSize(m_fragmentName->size()), m_pageBreak(pageBreak), m_referencesInScraps({}), m_definitionSectionLevel(m_sectionLevel){
+std::cout << "DEBUG " << __FILE__ << " " << __FUNCTION__ << " " << __LINE__ << " " << m_definitionSectionLevel << "\n"; 
         unsigned int fragmentNamePartNumber = 0;
         for(auto& fragmentNamePart: *m_fragmentName){
             fragmentNamePartDefinition* fragmentArgument = dynamic_cast<fragmentNamePartDefinition*>(fragmentNamePart);
@@ -97,9 +99,9 @@ public:
         if(!m_scrap)
             throw std::runtime_error("Internal program error, documentPart passed fot fragmentDefinition is not a scrap as expected!");
         fragmentDefinitions[m_currentScrapNumber] = this;
-        if(scrapsFromFragmentName(l_fragmentName).size()==0)
+        if(scrapsFromFragmentName(m_definitionSectionLevel, l_fragmentName).size()==0)
             throw std::runtime_error("Internal program error, could not maintain internal scrap list!");
-        fragmentDefinition* firstFragment = fragmentFromFragmentName(l_fragmentName);
+        fragmentDefinition* firstFragment = fragmentFromFragmentName(m_definitionSectionLevel, l_fragmentName);
         if(firstFragment){
             unsigned int firstFragmentScrapNumber = firstFragment->scrapNumber();
             if(std::find(m_scrapsDefiningAFragment[firstFragmentScrapNumber].begin(),m_scrapsDefiningAFragment[firstFragmentScrapNumber].end(),m_currentScrapNumber) == m_scrapsDefiningAFragment[firstFragmentScrapNumber].end())
@@ -107,16 +109,20 @@ public:
         }
         else
             throw std::runtime_error("Internal program error, could not add scrap to scrap list!");
+
+        filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
+        std::cout << "DEBUG " << __FILE__ << " " << __FUNCTION__ << " " << __LINE__ << " " << m_definitionSectionLevel << " " << l_fragmentName->utf8(ll_filePosition) << "\n"; 
     }
 @}
 \subsubsection{fragmentFromFragmentName}
 \indexClassMethod{fragmentDefinition}{fragmentFromFragmentName}
 @d \classImplementation{fragmentDefinition}
 @{@%
-    nuweb::fragmentDefinition* nuweb::fragmentDefinition::fragmentFromFragmentName(const documentPart* fragmentName){
+    nuweb::fragmentDefinition* nuweb::fragmentDefinition::fragmentFromFragmentName(unsigned int sectionLevel, const documentPart* fragmentName){
         unsigned int fragmentNameSize = fragmentName->size();
         if(fragmentNameSize == 0){
             for(const auto& [currentScrapNumber, l_fragmentDefinition]: fragmentDefinitions){
+                if(l_fragmentDefinition->m_definitionSectionLevel != sectionLevel) continue;
                 if(l_fragmentDefinition->m_fragmentNameSize != 0) continue;
                 filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
                 if(l_fragmentDefinition->m_fragmentName->utf8(ll_filePosition).compare(fragmentName->utf8(ll_filePosition)) == 0)
@@ -125,6 +131,7 @@ public:
             return nullptr;
         } 
         for(const auto& [currentScrapNumber, l_fragmentDefinition]: fragmentDefinitions){
+            if(l_fragmentDefinition->m_definitionSectionLevel != sectionLevel) continue;
             //if(l_fragmentDefinition->m_fragmentNameSize != fragmentNameSize) continue;
             bool fragmentNamesIdentical = true;
             for(unsigned int fragmentNamePart = 0; fragmentNamePart < fragmentNameSize; fragmentNamePart++){
@@ -162,7 +169,7 @@ public:
 \indexClassMethod{fragmentDefinition}{scrapsFromFragmentName}
 @d \classImplementation{fragmentDefinition}
 @{@%
-    std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragmentName(const documentPart* fragmentName){
+    std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragmentName(unsigned int sectionLevel, const documentPart* fragmentName){
         unsigned int fragmentNameSize = fragmentName->size();
         if(fragmentNameSize == 0){
             for(const auto& [currentScrapNumber, l_fragmentDefinition]: fragmentDefinitions){
@@ -170,7 +177,7 @@ public:
                 filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
                 if(l_fragmentDefinition->m_fragmentName->utf8(ll_filePosition).compare(fragmentName->utf8(ll_filePosition)) == 0){
                     // If we reach here we found the group
-                    fragmentDefinition* newFragmentDefinition = fragmentFromFragmentName(fragmentName);
+                    fragmentDefinition* newFragmentDefinition = fragmentFromFragmentName(sectionLevel, fragmentName);
                     if(newFragmentDefinition){
                         unsigned int newScrapNumber = newFragmentDefinition->scrapNumber();
                         if(m_scrapsDefiningAFragment.count(currentScrapNumber) > 0){
@@ -206,7 +213,7 @@ public:
             }
             if(!fragmentNamesIdentical) continue;
             // If we reach here we found the group
-            fragmentDefinition* newFragmentDefinition = fragmentFromFragmentName(fragmentName);
+            fragmentDefinition* newFragmentDefinition = fragmentFromFragmentName(sectionLevel, fragmentName);
             if(newFragmentDefinition){
                 unsigned int newScrapNumber = newFragmentDefinition->scrapNumber();
                 if(m_scrapsDefiningAFragment.count(currentScrapNumber) > 0){
@@ -235,7 +242,7 @@ public:
 @d \classImplementation{fragmentDefinition}
 @{@%
 std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
-    return scrapsFromFragmentName(m_fragmentName);
+    return scrapsFromFragmentName(m_definitionSectionLevel, m_fragmentName);
 }
 @}
 \subsubsection{addReferenceScrapNumber}
@@ -439,7 +446,7 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
 @d \classImplementation{fragmentDefinition}
 @{@%
     std::string nuweb::fragmentDefinition::fileUtf8(filePosition& l_filePosition) const{
-        std::vector<unsigned int> scraps = scrapsFromFragmentName(m_fragmentName);
+        std::vector<unsigned int> scraps = scrapsFromFragmentName(m_definitionSectionLevel, m_fragmentName);
         std::string returnString;
         for(const auto& scrap: scraps){
             returnString += fragmentDefinitions[scrap]->scrapFileUtf8(l_filePosition);
@@ -454,7 +461,7 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
     std::string nuweb::fragmentDefinition::fileUtf8(filePosition& l_filePosition, documentPart* fragmentName) const{
         unsigned int cacheIndentation = documentPart::m_fileIndentation;
         documentPart::m_fileIndentation = 0;
-        std::vector<unsigned int> scraps = scrapsFromFragmentName(m_fragmentName);
+        std::vector<unsigned int> scraps = scrapsFromFragmentName(m_definitionSectionLevel, m_fragmentName);
         documentPart::m_fileIndentation = cacheIndentation;
         std::string returnString;
         for(const auto& scrap: scraps){
@@ -485,7 +492,7 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
 @d \classImplementation{fragmentDefinition}
 @{@%
     void nuweb::fragmentDefinition::resolveReferences(void){
-        m_firstFragment = fragmentFromFragmentName(m_fragmentName);
+        m_firstFragment = fragmentFromFragmentName(m_definitionSectionLevel, m_fragmentName);
         if(!m_firstFragment)
             throw std::runtime_error("Internal error, could resolve to first defining fragment!");
         m_scrap->resolveFragmentArguments(m_fragmentName);
