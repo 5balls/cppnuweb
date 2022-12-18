@@ -51,7 +51,6 @@ public:
 @d \classImplementation{fragmentReference}
 @{@%
     nuweb::fragmentReference::fragmentReference(documentPart* fragmentName, bool expandReference) : m_unresolvedFragmentName(nullptr), m_referenceFragmentName(fragmentName), m_expandReference(expandReference), m_outsideFragment(false), m_referenceSectionLevel(m_sectionLevel){
-std::cout << "DEBUG " << __FILE__ << " " << __FUNCTION__ << " " << __LINE__ << " " << m_referenceSectionLevel << "\n"; 
         unsigned int fragmentNamePartNumber = 0;
         for(auto& fragmentNamePart: *m_referenceFragmentName){
             fragmentNamePartDefinition* fragmentArgument = dynamic_cast<fragmentNamePartDefinition*>(fragmentNamePart);
@@ -65,10 +64,6 @@ std::cout << "DEBUG " << __FILE__ << " " << __FUNCTION__ << " " << __LINE__ << "
         m_fragment = fragmentDefinition::fragmentFromFragmentName(m_referenceSectionLevel, m_referenceFragmentName);
         if(!m_fragment)
             m_unresolvedFragmentName = m_referenceFragmentName;
-        else{
-            filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
-            std::cout << "DEBUG " << __FILE__ << " " << __FUNCTION__ << " " << __LINE__ << " " << m_referenceSectionLevel << " " << m_fragment->utf8(ll_filePosition) << "\n"; 
-        }
         m_scrapNumber = fragmentDefinition::totalNumberOfScraps() + 1;
     }
 @}
@@ -244,10 +239,6 @@ std::cout << "DEBUG " << __FILE__ << " " << __FUNCTION__ << " " << __LINE__ << "
         }
         if(!m_fragment)
             std::cout << "Could not resolve fragment \"" + m_unresolvedFragmentName->texUtf8() + "\" in file " + m_unresolvedFragmentName->filePositionString() + "\n";
-        {
-            filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
-            std::cout << "DEBUG " << __FILE__ << " " << __FUNCTION__ << " " << __LINE__ << " " << m_referenceSectionLevel << " " << m_fragment->utf8(ll_filePosition) << "\n"; 
-        }
         if(m_fragment && m_fragment->fragmentNameSize() > m_referenceFragmentName->size())
             for(unsigned int missingFragmentPart = m_referenceFragmentName->size(); missingFragmentPart<m_fragment->fragmentNameSize(); missingFragmentPart++){
                 fragmentNamePartDefinition* fragmentNamePart = m_fragment->findNamePart(missingFragmentPart);
