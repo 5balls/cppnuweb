@@ -328,12 +328,18 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
                 returnString += "\\NWlink{nuweb" + scrapId + "}{";
                 if(lastPage == 0){
                     returnString += scrapId + "}";
-                    lastPage = currentPage;
+                    if(!auxFileWasParsed())
+                        lastPage++;
+                    else
+                        lastPage = currentPage;
                     continue;
                 }
                 if(currentPage != lastPage){
                     returnString += ", " + scrapId + "}";
-                    lastPage = currentPage;
+                    if(!auxFileWasParsed())
+                        lastPage++;
+                    else
+                        lastPage = currentPage;
                     continue;
                 }
                 returnString += std::string(1, auxFile::scrapLetter(referenceInScrap)) + "}";
@@ -351,7 +357,7 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
     std::string nuweb::fragmentDefinition::definedByTexUtf8(void) const{
         unsigned int firstFragmentNumber = m_firstFragment->scrapNumber();
         if(m_scrapsDefiningAFragment[firstFragmentNumber].size()>1){
-            if(auxFileWasParsed()){
+            //if(auxFileWasParsed()){
                 std::string returnString = "\\item \\NWtxtMacroDefBy\\ ";
                 unsigned int lastPage = 0;
                 for(const auto & scrapDefiningFragment: m_scrapsDefiningAFragment[firstFragmentNumber]){
@@ -360,12 +366,18 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
                     returnString += "\\NWlink{nuweb" + scrapId + "}{";
                     if(lastPage == 0){
                         returnString += scrapId + "}";
-                        lastPage = currentPage;
+                        if(!auxFileWasParsed())
+                            lastPage++;
+                        else
+                            lastPage = currentPage;
                         continue;
                     }
                     if(currentPage != lastPage){
                         returnString += ", " + scrapId + "}";
-                        lastPage = currentPage;
+                        if(!auxFileWasParsed())
+                            lastPage++;
+                        else
+                            lastPage = currentPage;
                         continue;
                     }
                     returnString += std::string(1, auxFile::scrapLetter(scrapDefiningFragment)) + "}";
@@ -373,9 +385,9 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
                 }
                 returnString += ".\n";
                 return returnString;
-            }
-            else
-                return "";
+            //}
+            //else
+            //    return "";
         }
         else
             return "";
