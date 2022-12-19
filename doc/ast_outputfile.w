@@ -49,10 +49,10 @@ public:
 \indexClassMethod{outputFile}{outputFile}
 @d \classImplementation{outputFile}
 @{@%
-    nuweb::outputFile::outputFile(documentPart* l_fileName, documentPart* l_scrap, bool pageBreak, std::vector<enum outputFileFlags> flags) : fragmentDefinition(l_fileName, l_scrap, pageBreak), m_flags(flags) {
+    nuweb::outputFile::outputFile(documentPart* l_fileName, documentPart* l_scrap, bool pageBreak, std::vector<enum outputFileFlags> flags) : fragmentDefinition(l_fileName, l_scrap, pageBreak, 0), m_flags(flags){
         filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
         m_filename = l_fileName->utf8(ll_filePosition);
-        fragmentDefinition* firstFragment = fragmentFromFragmentName(m_fragmentName);
+        fragmentDefinition* firstFragment = fragmentFromFragmentName(m_definitionSectionLevel, m_fragmentName);
         if(!firstFragment)
             throw std::runtime_error("Internal error, could not get first scrap of outputfile!");
         if(find(m_outputFiles.begin(),m_outputFiles.end(),firstFragment)==m_outputFiles.end()){

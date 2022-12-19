@@ -75,6 +75,8 @@ protected:
     static std::string m_versionString;
     static bool m_insideBlock;
     static std::string m_hypperrefOptions;
+    static unsigned int m_sectionLevel;
+    static unsigned int m_nextSectionLevel;
 public:
     documentPart(const documentPart&) = delete;
     documentPart(void);
@@ -104,6 +106,8 @@ public:
     static std::string hypperrefOptions(void);
     unsigned int leadingSpaces(void) const;
     bool setFilePosition(filePosition* l_filePosition);
+    static void newSection(void);
+    static void closeSection(void);
 };
 @| documentPart utf8 texUtf8 @}
 
@@ -428,7 +432,8 @@ std::string nuweb::documentPart::fileUtf8(filePosition& l_filePosition) const{
         // To be implemented by derived classes that need it
         if(!empty())
             for(auto& documentPart: *this)
-                documentPart->resolveReferences();
+                if(documentPart)
+                    documentPart->resolveReferences();
     }
 @| resolveReferences @}
 
@@ -509,3 +514,20 @@ std::string nuweb::documentPart::fileUtf8(filePosition& l_filePosition) const{
         }
     }
 @| setCommentStyle @}
+\subsubsection{newSection}
+\indexClassMethod{documentPart}{newSection}
+@d \classImplementation{documentPart}
+@{@%
+    void nuweb::documentPart::newSection(void){
+        m_sectionLevel = m_nextSectionLevel;
+        m_nextSectionLevel++;
+    }
+@| newSection @}
+\subsubsection{closeSection}
+\indexClassMethod{documentPart}{closeSection}
+@d \classImplementation{documentPart}
+@{@%
+    void nuweb::documentPart::closeSection(void){
+        m_sectionLevel = 0;
+    }
+@| closeSection @}
