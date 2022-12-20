@@ -22,9 +22,11 @@
 class indexFragmentNames : public documentPart{
 private:
     unsigned int m_indexSectionLevel;
+    bool m_global;
 public:
     indexFragmentNames(filePosition* l_filePosition);
     virtual std::string texUtf8(void) const override;
+    void setGlobal(void);
 };
 @| indexFragmentNames @}
 \section{Implementation}
@@ -32,7 +34,7 @@ public:
 \indexClassMethod{indexFragmentNames}{indexFragmentNames}
 @d \classImplementation{indexFragmentNames}
 @{@%
-    nuweb::indexFragmentNames::indexFragmentNames(filePosition* l_filePosition) : documentPart(l_filePosition), m_indexSectionLevel(m_sectionLevel){
+    nuweb::indexFragmentNames::indexFragmentNames(filePosition* l_filePosition) : documentPart(l_filePosition), m_indexSectionLevel(m_sectionLevel), m_global(false){
     }
 @| indexFragmentNames @}
 \subsubsection{texUtf8}
@@ -106,3 +108,11 @@ public:
         return returnString;
     }
 @| texUtf8 @}
+\subsubsection{setGlobal}
+\indexClassMethod{indexFragmentNames}{setGlobal}
+@d \classImplementation{indexFragmentNames}
+@{@%
+    void nuweb::indexFragmentNames::setGlobal(void){
+        m_global = true;
+    }
+@| setGlobal @}

@@ -28,6 +28,7 @@ A ``\lstinline{nuwebExpression}'' is basically every nuweb command\footnote{Anyt
 \alt <fragmentReference>
 \alt AT_SMALL_F
 \alt AT_SMALL_M
+\alt AT_SMALL_M_PLUS
 \alt AT_SMALL_V
 \alt AT_SMALL_S
 \alt AT_LARGE_S
@@ -73,6 +74,12 @@ nuwebExpression
     {
         $$ = new indexFragmentNames($AT_SMALL_M);
     }
+    | AT_SMALL_M_PLUS
+    {
+        indexFragmentNames* globalIndex = new indexFragmentNames($AT_SMALL_M_PLUS);
+        globalIndex->setGlobal();
+        $$ = globalIndex;
+    }
     | AT_SMALL_V
     {
         $$ = new versionString($AT_SMALL_V);
@@ -105,20 +112,23 @@ nuwebExpression
 
 @d Lexer rules for regular nuweb commands
 @{<INITIAL>@@m { TOKEN(AT_SMALL_M) }
+<INITIAL>@@m\+ { TOKEN(AT_SMALL_M_PLUS) }
 <INITIAL,scrapContents>@@v { TOKEN(AT_SMALL_V) } 
 <INITIAL>@@s { TOKEN(AT_SMALL_S) } 
 <INITIAL>@@S { TOKEN(AT_LARGE_S) } 
-@| AT_SMALL_M AT_SMALL_V AT_SMALL_S AT_LARGE_S @}
+@| AT_SMALL_M AT_SMALL_M_PLUS AT_SMALL_V AT_SMALL_S AT_LARGE_S @}
 
 @d Bison token definitions
 @{%token AT_SMALL_M
+%token AT_SMALL_M_PLUS
 %token AT_SMALL_V
 %token AT_SMALL_S
 %token AT_LARGE_S
-@| AT_SMALL_M AT_SMALL_V AT_SMALL_S AT_LARGE_S @}
+@| AT_SMALL_M AT_SMALL_M_PLUS AT_SMALL_V AT_SMALL_S AT_LARGE_S @}
 
 @d Bison type definitions
 @{%type <m_filePosition> AT_SMALL_M;
+%type <m_filePosition> AT_SMALL_M_PLUS;
 %type <m_filePosition> AT_SMALL_V;
 %type <m_filePosition> AT_SMALL_S;
 %type <m_filePosition> AT_LARGE_S;

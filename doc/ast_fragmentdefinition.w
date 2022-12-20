@@ -38,9 +38,10 @@ protected:
     bool m_pageBreak;
     std::vector<fragmentReference*> m_references;
     fragmentDefinition* m_firstFragment;
+    bool m_global;
 public:
     fragmentDefinition(documentPart* l_fragmentName, documentPart* l_scrap, bool pageBreak = false, unsigned int sectionLevel = m_sectionLevel); 
-    static fragmentDefinition* fragmentFromFragmentName(unsigned int sectionLevel, const documentPart* fragmentName);
+    static fragmentDefinition* fragmentFromFragmentName(unsigned int sectionLevel, const documentPart* fragmentName, bool global = false);
     std::vector<unsigned int> scrapsFromFragment(void);
     static std::vector<unsigned int> scrapsFromFragmentName(unsigned int sectionLevel, const documentPart* fragmentName);
     static std::vector<documentPart*> fragmentDefinitionsNames(unsigned int sectionLevel = 0);
@@ -69,6 +70,7 @@ public:
     virtual std::string scrapFileUtf8(filePosition& l_filePosition) const;
     virtual std::string scrapFileUtf8(filePosition& l_filePosition, documentPart* fragmentName) const;
     void addReference(fragmentReference*);
+    void setGlobal();
 };
 @| fragmentDefinition @}
 
@@ -84,7 +86,7 @@ public:
 \indexClassMethod{fragmentDefinition}{fragmentDefinition}
 @d \classImplementation{fragmentDefinition}
 @{@%
-    nuweb::fragmentDefinition::fragmentDefinition(documentPart* l_fragmentName, documentPart* l_scrap, bool pageBreak, unsigned int sectionLevel) : m_fragmentName(l_fragmentName), m_currentScrapNumber(++m_scrapNumber), m_fragmentNameSize(m_fragmentName->size()), m_pageBreak(pageBreak), m_referencesInScraps({}), m_definitionSectionLevel(sectionLevel){
+    nuweb::fragmentDefinition::fragmentDefinition(documentPart* l_fragmentName, documentPart* l_scrap, bool pageBreak, unsigned int sectionLevel) : m_fragmentName(l_fragmentName), m_currentScrapNumber(++m_scrapNumber), m_fragmentNameSize(m_fragmentName->size()), m_pageBreak(pageBreak), m_referencesInScraps({}), m_definitionSectionLevel(sectionLevel), m_global(false){
         unsigned int fragmentNamePartNumber = 0;
         for(auto& fragmentNamePart: *m_fragmentName){
             fragmentNamePartDefinition* fragmentArgument = dynamic_cast<fragmentNamePartDefinition*>(fragmentNamePart);
@@ -116,11 +118,11 @@ public:
 \indexClassMethod{fragmentDefinition}{fragmentFromFragmentName}
 @d \classImplementation{fragmentDefinition}
 @{@%
-    nuweb::fragmentDefinition* nuweb::fragmentDefinition::fragmentFromFragmentName(unsigned int sectionLevel, const documentPart* fragmentName){
+    nuweb::fragmentDefinition* nuweb::fragmentDefinition::fragmentFromFragmentName(unsigned int sectionLevel, const documentPart* fragmentName, bool global){
         unsigned int fragmentNameSize = fragmentName->size();
         if(fragmentNameSize == 0){
             for(const auto& [currentScrapNumber, l_fragmentDefinition]: fragmentDefinitions){
-                if(l_fragmentDefinition->m_definitionSectionLevel != sectionLevel) continue;
+                if(l_fragmentDefinition->m_definitionSectionLevel != sectionLevel && !global) continue;
                 if(l_fragmentDefinition->m_fragmentNameSize != 0) continue;
                 filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
                 if(l_fragmentDefinition->m_fragmentName->utf8(ll_filePosition).compare(fragmentName->utf8(ll_filePosition)) == 0)
@@ -129,7 +131,7 @@ public:
             return nullptr;
         } 
         for(const auto& [currentScrapNumber, l_fragmentDefinition]: fragmentDefinitions){
-            if(l_fragmentDefinition->m_definitionSectionLevel != sectionLevel) continue;
+            if(l_fragmentDefinition->m_definitionSectionLevel != sectionLevel && !global) continue;
             //if(l_fragmentDefinition->m_fragmentNameSize != fragmentNameSize) continue;
             bool fragmentNamesIdentical = true;
             for(unsigned int fragmentNamePart = 0; fragmentNamePart < fragmentNameSize; fragmentNamePart++){
@@ -710,3 +712,11 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
         return nullptr;
     }
 @| findNamePart @}
+\subsubsection{setGlobal}
+\indexClassMethod{fragmentDefinition}{setGlobal}
+@d \classImplementation{fragmentDefinition}
+@{@%
+    void nuweb::fragmentDefinition::setGlobal(void){
+        m_global = true;
+    }
+@| setGlobal @}

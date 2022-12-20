@@ -29,6 +29,7 @@ private:
     bool m_outsideFragment;
     unsigned int m_leadingSpaces = 0;
     unsigned int m_referenceSectionLevel;
+    bool m_global;
 public:
     fragmentReference(documentPart* fragmentName, bool expandReference=false);
     virtual std::string utf8(filePosition& l_filePosition) const override;
@@ -42,6 +43,7 @@ public:
     fragmentDefinition* getFragmentDefinition(void) const;
     documentPart* getFragmentName(void) const;
     unsigned int getScrapNumber(void) const;
+    void setGlobal(void);
 };
 @}
 
@@ -50,7 +52,7 @@ public:
 \indexClassMethod{fragmentReference}{fragmentReference}
 @d \classImplementation{fragmentReference}
 @{@%
-    nuweb::fragmentReference::fragmentReference(documentPart* fragmentName, bool expandReference) : m_unresolvedFragmentName(nullptr), m_referenceFragmentName(fragmentName), m_expandReference(expandReference), m_outsideFragment(false), m_referenceSectionLevel(m_sectionLevel){
+    nuweb::fragmentReference::fragmentReference(documentPart* fragmentName, bool expandReference) : m_unresolvedFragmentName(nullptr), m_referenceFragmentName(fragmentName), m_expandReference(expandReference), m_outsideFragment(false), m_referenceSectionLevel(m_sectionLevel), m_global(false){
         unsigned int fragmentNamePartNumber = 0;
         for(auto& fragmentNamePart: *m_referenceFragmentName){
             fragmentNamePartDefinition* fragmentArgument = dynamic_cast<fragmentNamePartDefinition*>(fragmentNamePart);
@@ -235,7 +237,7 @@ public:
     void nuweb::fragmentReference::resolveReferences(void){
         m_leadingSpaces = this->leadingSpaces();
         if(!m_fragment){
-            m_fragment = fragmentDefinition::fragmentFromFragmentName(m_referenceSectionLevel, m_unresolvedFragmentName);
+            m_fragment = fragmentDefinition::fragmentFromFragmentName(m_referenceSectionLevel, m_unresolvedFragmentName, m_global);
         }
         if(!m_fragment)
             std::cout << "Could not resolve fragment \"" + m_unresolvedFragmentName->texUtf8() + "\" in file " + m_unresolvedFragmentName->filePositionString() + "\n";
@@ -304,3 +306,13 @@ public:
         return m_scrapNumber;
     }
 @| getScrapNumber @}
+\subsubsection{setGlobal}
+\indexClassMethod{fragmentReference}{setGlobal}
+@d \classImplementation{fragmentReference}
+@{@%
+    void nuweb::fragmentReference::setGlobal(void){
+        m_global = true;
+        m_fragment = fragmentDefinition::fragmentFromFragmentName(m_referenceSectionLevel, m_referenceFragmentName, true);
+std::cout << "DEBUG " << __FILE__ << " " << __FUNCTION__ << " " << __LINE__ << " " << m_fragment << "\n"; 
+    }
+@| setGlobal @}

@@ -82,14 +82,42 @@ fragmentDefinition
             case fragmentType::DEFINITION:
                 $$ = new fragmentDefinition($fragmentNameDefinition, $scrap);
                 break;
+            case fragmentType::DEFINITION_GLOBAL:
+                {
+                    fragmentDefinition* globalFragment = new fragmentDefinition($fragmentNameDefinition, $scrap);
+                    globalFragment->setGlobal();
+                    $$ = globalFragment;
+                }
+                break;
             case fragmentType::DEFINITION_PAGEBREAK:
                 $$ = new fragmentDefinition($fragmentNameDefinition, $scrap, true);
+                break;
+            case fragmentType::DEFINITION_PAGEBREAK_GLOBAL:
+                {
+                    fragmentDefinition* globalFragment = new fragmentDefinition($fragmentNameDefinition, $scrap, true);
+                    globalFragment->setGlobal();
+                    $$ = globalFragment;
+                }
                 break;
             case fragmentType::QUOTED:
                 $$ = new fragmentQuoted($fragmentNameDefinition, $scrap);
                 break;
+            case fragmentType::QUOTED_GLOBAL:
+                {
+                    fragmentDefinition* globalFragment = new fragmentQuoted($fragmentNameDefinition, $scrap);
+                    globalFragment->setGlobal();
+                    $$ = globalFragment;
+                }
+                break;
             case fragmentType::QUOTED_PAGEBREAK:
                 $$ = new fragmentQuoted($fragmentNameDefinition, $scrap, true);
+                break;
+            case fragmentType::QUOTED_PAGEBREAK_GLOBAL:
+                {
+                    fragmentDefinition* globalFragment = new fragmentQuoted($fragmentNameDefinition, $scrap, true);
+                    globalFragment->setGlobal();
+                    $$ = globalFragment;
+                }
                 break;
             default:
                 throw std::runtime_error("Unknown fragmentType in fragmentDefinition!\n");
@@ -115,17 +143,34 @@ fragmentCommand
     {
         $$ = fragmentType::DEFINITION;
     }
+    | AT_SMALL_D_PLUS
+    {
+        $$ = fragmentType::DEFINITION_GLOBAL;
+    }
     | AT_LARGE_D
     {
         $$ = fragmentType::DEFINITION_PAGEBREAK;
+    }
+    | AT_LARGE_D_PLUS
+    {
+        $$ = fragmentType::DEFINITION_PAGEBREAK_GLOBAL;
     }
     | AT_SMALL_Q
     {
         $$ = fragmentType::QUOTED;
     }
+    | AT_SMALL_Q_PLUS
+
+    {
+        $$ = fragmentType::QUOTED_GLOBAL;
+    }
     | AT_LARGE_Q
     {
         $$ = fragmentType::QUOTED_PAGEBREAK;
+    }
+    | AT_LARGE_Q_PLUS
+    {
+        $$ = fragmentType::QUOTED_PAGEBREAK_GLOBAL;
     }
 ;
 @| fragmentCommand @}
@@ -136,14 +181,18 @@ enum class fragmentType {
     OUTPUT_FILE,
     OUTPUT_FILE_PAGEBREAK,
     DEFINITION,
+    DEFINITION_GLOBAL,
     DEFINITION_PAGEBREAK,
+    DEFINITION_PAGEBREAK_GLOBAL,
     QUOTED,
-    QUOTED_PAGEBREAK
+    QUOTED_GLOBAL,
+    QUOTED_PAGEBREAK,
+    QUOTED_PAGEBREAK_GLOBAL
 };
 @| fragmentType @}} for fragmentCommand and the tokens\footnote{Tokens:@d Bison token definitions
 @{@%
-%token AT_SMALL_D AT_LARGE_D AT_SMALL_Q AT_LARGE_Q
-@| AT_SMALL_D AT_LARGE_D AT_SMALL_Q AT_LARGE_Q @}}, the type\footnote{Type:@d \bisonTypeDefinition{fragmentCommand}
+%token AT_SMALL_D AT_SMALL_D_PLUS AT_LARGE_D AT_LARGE_D_PLUS AT_SMALL_Q AT_SMALL_Q_PLUS AT_LARGE_Q AT_LARGE_Q_PLUS
+@| AT_SMALL_D AT_SMALL_D_PLUS AT_LARGE_D AT_LARGE_D_PLUS AT_SMALL_Q AT_SMALL_Q_PLUS AT_LARGE_Q AT_LARGE_Q_PLUS @}}, the type\footnote{Type:@d \bisonTypeDefinition{fragmentCommand}
 @{@%
 %type <m_fragmentType> fragmentCommand
 @| fragmentCommand @}} and the union\footnote{Union:@d Bison union definitions
@@ -153,10 +202,14 @@ enum fragmentType m_fragmentType;
 @d Lexer rules for fragment commands
 @{@%
 <INITIAL>@@d[ ] { start(fragmentHeader); TOKEN(AT_SMALL_D) }
+<INITIAL>@@d\+[ ] { start(fragmentHeader); TOKEN(AT_SMALL_D_PLUS) }
 <INITIAL>@@D[ ] { start(fragmentHeader); TOKEN(AT_LARGE_D) }
+<INITIAL>@@D\+[ ] { start(fragmentHeader); TOKEN(AT_LARGE_D_PLUS) }
 <INITIAL>@@q[ ] { start(fragmentHeader); TOKEN(AT_SMALL_Q) }
+<INITIAL>@@q\+[ ] { start(fragmentHeader); TOKEN(AT_SMALL_Q_PLUS) }
 <INITIAL>@@Q[ ] { start(fragmentHeader); TOKEN(AT_LARGE_Q) }
-@| AT_SMALL_D AT_LARGE_D AT_SMALL_Q AT_LARGE_Q @}
+<INITIAL>@@Q\+[ ] { start(fragmentHeader); TOKEN(AT_LARGE_Q_PLUS) }
+@| AT_SMALL_D AT_SMALL_D_PLUS AT_LARGE_D AT_LARGE_D_PLUS AT_SMALL_Q AT_SMALL_Q_PLUS AT_LARGE_Q AT_LARGE_Q_PLUS @}
 
 @d \bisonRule{fragmentNameDefinition}
 @{
@@ -215,8 +268,20 @@ fragmentNameArgument
         $fragmentNameReference->setFilePosition($AT_ANGLE_BRACKET_OPEN);
         $$ = new fragmentNamePartArgumentFragmentName($fragmentNameReference);
     }
+    | AT_ANGLE_BRACKET_OPEN_PLUS fragmentNameReference AT_ANGLE_BRACKET_CLOSE
+    {
+        $fragmentNameReference->setFilePosition($AT_ANGLE_BRACKET_OPEN_PLUS);
+        fragmentNamePartArgumentFragmentName* globalFragmentName = new fragmentNamePartArgumentFragmentName($fragmentNameReference);
+        globalFragmentName->setGlobal();
+        $$ = globalFragmentName;
+    }
 ;
 @| fragmentNameArgument @}
+
+@d Bison token definitions
+@{@%
+%token AT_ANGLE_BRACKET_OPEN AT_ANGLE_BRACKET_CLOSE AT_ANGLE_BRACKET_OPEN_PLUS 
+@| AT_ANGLE_BRACKET_OPEN AT_ANGLE_BRACKET_CLOSE AT_ANGLE_BRACKET_OPEN_PLUS @}
 
 @d \bisonTypeDefinition{fragmentNameArgument}
 @{@%
@@ -285,7 +350,17 @@ fragmentReference
         $$ = $fragmentNameReference;
         $$->setFilePosition($AT_ANGLE_BRACKET_OPEN);
     }
+    | AT_ANGLE_BRACKET_OPEN_PLUS fragmentNameReference AT_ANGLE_BRACKET_CLOSE
+    {
+        $$ = $fragmentNameReference;
+        $$->setFilePosition($AT_ANGLE_BRACKET_OPEN_PLUS);
+        $$->setGlobal();
+    }
     | AT_ANGLE_BRACKET_OPEN fragmentNameReference fragmentNameArgumentOld AT_ANGLE_BRACKET_CLOSE
+    {
+        throw std::runtime_error("fragmentReference with old arguments not implemented\n");
+    }
+    | AT_ANGLE_BRACKET_OPEN_PLUS fragmentNameReference fragmentNameArgumentOld AT_ANGLE_BRACKET_CLOSE
     {
         throw std::runtime_error("fragmentReference with old arguments not implemented\n");
     }
@@ -295,6 +370,7 @@ fragmentReference
 @d Lexer rules for fragment headers and references
 @{@%
 <scrapContents,fragmentReference>@@< { start(fragmentReference); m_fragmentReferenceDepth++; TOKEN(AT_ANGLE_BRACKET_OPEN) }
+<scrapContents,fragmentReference>@@<\+ { start(fragmentReference); m_fragmentReferenceDepth++; TOKEN(AT_ANGLE_BRACKET_OPEN_PLUS) }
 <fragmentReference>@@> { m_fragmentReferenceDepth--; if(m_fragmentReferenceDepth == 0) start(scrapContents); TOKEN(AT_ANGLE_BRACKET_CLOSE) }
 <INITIAL>@@< { start(fragmentReferenceExpanded); TOKEN(AT_ANGLE_BRACKET_OPEN) }
 <fragmentReferenceExpanded>@@> { start(INITIAL); TOKEN(AT_ANGLE_BRACKET_CLOSE) }
@@ -320,6 +396,7 @@ fragmentReference* m_fragmentReference;
 @{@%
 %type <m_fragmentReference> fragmentNameReference
 %type <m_filePosition> AT_ANGLE_BRACKET_OPEN
+%type <m_filePosition> AT_ANGLE_BRACKET_OPEN_PLUS
 @}
 
 @d \bisonTypeDefinition{fragmentReference}
