@@ -102,7 +102,7 @@ public:
         }
         returnString += "}$\\,\\rangle$ {\\footnotesize ";
         returnString += referenceString;
-        returnString += "}\n\\end{list}}\n"; 
+        returnString += "}\n\\end{list}}"; 
         return returnString;
     }
 @| texUtf8 @}
