@@ -313,6 +313,5 @@ public:
     void nuweb::fragmentReference::setGlobal(void){
         m_global = true;
         m_fragment = fragmentDefinition::fragmentFromFragmentName(m_referenceSectionLevel, m_referenceFragmentName, true);
-std::cout << "DEBUG " << __FILE__ << " " << __FUNCTION__ << " " << __LINE__ << " " << m_fragment << "\n"; 
     }
 @| setGlobal @}

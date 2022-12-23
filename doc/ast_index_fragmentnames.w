@@ -52,9 +52,13 @@ public:
         std::string referenceString;
         unsigned int lastFragmentPage = 0;
         for(const auto& fragmentName: fragmentNames){
-            std::string fragmentScrapId = auxFile::scrapId(scrapNumbers.at(fragmentDefinitionNumber));
-            unsigned int currentFragmentPage = auxFile::scrapPage(scrapNumbers.at(fragmentDefinitionNumber));
-            if(fragmentScrapId.empty()) fragmentScrapId = "?";
+            if(firstFragments.at(fragmentDefinitionNumber)->global() != m_global) continue;
+            std::string fragmentScrapId = "?";
+            unsigned int currentFragmentPage = 1;
+            if(auxFileWasParsed()){
+                fragmentScrapId = auxFile::scrapId(scrapNumbers.at(fragmentDefinitionNumber));
+                currentFragmentPage = auxFile::scrapPage(scrapNumbers.at(fragmentDefinitionNumber));
+            }
             if(firstFragments.at(fragmentDefinitionNumber) != lastFirstFragment){
                 if(lastFirstFragment != nullptr){
                     returnString += "}$\\,\\rangle$ {\\footnotesize ";
@@ -70,18 +74,28 @@ public:
                     referenceString = "{\\NWtxtRefIn} ";
                     unsigned int lastPage = 0;
                     for(const auto & referenceInScrap: referencesInScraps){
-                        std::string scrapId = auxFile::scrapId(referenceInScrap);
-                        unsigned int currentPage = auxFile::scrapPage(referenceInScrap);
+                        std::string scrapId = "?"; 
+                        unsigned int currentPage = 1;
+                        if(auxFileWasParsed()){
+                            scrapId = auxFile::scrapId(referenceInScrap);
+                            currentPage = auxFile::scrapPage(referenceInScrap);
+                        }
                         referenceString += "\\NWlink{nuweb" + scrapId + "}{";
                         if(lastPage == 0){
                             referenceString += scrapId + "}";
-                            lastPage = currentPage;
+                            if(!auxFileWasParsed())
+                                lastPage++;
+                            else
+                                lastPage = currentPage;
                             continue;
                         }
                         multipleReferences = true;
-                        if(currentPage != lastPage){
+                        if(currentPage != lastPage || !auxFileWasParsed()){
                             referenceString += ", " + scrapId + "}";
-                            lastPage = currentPage;
+                            if(!auxFileWasParsed())
+                                lastPage++;
+                            else
+                                lastPage = currentPage;
                             continue;
                         }
                         referenceString += std::string(1, auxFile::scrapLetter(referenceInScrap)) + "}";
@@ -95,11 +109,14 @@ public:
             returnString += "\\NWlink{nuweb" + fragmentScrapId + "}{";
             if(lastFragmentPage == 0)
                 returnString += fragmentScrapId + "}";
-            else if(currentFragmentPage != lastFragmentPage)
+            else if(currentFragmentPage != lastFragmentPage || !auxFileWasParsed())
                 returnString += ", " + fragmentScrapId + "}";
             else
                 returnString += std::string(1, auxFile::scrapLetter(scrapNumbers.at(fragmentDefinitionNumber))) + "}";
-            lastFragmentPage = currentFragmentPage;
+            if(!auxFileWasParsed())
+                lastFragmentPage++;
+            else
+                lastFragmentPage = currentFragmentPage;
             fragmentDefinitionNumber++;
         }
         returnString += "}$\\,\\rangle$ {\\footnotesize ";

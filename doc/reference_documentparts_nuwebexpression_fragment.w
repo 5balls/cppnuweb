@@ -370,7 +370,7 @@ fragmentReference
 @d Lexer rules for fragment headers and references
 @{@%
 <scrapContents,fragmentReference>@@< { start(fragmentReference); m_fragmentReferenceDepth++; TOKEN(AT_ANGLE_BRACKET_OPEN) }
-<scrapContents,fragmentReference>@@<\+ { start(fragmentReference); m_fragmentReferenceDepth++; TOKEN(AT_ANGLE_BRACKET_OPEN_PLUS) }
+<scrapContents,fragmentReference>@@<\+[ ] { start(fragmentReference); m_fragmentReferenceDepth++; TOKEN(AT_ANGLE_BRACKET_OPEN_PLUS) }
 <fragmentReference>@@> { m_fragmentReferenceDepth--; if(m_fragmentReferenceDepth == 0) start(scrapContents); TOKEN(AT_ANGLE_BRACKET_CLOSE) }
 <INITIAL>@@< { start(fragmentReferenceExpanded); TOKEN(AT_ANGLE_BRACKET_OPEN) }
 <fragmentReferenceExpanded>@@> { start(INITIAL); TOKEN(AT_ANGLE_BRACKET_CLOSE) }
