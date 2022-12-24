@@ -77,6 +77,7 @@ protected:
     static std::string m_hypperrefOptions;
     static unsigned int m_sectionLevel;
     static unsigned int m_nextSectionLevel;
+    std::string escapeLatexCharacters(std::string input) const;
 public:
     documentPart(const documentPart&) = delete;
     documentPart(void);
@@ -531,3 +532,18 @@ std::string nuweb::documentPart::fileUtf8(filePosition& l_filePosition) const{
         m_sectionLevel = 0;
     }
 @| closeSection @}
+\subsubsection{escapeLatexCharacters}
+\indexClassMethod{documentPart}{escapeLatexCharacters}
+@d \classImplementation{documentPart}
+@{@%
+    std::string nuweb::documentPart::escapeLatexCharacters(std::string input) const{
+        for(const std::string characterToEscape: {"$", "_", "^", "#"}){
+            size_t currentSearchColumn = 0;
+            while((currentSearchColumn = input.find(characterToEscape, currentSearchColumn)) != std::string::npos) {
+                input.replace(currentSearchColumn, 1, "\\" + characterToEscape);
+                currentSearchColumn += 2;
+            }
+        }
+        return input;
+    }
+@| escapeLatexCharacters @}
