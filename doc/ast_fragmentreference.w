@@ -226,7 +226,10 @@ public:
             else
                 fragmentNameString += referenceNamePart->fileUtf8(ll_filePosition);
         }
-        return "@@<" + fragmentNameString + "@@>";
+        if(m_global)
+            return "@@<+" + fragmentNameString + "@@>";
+        else
+            return "@@<" + fragmentNameString + "@@>";
     }
 @| quotedFileUtf8 @}
 
