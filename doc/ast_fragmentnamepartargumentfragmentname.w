@@ -22,6 +22,7 @@
 class fragmentNamePartArgumentFragmentName : public fragmentNamePartArgument {
 private:
     fragmentReference* m_fragmentReference;
+    bool m_global;
 public:
     fragmentNamePartArgumentFragmentName(fragmentReference* l_fragmentReference);
     virtual std::string utf8(filePosition& l_filePosition) const override;
@@ -29,13 +30,14 @@ public:
     virtual std::string fileUtf8(filePosition& l_filePosition) const override;
     virtual void resolveReferences(void) override;
     virtual void resolveReferences2(void) override;
+    void setGlobal(void);
 };
 @| fragmentNamePartArgumentFragmentName @}
 \subsubsection{fragmentNamePartArgumentFragmentName}
 \indexClassMethod{fragmentNamePartArgumentFragmentName}{fragmentNamePartArgumentFragmentName}
 @d \classImplementation{fragmentNamePartArgumentFragmentName}
 @{@%
-     nuweb::fragmentNamePartArgumentFragmentName::fragmentNamePartArgumentFragmentName(fragmentReference* l_fragmentReference) : fragmentNamePartArgument(documentPart()), m_fragmentReference(l_fragmentReference){
+     nuweb::fragmentNamePartArgumentFragmentName::fragmentNamePartArgumentFragmentName(fragmentReference* l_fragmentReference) : fragmentNamePartArgument(documentPart()), m_fragmentReference(l_fragmentReference), m_global(false){
     }
 @| fragmentNamePartArgumentFragmentName @}
 \subsubsection{utf8}
@@ -159,3 +161,11 @@ public:
         m_fragmentReference->resolveReferences2();
     }
 @| resolveReferences2 @}
+\subsubsection{setGlobal}
+\indexClassMethod{fragmentNamePartArgumentFragmentName}{setGlobal}
+@d \classImplementation{fragmentNamePartArgumentFragmentName}
+@{@%
+    void nuweb::fragmentNamePartArgumentFragmentName::setGlobal(void){
+        m_global = true;
+    }
+@| setGlobal @}

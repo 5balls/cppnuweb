@@ -159,12 +159,18 @@ public:
                 returnString += "\\NWlink{nuweb" + scrapId + "}{";
                 if(lastPage == 0){
                     returnString += scrapId + "}";
-                    lastPage = currentPage;
+                    if(!auxFileWasParsed())
+                        lastPage++;
+                    else
+                        lastPage = currentPage;
                     continue;
                 }
                 if(currentPage != lastPage){
                     returnString += ", " + scrapId + "}";
-                    lastPage = currentPage;
+                    if(!auxFileWasParsed())
+                        lastPage++;
+                    else
+                        lastPage = currentPage;
                     continue;
                 }
                 if(auxFileWasParsed())

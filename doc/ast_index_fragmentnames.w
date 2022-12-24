@@ -22,9 +22,11 @@
 class indexFragmentNames : public documentPart{
 private:
     unsigned int m_indexSectionLevel;
+    bool m_global;
 public:
     indexFragmentNames(filePosition* l_filePosition);
     virtual std::string texUtf8(void) const override;
+    void setGlobal(void);
 };
 @| indexFragmentNames @}
 \section{Implementation}
@@ -32,7 +34,7 @@ public:
 \indexClassMethod{indexFragmentNames}{indexFragmentNames}
 @d \classImplementation{indexFragmentNames}
 @{@%
-    nuweb::indexFragmentNames::indexFragmentNames(filePosition* l_filePosition) : documentPart(l_filePosition), m_indexSectionLevel(m_sectionLevel){
+    nuweb::indexFragmentNames::indexFragmentNames(filePosition* l_filePosition) : documentPart(l_filePosition), m_indexSectionLevel(m_sectionLevel), m_global(false){
     }
 @| indexFragmentNames @}
 \subsubsection{texUtf8}
@@ -42,17 +44,24 @@ public:
     std::string nuweb::indexFragmentNames::texUtf8(void) const{
         std::string returnString;
         returnString = "\n{\\small\\begin{list}{}{\\setlength{\\itemsep}{-\\parsep}\\setlength{\\itemindent}{-\\leftmargin}}";
-        std::vector<documentPart*> fragmentNames = fragmentDefinition::fragmentDefinitionsNames(m_indexSectionLevel);
-        std::vector<unsigned int> scrapNumbers = fragmentDefinition::fragmentDefinitionsScrapNumbers(m_indexSectionLevel);
-        std::vector<fragmentDefinition*> firstFragments = fragmentDefinition::fragmentDefinitionsFirstFragments(m_indexSectionLevel);
+        std::vector<documentPart*> fragmentNames = fragmentDefinition::fragmentDefinitionsNames(m_indexSectionLevel, m_global);
+        std::vector<unsigned int> scrapNumbers = fragmentDefinition::fragmentDefinitionsScrapNumbers(m_indexSectionLevel, m_global);
+        std::vector<fragmentDefinition*> firstFragments = fragmentDefinition::fragmentDefinitionsFirstFragments(m_indexSectionLevel, m_global);
         unsigned int fragmentDefinitionNumber = 0;
         fragmentDefinition* lastFirstFragment = nullptr;
         std::string referenceString;
         unsigned int lastFragmentPage = 0;
         for(const auto& fragmentName: fragmentNames){
-            std::string fragmentScrapId = auxFile::scrapId(scrapNumbers.at(fragmentDefinitionNumber));
-            unsigned int currentFragmentPage = auxFile::scrapPage(scrapNumbers.at(fragmentDefinitionNumber));
-            if(fragmentScrapId.empty()) fragmentScrapId = "?";
+            if(firstFragments.at(fragmentDefinitionNumber)->global() != m_global){
+                fragmentDefinitionNumber++;
+                continue;
+            }
+            std::string fragmentScrapId = "?";
+            unsigned int currentFragmentPage = 1;
+            if(auxFileWasParsed()){
+                fragmentScrapId = auxFile::scrapId(scrapNumbers.at(fragmentDefinitionNumber));
+                currentFragmentPage = auxFile::scrapPage(scrapNumbers.at(fragmentDefinitionNumber));
+            }
             if(firstFragments.at(fragmentDefinitionNumber) != lastFirstFragment){
                 if(lastFirstFragment != nullptr){
                     returnString += "}$\\,\\rangle$ {\\footnotesize ";
@@ -68,18 +77,28 @@ public:
                     referenceString = "{\\NWtxtRefIn} ";
                     unsigned int lastPage = 0;
                     for(const auto & referenceInScrap: referencesInScraps){
-                        std::string scrapId = auxFile::scrapId(referenceInScrap);
-                        unsigned int currentPage = auxFile::scrapPage(referenceInScrap);
+                        std::string scrapId = "?"; 
+                        unsigned int currentPage = 1;
+                        if(auxFileWasParsed()){
+                            scrapId = auxFile::scrapId(referenceInScrap);
+                            currentPage = auxFile::scrapPage(referenceInScrap);
+                        }
                         referenceString += "\\NWlink{nuweb" + scrapId + "}{";
                         if(lastPage == 0){
                             referenceString += scrapId + "}";
-                            lastPage = currentPage;
+                            if(!auxFileWasParsed())
+                                lastPage++;
+                            else
+                                lastPage = currentPage;
                             continue;
                         }
                         multipleReferences = true;
-                        if(currentPage != lastPage){
+                        if(currentPage != lastPage || !auxFileWasParsed()){
                             referenceString += ", " + scrapId + "}";
-                            lastPage = currentPage;
+                            if(!auxFileWasParsed())
+                                lastPage++;
+                            else
+                                lastPage = currentPage;
                             continue;
                         }
                         referenceString += std::string(1, auxFile::scrapLetter(referenceInScrap)) + "}";
@@ -93,16 +112,30 @@ public:
             returnString += "\\NWlink{nuweb" + fragmentScrapId + "}{";
             if(lastFragmentPage == 0)
                 returnString += fragmentScrapId + "}";
-            else if(currentFragmentPage != lastFragmentPage)
+            else if(currentFragmentPage != lastFragmentPage || !auxFileWasParsed())
                 returnString += ", " + fragmentScrapId + "}";
             else
                 returnString += std::string(1, auxFile::scrapLetter(scrapNumbers.at(fragmentDefinitionNumber))) + "}";
-            lastFragmentPage = currentFragmentPage;
+            if(!auxFileWasParsed())
+                lastFragmentPage++;
+            else
+                lastFragmentPage = currentFragmentPage;
             fragmentDefinitionNumber++;
         }
-        returnString += "}$\\,\\rangle$ {\\footnotesize ";
+        if(lastFirstFragment != nullptr){
+            returnString += "}";
+        }
+        returnString += "$\\,\\rangle$ {\\footnotesize ";
         returnString += referenceString;
-        returnString += "}\n\\end{list}}\n"; 
+        returnString += "}\n\\end{list}}"; 
         return returnString;
     }
 @| texUtf8 @}
+\subsubsection{setGlobal}
+\indexClassMethod{indexFragmentNames}{setGlobal}
+@d \classImplementation{indexFragmentNames}
+@{@%
+    void nuweb::indexFragmentNames::setGlobal(void){
+        m_global = true;
+    }
+@| setGlobal @}

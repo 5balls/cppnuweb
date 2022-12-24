@@ -75,7 +75,7 @@ public:
        }
        if ((l_toCompareWith.m_isShortened ? leftHandSide.substr(0,rightHandSideLength) : leftHandSide)
            != (m_isShortened ? rightHandSide.substr(0,leftHandSideLength) : rightHandSide))
-               return false;
+           return false;
        return fragmentNamePartDefinition::isEqualWith(toCompareWith);
     }
 @| isEqualWith @}
