@@ -44,15 +44,18 @@ public:
     std::string nuweb::indexFragmentNames::texUtf8(void) const{
         std::string returnString;
         returnString = "\n{\\small\\begin{list}{}{\\setlength{\\itemsep}{-\\parsep}\\setlength{\\itemindent}{-\\leftmargin}}";
-        std::vector<documentPart*> fragmentNames = fragmentDefinition::fragmentDefinitionsNames(m_indexSectionLevel);
-        std::vector<unsigned int> scrapNumbers = fragmentDefinition::fragmentDefinitionsScrapNumbers(m_indexSectionLevel);
-        std::vector<fragmentDefinition*> firstFragments = fragmentDefinition::fragmentDefinitionsFirstFragments(m_indexSectionLevel);
+        std::vector<documentPart*> fragmentNames = fragmentDefinition::fragmentDefinitionsNames(m_indexSectionLevel, m_global);
+        std::vector<unsigned int> scrapNumbers = fragmentDefinition::fragmentDefinitionsScrapNumbers(m_indexSectionLevel, m_global);
+        std::vector<fragmentDefinition*> firstFragments = fragmentDefinition::fragmentDefinitionsFirstFragments(m_indexSectionLevel, m_global);
         unsigned int fragmentDefinitionNumber = 0;
         fragmentDefinition* lastFirstFragment = nullptr;
         std::string referenceString;
         unsigned int lastFragmentPage = 0;
         for(const auto& fragmentName: fragmentNames){
-            if(firstFragments.at(fragmentDefinitionNumber)->global() != m_global) continue;
+            if(firstFragments.at(fragmentDefinitionNumber)->global() != m_global){
+                fragmentDefinitionNumber++;
+                continue;
+            }
             std::string fragmentScrapId = "?";
             unsigned int currentFragmentPage = 1;
             if(auxFileWasParsed()){
@@ -119,7 +122,10 @@ public:
                 lastFragmentPage = currentFragmentPage;
             fragmentDefinitionNumber++;
         }
-        returnString += "}$\\,\\rangle$ {\\footnotesize ";
+        if(lastFirstFragment != nullptr){
+            returnString += "}";
+        }
+        returnString += "$\\,\\rangle$ {\\footnotesize ";
         returnString += referenceString;
         returnString += "}\n\\end{list}}"; 
         return returnString;

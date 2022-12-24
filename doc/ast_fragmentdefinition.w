@@ -44,9 +44,9 @@ public:
     static fragmentDefinition* fragmentFromFragmentName(unsigned int sectionLevel, const documentPart* fragmentName, bool global = false);
     std::vector<unsigned int> scrapsFromFragment(void);
     static std::vector<unsigned int> scrapsFromFragmentName(unsigned int sectionLevel, const documentPart* fragmentName);
-    static std::vector<documentPart*> fragmentDefinitionsNames(unsigned int sectionLevel = 0);
-    static std::vector<unsigned int> fragmentDefinitionsScrapNumbers(unsigned int sectionLevel = 0);
-    static std::vector<fragmentDefinition*> fragmentDefinitionsFirstFragments(unsigned int sectionLevel = 0);
+    static std::vector<documentPart*> fragmentDefinitionsNames(unsigned int sectionLevel = 0, bool global = false);
+    static std::vector<unsigned int> fragmentDefinitionsScrapNumbers(unsigned int sectionLevel = 0, bool global = false);
+    static std::vector<fragmentDefinition*> fragmentDefinitionsFirstFragments(unsigned int sectionLevel = 0, bool global = false);
     fragmentNamePartText* findLongFormNamePart(unsigned int argumentNumber);
     fragmentNamePartDefinition* findNamePart(unsigned int argumentNumber);
     void addReferenceScrapNumber(unsigned int scrapNumber);
@@ -641,11 +641,11 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
 \indexClassMethod{fragmentDefinition}{fragmentDefinitionsNames}
 @d \classImplementation{fragmentDefinition}
 @{@%
-    std::vector<nuweb::documentPart*> nuweb::fragmentDefinition::fragmentDefinitionsNames(unsigned int sectionLevel){
+    std::vector<nuweb::documentPart*> nuweb::fragmentDefinition::fragmentDefinitionsNames(unsigned int sectionLevel, bool global){
         std::vector<documentPart*> fragmentNames;
         for(auto& fragmentDefinition: fragmentDefinitions)
             if(!dynamic_cast<outputFile*>(fragmentDefinition.second))
-                if(fragmentDefinition.second->m_definitionSectionLevel == sectionLevel)
+                if(fragmentDefinition.second->m_definitionSectionLevel == sectionLevel || global)
                     fragmentNames.push_back(fragmentDefinition.second->m_fragmentName);
         return fragmentNames;
     }
@@ -654,11 +654,11 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
 \indexClassMethod{fragmentDefinition}{fragmentDefinitionsScrapNumbers}
 @d \classImplementation{fragmentDefinition}
 @{@%
-    std::vector<unsigned int> nuweb::fragmentDefinition::fragmentDefinitionsScrapNumbers(unsigned int sectionLevel){
+    std::vector<unsigned int> nuweb::fragmentDefinition::fragmentDefinitionsScrapNumbers(unsigned int sectionLevel, bool global){
         std::vector<unsigned int> scrapNumbers;
         for(auto& fragmentDefinition: fragmentDefinitions)
             if(!dynamic_cast<outputFile*>(fragmentDefinition.second))
-                if(fragmentDefinition.second->m_definitionSectionLevel == sectionLevel)
+                if(fragmentDefinition.second->m_definitionSectionLevel == sectionLevel || global)
                     scrapNumbers.push_back(fragmentDefinition.second->m_currentScrapNumber);
         return scrapNumbers;
     }
@@ -667,11 +667,11 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
 \indexClassMethod{fragmentDefinition}{fragmentDefinitionsFirstFragments}
 @d \classImplementation{fragmentDefinition}
 @{@%
-    std::vector<nuweb::fragmentDefinition*> nuweb::fragmentDefinition::fragmentDefinitionsFirstFragments(unsigned int sectionLevel){
+    std::vector<nuweb::fragmentDefinition*> nuweb::fragmentDefinition::fragmentDefinitionsFirstFragments(unsigned int sectionLevel, bool global){
        std::vector<fragmentDefinition*> firstFragments; 
        for(auto& fragmentDefinition: fragmentDefinitions)
            if(!dynamic_cast<outputFile*>(fragmentDefinition.second))
-               if(fragmentDefinition.second->m_definitionSectionLevel == sectionLevel)
+               if(fragmentDefinition.second->m_definitionSectionLevel == sectionLevel || global)
                    firstFragments.push_back(fragmentDefinition.second->m_firstFragment);
        return firstFragments;
     }
