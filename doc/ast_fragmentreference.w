@@ -223,8 +223,10 @@ public:
                 throw std::runtime_error("Internal error, could not get fragment reference name correctly!");
             if(dynamic_cast<fragmentNamePartArgumentString*>(referenceNamePart))
                 fragmentNameString += "@@'" + referenceNamePart->utf8(ll_filePosition) + "@@'";
+            else if(dynamic_cast<fragmentNamePartArgumentFragmentName*>(referenceNamePart))
+                fragmentNameString += referenceNamePart->utf8(ll_filePosition);
             else
-                fragmentNameString += referenceNamePart->fileUtf8(ll_filePosition);
+                fragmentNameString += referenceNamePart->quotedFileUtf8(ll_filePosition);
         }
         if(m_global)
             return "@@<+" + fragmentNameString + "@@>";
