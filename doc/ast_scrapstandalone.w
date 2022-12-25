@@ -53,10 +53,10 @@ public:
     void nuweb::scrapStandalone::resolveReferences(void){
         if(!empty())
             for(auto& scrapPart: *this){
-                scrapPart->resolveReferences();
                 fragmentReference* possibleFragmentReference = dynamic_cast<fragmentReference*>(scrapPart);
                 if(possibleFragmentReference)
                     possibleFragmentReference->setOutsideFragment(true);
+                scrapPart->resolveReferences();
             }
     }
 @| resolveReferences @}
