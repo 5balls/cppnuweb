@@ -43,33 +43,65 @@ public:
 @{@%
     std::string nuweb::indexFragmentNames::texUtf8(void) const{
         std::string returnString;
-        returnString = "\n{\\small\\begin{list}{}{\\setlength{\\itemsep}{-\\parsep}\\setlength{\\itemindent}{-\\leftmargin}}";
-        std::vector<documentPart*> fragmentNames = fragmentDefinition::fragmentDefinitionsNames(m_indexSectionLevel, m_global);
-        std::vector<unsigned int> scrapNumbers = fragmentDefinition::fragmentDefinitionsScrapNumbers(m_indexSectionLevel, m_global);
-        std::vector<fragmentDefinition*> firstFragments = fragmentDefinition::fragmentDefinitionsFirstFragments(m_indexSectionLevel, m_global);
+        returnString = "\n{\\small\\begin{list}{}{\\setlength{\\itemsep}{-\\parsep}\\setlength{\\itemindent}{-\\leftmargin}";
+
+        std::vector<std::tuple<documentPart*, unsigned int, fragmentDefinition*> > fragmentNamesScrapNumbersFirstFragments = fragmentDefinition::fragmentDefinitionsNamesScrapNumbersFirstFragments(m_indexSectionLevel, m_global);
+
+        std::sort(fragmentNamesScrapNumbersFirstFragments.begin(), fragmentNamesScrapNumbersFirstFragments.end(), [](const std::tuple<documentPart*, unsigned int, fragmentDefinition*>& l_a, const std::tuple<documentPart*, unsigned int, fragmentDefinition*>& l_b){
+                std::string a = std::get<0>(l_a)->texUtf8();
+                std::string b = std::get<0>(l_b)->texUtf8();
+                unsigned int charToCompareA = 0;
+                unsigned int charToCompareB = 0;
+                while((charToCompareA < a.size()) && (charToCompareB < b.size())){
+                    while(a.at(charToCompareA)=='|' && (charToCompareA < a.size()-1))
+                        charToCompareA++;
+                    while(b.at(charToCompareB)=='|' && (charToCompareB < b.size()-1))
+                        charToCompareB++;
+                    if(std::tolower(a.at(charToCompareA)) != std::tolower(b.at(charToCompareB)))
+                        return std::tolower(a.at(charToCompareA)) < std::tolower(b.at(charToCompareB));
+                    charToCompareA++;
+                    charToCompareB++;
+                }
+                if(a.size() != b.size())
+                    return a.size() < b.size();
+                charToCompareA = 0;
+                charToCompareB = 0;
+                while((charToCompareA < a.size()) && (charToCompareB < b.size())){
+                    // Lowercase is equal, char not equal:
+                    while(a.at(charToCompareA)=='|' && (charToCompareA < a.size()-1))
+                        charToCompareA++;
+                    while(b.at(charToCompareB)=='|' && (charToCompareB < b.size()-1))
+                        charToCompareB++;
+                    if(a.at(charToCompareA) != b.at(charToCompareB))
+                        return a.at(charToCompareA) < b.at(charToCompareB);
+                    charToCompareA++;
+                    charToCompareB++;
+                }
+                return true;
+
+                });
         unsigned int fragmentDefinitionNumber = 0;
         fragmentDefinition* lastFirstFragment = nullptr;
         std::string referenceString;
+        for(const auto& fragmentNameScrapNumberFirstFragment: fragmentNamesScrapNumbersFirstFragments){
         unsigned int lastFragmentPage = 0;
-        for(const auto& fragmentName: fragmentNames){
-            if(firstFragments.at(fragmentDefinitionNumber)->global() != m_global){
-                fragmentDefinitionNumber++;
+            unsigned int scrapNumber = std::get<1>(fragmentNameScrapNumberFirstFragment);
+            if(std::get<2>(fragmentNameScrapNumberFirstFragment)->global() != m_global)
                 continue;
-            }
             std::string fragmentScrapId = "?";
             unsigned int currentFragmentPage = 1;
             if(auxFileWasParsed()){
-                fragmentScrapId = auxFile::scrapId(scrapNumbers.at(fragmentDefinitionNumber));
-                currentFragmentPage = auxFile::scrapPage(scrapNumbers.at(fragmentDefinitionNumber));
+                fragmentScrapId = auxFile::scrapId(scrapNumber);
+                currentFragmentPage = auxFile::scrapPage(scrapNumber);
             }
-            if(firstFragments.at(fragmentDefinitionNumber) != lastFirstFragment){
+            if(std::get<2>(fragmentNameScrapNumberFirstFragment) != lastFirstFragment){
                 if(lastFirstFragment != nullptr){
                     returnString += "}$\\,\\rangle$ {\\footnotesize ";
                     returnString += referenceString;
                 }
-                lastFirstFragment = firstFragments.at(fragmentDefinitionNumber);
-                returnString += "\n\\item $\\langle\\,$"+ fragmentName->texUtf8() + "\\nobreak\\ {\\footnotesize ";
-                std::vector<unsigned int> referencesInScraps = firstFragments.at(fragmentDefinitionNumber)->referencesInScraps();
+                lastFirstFragment = std::get<2>(fragmentNameScrapNumberFirstFragment);
+                returnString += "}\n\\item $\\langle\\,$"+ std::get<0>(fragmentNameScrapNumberFirstFragment)->texUtf8() + "\\nobreak\\ {\\footnotesize ";
+                std::vector<unsigned int> referencesInScraps = std::get<2>(fragmentNameScrapNumberFirstFragment)->referencesInScraps();
                 bool multipleReferences = false;
                 if(referencesInScraps.empty())
                     referenceString = "{\\NWtxtNoRef}";
@@ -115,7 +147,7 @@ public:
             else if(currentFragmentPage != lastFragmentPage || !auxFileWasParsed())
                 returnString += ", " + fragmentScrapId + "}";
             else
-                returnString += std::string(1, auxFile::scrapLetter(scrapNumbers.at(fragmentDefinitionNumber))) + "}";
+                returnString += std::string(1, auxFile::scrapLetter(scrapNumber)) + "}";
             if(!auxFileWasParsed())
                 lastFragmentPage++;
             else

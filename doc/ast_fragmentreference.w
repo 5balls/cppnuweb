@@ -256,6 +256,10 @@ public:
             }
         for(const auto& referenceFragmentNamePart: *m_referenceFragmentName)
             referenceFragmentNamePart->resolveReferences();
+        if(m_fragment && !m_expandReference && !m_outsideFragment)
+            m_fragment->addReferenceScrapNumber(m_scrapNumber);
+        if(m_fragment && !m_outsideFragment)
+            m_fragment->addReference(this);
     }
 @| resolveReferences @}
 \subsubsection{resolveReferences2}
@@ -265,10 +269,10 @@ public:
     void nuweb::fragmentReference::resolveReferences2(void){
         if(m_fragment && !m_expandReference && !m_outsideFragment)
             m_fragment->addReferenceScrapNumber(m_scrapNumber);
-        for(const auto& referenceFragmentNamePart: *m_referenceFragmentName)
-            referenceFragmentNamePart->resolveReferences2();
         if(m_fragment && !m_outsideFragment)
             m_fragment->addReference(this);
+        for(const auto& referenceFragmentNamePart: *m_referenceFragmentName)
+            referenceFragmentNamePart->resolveReferences2();
     }
 @| resolveReferences2 @}
 \subsubsection{setExpandReference}

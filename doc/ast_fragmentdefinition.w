@@ -47,6 +47,8 @@ public:
     static std::vector<documentPart*> fragmentDefinitionsNames(unsigned int sectionLevel = 0, bool global = false);
     static std::vector<unsigned int> fragmentDefinitionsScrapNumbers(unsigned int sectionLevel = 0, bool global = false);
     static std::vector<fragmentDefinition*> fragmentDefinitionsFirstFragments(unsigned int sectionLevel = 0, bool global = false);
+
+    static std::vector<std::tuple<documentPart*, unsigned int, fragmentDefinition*> > fragmentDefinitionsNamesScrapNumbersFirstFragments(unsigned int sectionLevel = 0, bool global = false);
     fragmentNamePartText* findLongFormNamePart(unsigned int argumentNumber);
     fragmentNamePartDefinition* findNamePart(unsigned int argumentNumber);
     void addReferenceScrapNumber(unsigned int scrapNumber);
@@ -676,6 +678,19 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
        return firstFragments;
     }
 @| fragmentDefinitionsFirstFragments @}
+\subsubsection{fragmentDefinitionsNamesScrapNumbersFirstFragments}
+\indexClassMethod{fragmentDefinition}{fragmentDefinitionsNamesScrapNumbersFirstFragments}
+@d \classImplementation{fragmentDefinition}
+@{@%
+    std::vector<std::tuple<nuweb::documentPart*, unsigned int, nuweb::fragmentDefinition*> > nuweb::fragmentDefinition::fragmentDefinitionsNamesScrapNumbersFirstFragments(unsigned int sectionLevel, bool global){
+        std::vector<std::tuple<documentPart*, unsigned int, fragmentDefinition*> > returnValue;
+        for(auto& fragmentDefinition: fragmentDefinitions)
+            if(!dynamic_cast<outputFile*>(fragmentDefinition.second))
+                if(fragmentDefinition.second->m_definitionSectionLevel == sectionLevel || global)
+                    returnValue.push_back({fragmentDefinition.second->m_fragmentName, fragmentDefinition.second->m_currentScrapNumber, fragmentDefinition.second->m_firstFragment});
+        return returnValue;
+    }
+@| fragmentDefinitionsNamesScrapNumbersFirstFragments @}
 \subsubsection{addReference}
 \indexClassMethod{fragmentDefinition}{addReference}
 @d \classImplementation{fragmentDefinition}
@@ -683,11 +698,6 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
     void nuweb::fragmentDefinition::addReference(fragmentReference* reference){
         if(std::find(m_references.begin(), m_references.end(), reference) == m_references.end())
             m_references.push_back(reference);
-        else{
-            std::ostringstream address;
-            address << (void const *)reference;
-            throw std::runtime_error("Internal error, trying to add the same reference \"" + address.str() + "\" twice!");
-        }
     }
 @| addReference @}
 \subsubsection{findLongFormNamePart}
