@@ -23,6 +23,7 @@
 #include <vector>
 #include <algorithm>
 #include <fstream>
+#include <tuple>
 #include "definitions.h"
 #include "file.h"
 #include "auxfile.h"

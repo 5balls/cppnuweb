@@ -88,7 +88,7 @@ public:
         filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
         if(m_isShortened)
             if(!m_longForm)
-                throw std::runtime_error("Could not find long form for argument \"" + utf8(ll_filePosition) + "\"!");
+                std::cout << "Could not find long form for argument \"" + utf8(ll_filePosition) + "\"!\n";
             else
                 expandedFragmentNamePart = m_longForm->utf8(ll_filePosition);
         else

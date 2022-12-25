@@ -66,8 +66,7 @@ public:
                 }
             }
         }
-        else
-            throw std::runtime_error("Internal error, unexpected empty argument list in scrap::resolveFragmentArguments!");
+        // Note: Empty scraps are possible and no reason to throw an error here
         return true;
     }
 @| resolveFragmentArguments @}
