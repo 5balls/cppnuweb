@@ -647,7 +647,7 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
         std::vector<documentPart*> fragmentNames;
         for(auto& fragmentDefinition: fragmentDefinitions)
             if(!dynamic_cast<outputFile*>(fragmentDefinition.second))
-                if(fragmentDefinition.second->m_definitionSectionLevel == sectionLevel || global)
+                if((!global && (fragmentDefinition.second->m_definitionSectionLevel == sectionLevel)) || (global && fragmentDefinition.second->m_global))
                     fragmentNames.push_back(fragmentDefinition.second->m_fragmentName);
         return fragmentNames;
     }
@@ -660,7 +660,7 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
         std::vector<unsigned int> scrapNumbers;
         for(auto& fragmentDefinition: fragmentDefinitions)
             if(!dynamic_cast<outputFile*>(fragmentDefinition.second))
-                if(fragmentDefinition.second->m_definitionSectionLevel == sectionLevel || global)
+                if((!global && (fragmentDefinition.second->m_definitionSectionLevel == sectionLevel)) != (global && fragmentDefinition.second->m_global))
                     scrapNumbers.push_back(fragmentDefinition.second->m_currentScrapNumber);
         return scrapNumbers;
     }
@@ -673,7 +673,7 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
        std::vector<fragmentDefinition*> firstFragments; 
        for(auto& fragmentDefinition: fragmentDefinitions)
            if(!dynamic_cast<outputFile*>(fragmentDefinition.second))
-               if(fragmentDefinition.second->m_definitionSectionLevel == sectionLevel || global)
+               if((!global && (fragmentDefinition.second->m_definitionSectionLevel == sectionLevel)) != (global && fragmentDefinition.second->m_global))
                    firstFragments.push_back(fragmentDefinition.second->m_firstFragment);
        return firstFragments;
     }
@@ -686,7 +686,7 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
         std::vector<std::tuple<documentPart*, unsigned int, fragmentDefinition*> > returnValue;
         for(auto& fragmentDefinition: fragmentDefinitions)
             if(!dynamic_cast<outputFile*>(fragmentDefinition.second))
-                if(fragmentDefinition.second->m_definitionSectionLevel == sectionLevel || global)
+                if((!global && (fragmentDefinition.second->m_definitionSectionLevel == sectionLevel)) != (global && fragmentDefinition.second->m_global))
                     returnValue.push_back({fragmentDefinition.second->m_fragmentName, fragmentDefinition.second->m_currentScrapNumber, fragmentDefinition.second->m_firstFragment});
         return returnValue;
     }

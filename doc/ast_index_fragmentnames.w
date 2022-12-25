@@ -46,6 +46,7 @@ public:
         returnString = "\n{\\small\\begin{list}{}{\\setlength{\\itemsep}{-\\parsep}\\setlength{\\itemindent}{-\\leftmargin}";
 
         std::vector<std::tuple<documentPart*, unsigned int, fragmentDefinition*> > fragmentNamesScrapNumbersFirstFragments = fragmentDefinition::fragmentDefinitionsNamesScrapNumbersFirstFragments(m_indexSectionLevel, m_global);
+        std::vector<unsigned int> scrapNumbers = fragmentDefinition::fragmentDefinitionsScrapNumbers(m_indexSectionLevel, m_global);
 
         std::sort(fragmentNamesScrapNumbersFirstFragments.begin(), fragmentNamesScrapNumbersFirstFragments.end(), [](const std::tuple<documentPart*, unsigned int, fragmentDefinition*>& l_a, const std::tuple<documentPart*, unsigned int, fragmentDefinition*>& l_b){
                 std::string a = std::get<0>(l_a)->texUtf8();
@@ -83,11 +84,12 @@ public:
         unsigned int fragmentDefinitionNumber = 0;
         fragmentDefinition* lastFirstFragment = nullptr;
         std::string referenceString;
-        for(const auto& fragmentNameScrapNumberFirstFragment: fragmentNamesScrapNumbersFirstFragments){
         unsigned int lastFragmentPage = 0;
-            unsigned int scrapNumber = std::get<1>(fragmentNameScrapNumberFirstFragment);
-            if(std::get<2>(fragmentNameScrapNumberFirstFragment)->global() != m_global)
+        for(const auto& fragmentNameScrapNumberFirstFragment: fragmentNamesScrapNumbersFirstFragments){
+            unsigned int scrapNumber = scrapNumbers.at(fragmentDefinitionNumber);
+            if(std::get<2>(fragmentNameScrapNumberFirstFragment)->global() != m_global){
                 continue;
+            }
             std::string fragmentScrapId = "?";
             unsigned int currentFragmentPage = 1;
             if(auxFileWasParsed()){
@@ -95,6 +97,7 @@ public:
                 currentFragmentPage = auxFile::scrapPage(scrapNumber);
             }
             if(std::get<2>(fragmentNameScrapNumberFirstFragment) != lastFirstFragment){
+                lastFragmentPage = 0;
                 if(lastFirstFragment != nullptr){
                     returnString += "}$\\,\\rangle$ {\\footnotesize ";
                     returnString += referenceString;
