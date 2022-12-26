@@ -19,7 +19,7 @@
 \subsection{Interface}
 @d \classDeclaration{fragmentNamePartArgument}
 @{@%
-class fragmentNamePartArgument : public fragmentNamePartDefinition {
+class fragmentNamePartArgument : public fragmentNamePartDefinition, public documentPart {
 private:
     int m_argumentNumber = 0;
 protected:
@@ -36,7 +36,7 @@ public:
 \indexClassMethod{fragmentNamePartArgument}{fragmentNamePartArgument}
 @d \classImplementation{fragmentNamePartArgument}
 @{@%
-     nuweb::fragmentNamePartArgument::fragmentNamePartArgument(filePosition* l_filePosition) : fragmentNamePartDefinition(l_filePosition){
+     nuweb::fragmentNamePartArgument::fragmentNamePartArgument(filePosition* l_filePosition) : fragmentNamePartDefinition(), documentPart(l_filePosition){
         
     }
 @| fragmentNamePartArgument @}
@@ -44,7 +44,7 @@ public:
 \indexClassMethod{fragmentNamePartArgument}{fragmentNamePartArgument}
 @d \classImplementation{fragmentNamePartArgument}
 @{@%
-     nuweb::fragmentNamePartArgument::fragmentNamePartArgument(documentPart&& l_documentPart) : fragmentNamePartDefinition(std::move(l_documentPart)) {
+     nuweb::fragmentNamePartArgument::fragmentNamePartArgument(documentPart&& l_documentPart) : fragmentNamePartDefinition(), documentPart(std::move(l_documentPart)) {
         
     }
 @| fragmentNamePartArgument @}
@@ -52,7 +52,7 @@ public:
 \indexClassMethod{fragmentNamePartArgument}{fragmentNamePartArgument}
 @d \classImplementation{fragmentNamePartArgument}
 @{@%
-     nuweb::fragmentNamePartArgument::fragmentNamePartArgument(unsigned int argumentNumber) : fragmentNamePartDefinition(nullptr), m_argumentNumber(argumentNumber) {
+     nuweb::fragmentNamePartArgument::fragmentNamePartArgument(unsigned int argumentNumber) : fragmentNamePartDefinition(), documentPart(emptyDocumentPart()), m_argumentNumber(argumentNumber) {
         
     }
 @| fragmentNamePartArgument @}

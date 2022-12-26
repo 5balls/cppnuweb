@@ -18,7 +18,7 @@
 \subsubsection{Cross reference}
 @d Lexer rule for cross reference
 @{@%
-<INITIAL,scrapContents>[@@]x { TOKEN(AT_SMALL_X) } @| AT_SMALL_X @}
+<INITIAL,scrapContents,scrapContentsInsideFragmentReference>[@@]x { TOKEN(AT_SMALL_X) } @| AT_SMALL_X @}
 
 @d Bison token definitions
 @{%token AT_SMALL_X @| AT_SMALL_X @}

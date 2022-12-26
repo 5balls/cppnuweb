@@ -18,7 +18,7 @@
 \subsubsection{Escape character}
 @d Lexer rule for escape character
 @{@%
-<INITIAL,scrapContents,fragmentHeader>[@@][@@] { TOKEN(AT_AT) } @| AT_AT @}
+<INITIAL,scrapContents,scrapContentsInsideFragmentReference,fragmentHeader>[@@][@@] { TOKEN(AT_AT) } @| AT_AT @}
 
 @d \classDeclaration{escapeCharacterDocumentPart}
 @{

@@ -51,7 +51,7 @@ We have the following Flex rules for this
 @{<outputFileHeader,userIdentifiers>[[:space:]]+  { TOKEN(WHITESPACE) }
 <outputFileHeader,userIdentifiers>[^@@[:space:]]+ { TOKEN(TEXT_WITHOUT_AT_OR_WHITESPACE) }
 <fragmentHeader,fragmentReference,fragmentReferenceExpanded>[^@@\n]+ { TOKEN(TEXT_WITHOUT_AT_OR_NEWLINE) }
-<INITIAL,scrapContents>[^@@]+ { TOKEN(TEXT_WITHOUT_AT) } @| WHITESPACE TEXT_WITHOUT_AT_OR_WHITESPACE TEXT_WITHOUT_AT TEXT_WITHOUT_AT_OR_NEWLINE @}
+<INITIAL,scrapContents,scrapContentsInsideFragmentReference>[^@@]+ { TOKEN(TEXT_WITHOUT_AT) } @| WHITESPACE TEXT_WITHOUT_AT_OR_WHITESPACE TEXT_WITHOUT_AT TEXT_WITHOUT_AT_OR_NEWLINE @}
 
 and our type definitions\footnote{\begin{samepage}Types (note that \codecpp\lstinline{filePosition} is good enough here as we can get the string part from our internal file buffer list):@d Bison type definitions
 @{%type <m_filePosition> WHITESPACE;

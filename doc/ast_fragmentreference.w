@@ -30,6 +30,7 @@ private:
     unsigned int m_leadingSpaces = 0;
     unsigned int m_referenceSectionLevel;
     bool m_global;
+    documentPart* m_fragmentDefinitionName;
 public:
     fragmentReference(documentPart* fragmentName, bool expandReference=false);
     virtual std::string utf8(filePosition& l_filePosition) const override;
@@ -44,6 +45,7 @@ public:
     documentPart* getFragmentName(void) const;
     unsigned int getScrapNumber(void) const;
     void setGlobal(void);
+    void setFragmentDefinitionName(documentPart* fragmentDefinitionName);
 };
 @}
 
@@ -52,7 +54,7 @@ public:
 \indexClassMethod{fragmentReference}{fragmentReference}
 @d \classImplementation{fragmentReference}
 @{@%
-    nuweb::fragmentReference::fragmentReference(documentPart* fragmentName, bool expandReference) : m_unresolvedFragmentName(nullptr), m_referenceFragmentName(fragmentName), m_expandReference(expandReference), m_outsideFragment(false), m_referenceSectionLevel(m_sectionLevel), m_global(false){
+    nuweb::fragmentReference::fragmentReference(documentPart* fragmentName, bool expandReference) : m_unresolvedFragmentName(nullptr), m_referenceFragmentName(fragmentName), m_expandReference(expandReference), m_outsideFragment(false), m_referenceSectionLevel(m_sectionLevel), m_global(false), m_fragmentDefinitionName(nullptr){
         unsigned int fragmentNamePartNumber = 0;
         for(auto& fragmentNamePart: *m_referenceFragmentName){
             fragmentNamePartDefinition* fragmentArgument = dynamic_cast<fragmentNamePartDefinition*>(fragmentNamePart);
@@ -96,12 +98,12 @@ public:
                 if(dynamic_cast<fragmentNamePartArgumentString*>(referenceNamePart)){
                     filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
                     if(listingsPackageEnabled())
-                        returnString += "\\lstinline@@" + referenceNamePart->utf8(ll_filePosition) + "@@";
+                        returnString += "\\lstinline@@" + m_referenceFragmentNamePart->utf8(ll_filePosition) + "@@";
                     else
-                        returnString += "\\verb@@" + referenceNamePart->utf8(ll_filePosition) + "@@";
+                        returnString += "\\verb@@" + m_referenceFragmentNamePart->utf8(ll_filePosition) + "@@";
                 }
                 else
-                    returnString += referenceNamePart->texUtf8();
+                    returnString += m_referenceFragmentNamePart->texUtf8();
             }
             returnString += "}\\nobreak\\ {\\footnotesize ";
             std::string scrapNumber = "?";
@@ -162,9 +164,9 @@ public:
                 if(!referenceNamePart) 
                     throw std::runtime_error("Internal error, could not get fragment reference name correctly!");
                 if(dynamic_cast<fragmentNamePartArgumentString*>(referenceNamePart))
-                    fragmentNameString += "'" + referenceNamePart->utf8(ll_filePosition) + "'";
+                    fragmentNameString += "'" + m_referenceFragmentNamePart->utf8(ll_filePosition) + "'";
                 else
-                    fragmentNameString += referenceNamePart->fileUtf8(ll_filePosition);
+                    fragmentNameString += m_referenceFragmentNamePart->fileUtf8(ll_filePosition);
             }
             if(m_includeCrossReferenceEnabled){
                 if(documentPart::auxFileWasParsed()){
@@ -222,11 +224,11 @@ public:
             if(!referenceNamePart) 
                 throw std::runtime_error("Internal error, could not get fragment reference name correctly!");
             if(dynamic_cast<fragmentNamePartArgumentString*>(referenceNamePart))
-                fragmentNameString += "@@'" + referenceNamePart->utf8(ll_filePosition) + "@@'";
+                fragmentNameString += "@@'" + m_referenceFragmentNamePart->utf8(ll_filePosition) + "@@'";
             else if(dynamic_cast<fragmentNamePartArgumentFragmentName*>(referenceNamePart))
-                fragmentNameString += referenceNamePart->utf8(ll_filePosition);
+                fragmentNameString += m_referenceFragmentNamePart->utf8(ll_filePosition);
             else
-                fragmentNameString += referenceNamePart->quotedFileUtf8(ll_filePosition);
+                fragmentNameString += m_referenceFragmentNamePart->quotedFileUtf8(ll_filePosition);
         }
         if(m_global)
             return "@@<+" + fragmentNameString + "@@>";
@@ -241,16 +243,26 @@ public:
 @{@%
     void nuweb::fragmentReference::resolveReferences(void){
         m_leadingSpaces = this->leadingSpaces();
-        if(!m_fragment){
-            m_fragment = fragmentDefinition::fragmentFromFragmentName(m_referenceSectionLevel, m_unresolvedFragmentName, m_global);
-        }
         if(!m_fragment)
-            std::cout << "Could not resolve fragment \"" + m_unresolvedFragmentName->texUtf8() + "\" in file " + m_unresolvedFragmentName->filePositionString() + "\n";
+            m_fragment = fragmentDefinition::fragmentFromFragmentName(m_referenceSectionLevel, m_unresolvedFragmentName, m_global);
+        if(!m_fragment)
+            std::cout << "Could not resolve fragment in file " + m_unresolvedFragmentName->filePositionString() + "\n";
+        if(m_fragmentDefinitionName)
+            for(auto& fragmentNamePart: *m_referenceFragmentName){
+                scrapVerbatimArgument* possibleScrapArgument = dynamic_cast<scrapVerbatimArgument*>(fragmentNamePart);
+                if(possibleScrapArgument)
+                    possibleScrapArgument->resolveFragmentArguments(m_fragmentDefinitionName);
+            }
         if(m_fragment && m_fragment->fragmentNameSize() > m_referenceFragmentName->size())
             for(unsigned int missingFragmentPart = m_referenceFragmentName->size(); missingFragmentPart<m_fragment->fragmentNameSize(); missingFragmentPart++){
                 fragmentNamePartDefinition* fragmentNamePart = m_fragment->findNamePart(missingFragmentPart);
-                if(fragmentNamePart)
-                    m_referenceFragmentName->push_back(fragmentNamePart);
+                if(fragmentNamePart){
+                    documentPart* possibleDocumentPart = dynamic_cast<documentPart*>(fragmentNamePart);
+                    if(possibleDocumentPart)
+                        m_referenceFragmentName->push_back(possibleDocumentPart);
+                    else
+                        throw std::runtime_error("Internal error, could not get document part for fragment name part!");
+                }
                 else
                     throw std::runtime_error("Internal error, could not resolve incomplete fragment name in fragmentReference!");
             }
@@ -324,3 +336,11 @@ public:
         m_fragment = fragmentDefinition::fragmentFromFragmentName(m_referenceSectionLevel, m_referenceFragmentName, true);
     }
 @| setGlobal @}
+\subsubsection{setFragmentDefinitionName}
+\indexClassMethod{fragmentReference}{setFragmentDefinitionName}
+@d \classImplementation{fragmentReference}
+@{@%
+    void nuweb::fragmentReference::setFragmentDefinitionName(documentPart* fragmentDefinitionName){
+        m_fragmentDefinitionName = fragmentDefinitionName;
+    }
+@| setFragmentDefinitionName @}

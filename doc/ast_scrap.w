@@ -42,28 +42,31 @@ public:
 @{@%
     bool nuweb::scrap::resolveFragmentArguments(documentPart* fragmentName){
         if(fragmentName->empty()) return false;
-        std::vector<fragmentNamePartDefinition*> fragmentNameArguments;
+        std::vector<documentPart*> fragmentNameArguments;
         for(auto& fragmentNamePart: *fragmentName){
             fragmentNamePartDefinition* fragmentNamePossibleArgument = dynamic_cast<fragmentNamePartDefinition*>(fragmentNamePart);
             if(!fragmentNamePossibleArgument)
                 throw std::runtime_error("Internal error, could not convert argument to argument type!");
-            if(dynamic_cast<fragmentNamePartArgument*>(fragmentNamePossibleArgument)) fragmentNameArguments.push_back(fragmentNamePossibleArgument);
+            if(dynamic_cast<fragmentNamePartArgument*>(fragmentNamePossibleArgument)) fragmentNameArguments.push_back(fragmentNamePart);
         }
         if(!empty()){
-            for(const auto& documentPart: *this){
-                fragmentArgument* foundFragmentArgument = dynamic_cast<fragmentArgument*>(documentPart);
+            for(const auto& l_documentPart: *this){
+                fragmentArgument* foundFragmentArgument = dynamic_cast<fragmentArgument*>(l_documentPart);
                 if(foundFragmentArgument){
                     unsigned int argumentNumber = foundFragmentArgument->number();
                     if(argumentNumber>fragmentNameArguments.size())
                     {
                         std::cout << "  Referencing argument number " + std::to_string(argumentNumber) + " but there are only " + std::to_string(fragmentNameArguments.size()) + " arguments defined in this fragment!\n";
-                        fragmentNamePartDefinition* emptyFragmentArgument = new fragmentNamePartArgument(argumentNumber);
+                        fragmentNamePartArgument* emptyFragmentArgument = new fragmentNamePartArgument(argumentNumber);
                         foundFragmentArgument->setNameToExpandTo(emptyFragmentArgument);
                     }
                     else
                         foundFragmentArgument->setNameToExpandTo(fragmentNameArguments.at(argumentNumber-1));
 
                 }
+                fragmentReference* possibleFragmentReference = dynamic_cast<fragmentReference*>(l_documentPart);
+                if(possibleFragmentReference)
+                    possibleFragmentReference->setFragmentDefinitionName(fragmentName);
             }
         }
         // Note: Empty scraps are possible and no reason to throw an error here

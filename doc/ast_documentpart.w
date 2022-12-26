@@ -41,6 +41,7 @@ namespace nuweb {
 @<\classDeclaration{fragmentNamePartArgument}@>
 @<\classDeclaration{fragmentNamePartArgumentString}@>
 @<\classDeclaration{fragmentNamePartArgumentFragmentName}@>
+@<\classDeclaration{scrapVerbatimArgument}@>
 @<\classDeclaration{fragmentReference}@>
 @<\classDeclaration{outputFile}@>
 @<\classDeclaration{emptyDocumentPart}@>
@@ -130,6 +131,7 @@ public:
 @<\staticDefinitions{userIdentifier}@>
 @<\staticDefinitions{crossReference}@>
 @<\staticDefinitions{blockComment}@>
+@<\staticDefinitions{scrapVerbatimArgument}@>
 
 @<\classImplementation{documentPart}@>
 @<\classImplementation{fragmentDefinition}@>
@@ -140,6 +142,7 @@ public:
 @<\classImplementation{fragmentNamePartArgument}@>
 @<\classImplementation{fragmentNamePartArgumentString}@>
 @<\classImplementation{fragmentNamePartArgumentFragmentName}@>
+@<\classImplementation{scrapVerbatimArgument}@>
 @<\classImplementation{outputFile}@>
 @<\classImplementation{scrap}@>
 @<\classImplementation{scrapVerbatim}@>

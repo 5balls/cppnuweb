@@ -51,7 +51,9 @@ We have the following bison rules for fragments:
 @<\bisonRule{fragmentCommand}@>
 @<\bisonRule{fragmentNameDefinition}@>
 @<\bisonRule{fragmentNamePartDefinition}@>
+@<\bisonRule{fragmentNamePartReference}@>
 @<\bisonRule{fragmentNameArgument}@>
+@<\bisonRule{fragmentNameArgumentReference}@>
 @<\bisonRule{fragmentNameText}@>
 @<\bisonRule{fragmentNameArgumentOld}@>
 @<\bisonRule{commaSeparatedFragmentArguments}@>
@@ -227,10 +229,28 @@ fragmentNameDefinition
 ;
 @| fragmentNameDefinition @}
 
+@d \bisonRule{fragmentNameReference}
+@{
+fragmentNameDefinitionReference
+    : fragmentNamePartReference
+    {
+        $$ = new documentPart();
+        $$->push_back($fragmentNamePartReference);
+    }
+    | fragmentNameDefinitionReference[l_fragmentNameReference] fragmentNamePartReference
+    {
+        $l_fragmentNameReference->push_back($fragmentNamePartReference);
+        $$ = $l_fragmentNameReference;
+    }
+;
+@| fragmentNameDefinitionReference @}
+
+
 @d \bisonTypeDefinition{fragmentNameDefinition}
 @{@%
 %type <m_documentPart> fragmentNameDefinition
-@}
+%type <m_documentPart> fragmentNameDefinitionReference
+@| fragmentNameDefinition fragmentNameDefinitionReference @}
 
 @d \bisonRule{fragmentNamePartDefinition}
 @{
@@ -246,10 +266,25 @@ fragmentNamePartDefinition
 ;
 @| fragmentNamePartDefinition @}
 
+@d \bisonRule{fragmentNamePartReference}
+@{
+fragmentNamePartReference
+    : fragmentNameText
+    {
+        $$ = new fragmentNamePartText($fragmentNameText);
+    }
+    | fragmentNameArgumentReference
+    {
+        $$ = $fragmentNameArgumentReference;
+    }
+;
+@| fragmentNamePartReference @}
+
 @d \bisonTypeDefinition{fragmentNamePartDefinition}
 @{@%
 %type <m_documentPart> fragmentNamePartDefinition
-@| fragmentNamePartDefinition @}
+%type <m_documentPart> fragmentNamePartReference
+@| fragmentNamePartDefinition fragmentNamePartReference @}
 
 \indexBisonRuleUsesToken{fragmentNameArgument}{TEXT\_WITHOUT\_AT}\indexBisonRuleUsesToken{fragmentNameArgument}{AT\_TICK}\indexBisonRuleUsesToken{fragmentNameArgument}{TEXT\_WITHOUT\_AT\_OR\_WHITESPACE}
 @d \bisonRule{fragmentNameArgument}
@@ -278,6 +313,37 @@ fragmentNameArgument
 ;
 @| fragmentNameArgument @}
 
+@d \bisonRule{fragmentNameArgumentReference}
+@{
+fragmentNameArgumentReference
+    : AT_TICK AT_TICK
+    {
+        throw std::runtime_error("AT_TICK AT_TICK not implemented!\n");
+    }
+    | AT_TICK TEXT_WITHOUT_AT_OR_NEWLINE AT_TICK
+    {
+        $$ = new fragmentNamePartArgumentString(new documentPart($TEXT_WITHOUT_AT_OR_NEWLINE));
+    }
+    | AT_ANGLE_BRACKET_OPEN fragmentNameReference AT_ANGLE_BRACKET_CLOSE
+    {
+        $fragmentNameReference->setFilePosition($AT_ANGLE_BRACKET_OPEN);
+        $$ = new fragmentNamePartArgumentFragmentName($fragmentNameReference);
+    }
+    | AT_ANGLE_BRACKET_OPEN_PLUS fragmentNameReference AT_ANGLE_BRACKET_CLOSE
+    {
+        $fragmentNameReference->setFilePosition($AT_ANGLE_BRACKET_OPEN_PLUS);
+        fragmentNamePartArgumentFragmentName* globalFragmentName = new fragmentNamePartArgumentFragmentName($fragmentNameReference);
+        globalFragmentName->setGlobal();
+        $$ = globalFragmentName;
+    }
+    | AT_CURLY_BRACKET_OPEN scrapContents AT_CURLY_BRACKET_CLOSE
+    {
+        $$ = new scrapVerbatimArgument($scrapContents);
+    }
+;
+@| fragmentNameArgumentReference @}
+
+
 @d Bison token definitions
 @{@%
 %token AT_ANGLE_BRACKET_OPEN AT_ANGLE_BRACKET_CLOSE AT_ANGLE_BRACKET_OPEN_PLUS 
@@ -286,7 +352,8 @@ fragmentNameArgument
 @d \bisonTypeDefinition{fragmentNameArgument}
 @{@%
 %type <m_documentPart> fragmentNameArgument
-@}
+%type <m_documentPart> fragmentNameArgumentReference
+@| fragmentNameArgument fragmentNameArgumentReference @}
 
 \indexBisonRuleUsesToken{fragmentNameText}{TEXT\_WITHOUT\_AT}\indexBisonRuleUsesToken{fragmentNameText}{AT\_AT}\indexBisonRuleUsesToken{fragmentNameText}{TEXT\_WITHOUT\_AT\_OR\_WHITESPACE}
 @d \bisonRule{fragmentNameText}
@@ -375,15 +442,15 @@ fragmentReference
 <INITIAL>@@< { start(fragmentReferenceExpanded); TOKEN(AT_ANGLE_BRACKET_OPEN) }
 <fragmentReferenceExpanded>@@> { start(INITIAL); TOKEN(AT_ANGLE_BRACKET_CLOSE) }
 <fragmentHeader,fragmentReference,fragmentReferenceExpanded>@@' {  TOKEN(AT_TICK) }
-<fragmentHeader,scrapContents>@@[1-9] { INTTOKEN(AT_NUMBER, std::stoi(std::string(yytext+1, yyleng-1))) }
+<fragmentHeader,scrapContents,scrapContentsInsideFragmentReference>@@[1-9] { INTTOKEN(AT_NUMBER, std::stoi(std::string(yytext+1, yyleng-1))) }
 @}
 
 @d \bisonRule{fragmentNameReference}
 @{@%
 fragmentNameReference
-    : fragmentNameDefinition
+    : fragmentNameDefinitionReference
     {
-        $$ = new fragmentReference($fragmentNameDefinition);
+        $$ = new fragmentReference($fragmentNameDefinitionReference);
     }
 @| fragmentNameReference @}
 

@@ -19,7 +19,7 @@
 \subsection{Interface}
 @d \classDeclaration{fragmentNamePartText}
 @{@%
-class fragmentNamePartText : public fragmentNamePartDefinition {
+class fragmentNamePartText : public fragmentNamePartDefinition, public documentPart {
 private:
     bool m_isShortened = false;
     fragmentNamePartText* m_longForm = nullptr;
@@ -38,7 +38,7 @@ public:
 \indexClassMethod{fragmentNamePartText}{fragmentNamePartText}
 @d \classImplementation{fragmentNamePartText}
 @{@%
-     nuweb::fragmentNamePartText::fragmentNamePartText(filePosition* l_filePosition) : fragmentNamePartDefinition(l_filePosition){
+     nuweb::fragmentNamePartText::fragmentNamePartText(filePosition* l_filePosition) : fragmentNamePartDefinition(), documentPart(l_filePosition){
          filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
          m_isShortened = (utf8(ll_filePosition).find("...") == utf8(ll_filePosition).length() - 3);
     }
@@ -47,7 +47,7 @@ public:
 \indexClassMethod{fragmentNamePartText}{fragmentNamePartText}
 @d \classImplementation{fragmentNamePartText}
 @{@%
-     nuweb::fragmentNamePartText::fragmentNamePartText(documentPart&& l_documentPart) : fragmentNamePartDefinition(std::move(l_documentPart)){
+     nuweb::fragmentNamePartText::fragmentNamePartText(documentPart&& l_documentPart) : fragmentNamePartDefinition(), documentPart(std::move(l_documentPart)){
          filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
          m_isShortened = (utf8(ll_filePosition).find("...") == utf8(ll_filePosition).length() - 3);
     }
@@ -104,7 +104,7 @@ public:
         if(m_isShortened && m_longForm)
             return m_longForm->fileUtf8(l_filePosition);
         else
-            return fragmentNamePartDefinition::fileUtf8(l_filePosition);
+            return documentPart::fileUtf8(l_filePosition);
     }
 @| fileUtf8 @}
 \subsubsection{resolveReferences2}

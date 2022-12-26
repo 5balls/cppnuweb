@@ -19,7 +19,7 @@
 \subsection{Interface}
 @d \classDeclaration{fragmentNamePartDefinition}
 @{@%
-class fragmentNamePartDefinition : public documentPart {
+class fragmentNamePartDefinition {
 private:
     static std::vector<fragmentNamePartDefinition*> m_allFragmentPartDefinitions;
 protected:
@@ -27,9 +27,7 @@ protected:
     unsigned int m_namePartNumber = 0;
     virtual bool isEqualWith(const fragmentNamePartDefinition& toCompareWith) const;
 public:
-    fragmentNamePartDefinition(filePosition* l_filePosition);
-    fragmentNamePartDefinition(documentPart&& l_documentPart);
-    fragmentNamePartDefinition(unsigned int argumentNumber);
+    fragmentNamePartDefinition(void);
     bool operator==(const fragmentNamePartDefinition& toCompareWith) const;
     bool operator!=(const fragmentNamePartDefinition& toCompareWith) const;
     void setParent(documentPart*);
@@ -45,17 +43,10 @@ std::vector<nuweb::fragmentNamePartDefinition*> nuweb::fragmentNamePartDefinitio
 \indexClassMethod{fragmentNamePartDefinition}{fragmentNamePartDefinition}
 @d \classImplementation{fragmentNamePartDefinition}
 @{@%
-    nuweb::fragmentNamePartDefinition::fragmentNamePartDefinition(filePosition* l_filePosition) : documentPart(l_filePosition) {
+     nuweb::fragmentNamePartDefinition::fragmentNamePartDefinition(void){
         m_allFragmentPartDefinitions.push_back(this);
     }
-@}
-\indexClassMethod{fragmentNamePartDefinition}{fragmentNamePartDefinition}
-@d \classImplementation{fragmentNamePartDefinition}
-@{@%
-    nuweb::fragmentNamePartDefinition::fragmentNamePartDefinition(documentPart&& l_documentPart) : documentPart(std::move(l_documentPart)) {
-        m_allFragmentPartDefinitions.push_back(this);
-    }
-@}
+@| fragmentNamePartDefinition @}
 \subsubsection{isEqualWith}
 \indexClassMethod{fragmentNamePartDefinition}{isEqualWith}
 @d \classImplementation{fragmentNamePartDefinition}

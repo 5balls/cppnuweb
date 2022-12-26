@@ -113,7 +113,7 @@ nuwebExpression
 @d Lexer rules for regular nuweb commands
 @{<INITIAL>@@m { TOKEN(AT_SMALL_M) }
 <INITIAL>@@m\+ { TOKEN(AT_SMALL_M_PLUS) }
-<INITIAL,scrapContents>@@v { TOKEN(AT_SMALL_V) } 
+<INITIAL,scrapContents,scrapContentsInsideFragmentReference>@@v { TOKEN(AT_SMALL_V) } 
 <INITIAL>@@s { TOKEN(AT_SMALL_S) } 
 <INITIAL>@@S { TOKEN(AT_LARGE_S) } 
 @| AT_SMALL_M AT_SMALL_M_PLUS AT_SMALL_V AT_SMALL_S AT_LARGE_S @}

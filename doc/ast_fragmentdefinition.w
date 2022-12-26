@@ -49,6 +49,7 @@ public:
     static std::vector<fragmentDefinition*> fragmentDefinitionsFirstFragments(unsigned int sectionLevel = 0, bool global = false);
 
     static std::vector<std::tuple<documentPart*, unsigned int, fragmentDefinition*> > fragmentDefinitionsNamesScrapNumbersFirstFragments(unsigned int sectionLevel = 0, bool global = false);
+    static unsigned int increaseScrapNumber(void);
     fragmentNamePartText* findLongFormNamePart(unsigned int argumentNumber);
     fragmentNamePartDefinition* findNamePart(unsigned int argumentNumber);
     void addReferenceScrapNumber(unsigned int scrapNumber);
@@ -89,7 +90,9 @@ public:
 \indexClassMethod{fragmentDefinition}{fragmentDefinition}
 @d \classImplementation{fragmentDefinition}
 @{@%
-    nuweb::fragmentDefinition::fragmentDefinition(documentPart* l_fragmentName, documentPart* l_scrap, bool pageBreak, unsigned int sectionLevel) : m_fragmentName(l_fragmentName), m_currentScrapNumber(++m_scrapNumber), m_fragmentNameSize(m_fragmentName->size()), m_pageBreak(pageBreak), m_referencesInScraps({}), m_definitionSectionLevel(sectionLevel), m_global(false){
+    nuweb::fragmentDefinition::fragmentDefinition(documentPart* l_fragmentName, documentPart* l_scrap, bool pageBreak, unsigned int sectionLevel) : m_fragmentName(l_fragmentName), m_fragmentNameSize(m_fragmentName->size()), m_pageBreak(pageBreak), m_referencesInScraps({}), m_definitionSectionLevel(sectionLevel), m_global(false){
+        m_currentScrapNumber = ++m_scrapNumber;
+        scrapVerbatimArgument::setMissingScrapNumbers();
         unsigned int fragmentNamePartNumber = 0;
         for(auto& fragmentNamePart: *m_fragmentName){
             fragmentNamePartDefinition* fragmentArgument = dynamic_cast<fragmentNamePartDefinition*>(fragmentNamePart);
@@ -144,12 +147,16 @@ public:
                 }
                 fragmentNamePartDefinition* compareFrom = dynamic_cast<fragmentNamePartDefinition*>(l_fragmentDefinition->m_fragmentName->at(fragmentNamePart));
                 if(!compareFrom)
-                    throw std::runtime_error("Internal error, could not compare fragment argument!");
+                    throw std::runtime_error("Internal error, could not compare fragment argument from!");
                 fragmentNamePartDefinition* compareTo = dynamic_cast<fragmentNamePartDefinition*>(fragmentName->at(fragmentNamePart));
                 if(!compareTo)
-                    throw std::runtime_error("Internal error, could not compare fragment argument!");
+                    throw std::runtime_error("Internal error, could not compare fragment argument to!");
                 filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
                 if(!(*compareFrom == *compareTo)){
+                    if(dynamic_cast<fragmentNamePartArgument*>(compareFrom) && dynamic_cast<scrapVerbatimArgument*>(compareTo))
+                        break;
+                    if(dynamic_cast<fragmentNamePartArgument*>(compareTo) && dynamic_cast<scrapVerbatimArgument*>(compareFrom))
+                        break;
                     fragmentNamesIdentical = false;
                     break;
                 }
@@ -510,9 +517,6 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
 @d \classImplementation{fragmentDefinition}
 @{@%
     void nuweb::fragmentDefinition::resolveReferences(void){
-        m_firstFragment = fragmentFromFragmentName(m_definitionSectionLevel, m_fragmentName);
-        if(!m_firstFragment)
-            throw std::runtime_error("Internal error, could resolve to first defining fragment!");
         m_scrap->resolveFragmentArguments(m_fragmentName);
         m_scrap->setUserIdentifiersScrapNumber(m_currentScrapNumber);
         m_scrap->setCrossReferencesScrapNumber(m_currentScrapNumber);
@@ -521,6 +525,9 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
         else
             for(auto& scrapPart: *m_scrap)
                 scrapPart->resolveReferences();
+        m_firstFragment = fragmentFromFragmentName(m_definitionSectionLevel, m_fragmentName);
+        if(!m_firstFragment)
+            throw std::runtime_error("Internal error, could resolve to first defining fragment!");
     }
 @| resolveReferences @}
 \subsubsection{resolveReferences2}
@@ -752,3 +759,11 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
         return m_global;
     }
 @| global @}
+\subsubsection{increaseScrapNumber}
+\indexClassMethod{fragmentDefinition}{increaseScrapNumber}
+@d \classImplementation{fragmentDefinition}
+@{@%
+    unsigned int nuweb::fragmentDefinition::increaseScrapNumber(void){
+        return ++m_scrapNumber;
+    }
+@| increaseScrapNumber @}

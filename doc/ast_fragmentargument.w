@@ -22,10 +22,10 @@
 class fragmentArgument : public documentPart {
 private:
     unsigned int m_number;
-    fragmentNamePartDefinition* m_nameToExpandTo;
+    documentPart* m_nameToExpandTo;
 public:
     fragmentArgument(unsigned int number);
-    void setNameToExpandTo(fragmentNamePartDefinition* nameToExpandTo);
+    void setNameToExpandTo(documentPart* nameToExpandTo);
     virtual std::string utf8(filePosition& l_filePosition) const override;
     virtual std::string texUtf8(void) const override;
     virtual std::string fileUtf8(filePosition& l_filePosition) const override;
@@ -64,7 +64,7 @@ public:
 \indexClassMethod{fragmentDefinition}{setNameToExpandTo}
 @d \classImplementation{fragmentArgument}
 @{@%
-    void nuweb::fragmentArgument::setNameToExpandTo(fragmentNamePartDefinition* nameToExpandTo){
+    void nuweb::fragmentArgument::setNameToExpandTo(documentPart* nameToExpandTo){
         m_nameToExpandTo = nameToExpandTo;
     }
 @| setNameToExpandTo @}
@@ -81,6 +81,8 @@ public:
 @d \classImplementation{fragmentArgument}
 @{@%
     std::string nuweb::fragmentArgument::fileUtf8(filePosition& l_filePosition) const{
+        if(!m_nameToExpandTo)
+            return "";
         return m_nameToExpandTo->utf8(l_filePosition);
     }
 @| fileUtf8 @}

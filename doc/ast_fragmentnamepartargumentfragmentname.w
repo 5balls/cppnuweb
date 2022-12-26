@@ -68,12 +68,12 @@ public:
             if(dynamic_cast<fragmentNamePartArgumentString*>(referenceNamePart)){
                 filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
                 if(listingsPackageEnabled())
-                    returnString += "\\lstinline@@" + referenceNamePart->utf8(ll_filePosition) + "@@";
+                    returnString += "\\lstinline@@" + referenceFragmentNamePart->utf8(ll_filePosition) + "@@";
                 else
-                    returnString += "\\verb@@" + referenceNamePart->utf8(ll_filePosition) + "@@";
+                    returnString += "\\verb@@" + referenceFragmentNamePart->utf8(ll_filePosition) + "@@";
             }
             else
-                returnString += referenceNamePart->texUtf8();
+                returnString += referenceFragmentNamePart->texUtf8();
         }
         returnString += "}\\nobreak\\ {\\footnotesize \\NWlink{nuweb";
         std::string scrapNumber = "?";
@@ -113,9 +113,9 @@ public:
             if(!referenceNamePart) 
                 throw std::runtime_error("Internal error, could not get fragment reference name correctly!");
             if(dynamic_cast<fragmentNamePartArgumentString*>(referenceNamePart))
-                fragmentNameString += "'" + referenceNamePart->utf8(ll_filePosition) + "'";
+                fragmentNameString += "'" + m_referenceFragmentNamePart->utf8(ll_filePosition) + "'";
             else
-                fragmentNameString += referenceNamePart->fileUtf8(ll_filePosition);
+                fragmentNameString += m_referenceFragmentNamePart->fileUtf8(ll_filePosition);
         }
         returnString += indexableText::progressFilePosition(l_filePosition, "<" + fragmentNameString + ">");
         return returnString;
@@ -149,10 +149,10 @@ public:
                 throw std::runtime_error("Internal error, could not get fragment reference name correctly!");
             if(dynamic_cast<fragmentNamePartArgumentString*>(referenceNamePart)){
                 filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
-                stringWithPossibleUserIdentifiers += referenceNamePart->utf8(ll_filePosition);
+                stringWithPossibleUserIdentifiers += referenceFragmentNamePart->utf8(ll_filePosition);
             }
             else
-                stringWithPossibleUserIdentifiers += referenceNamePart->texUtf8();
+                stringWithPossibleUserIdentifiers += referenceFragmentNamePart->texUtf8();
         }
         std::vector<std::pair<std::string, std::vector<unsigned int> > > usedIdentifiersInFragment;
         usedIdentifiersInFragment = userIdentifiers::uses(stringWithPossibleUserIdentifiers);

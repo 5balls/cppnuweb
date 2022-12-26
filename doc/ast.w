@@ -40,6 +40,8 @@ We define some classes for our Abstract Syntax Tree. This correspond mostly to t
 
 @i ast_fragmentnamepartargumentfragmentname.w
 
+@i ast_scrapverbatimargument.w
+
 @i ast_outputfile.w
 
 @i ast_scrap.w

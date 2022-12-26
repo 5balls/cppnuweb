@@ -54,6 +54,7 @@ We try to use the Flex and Bison programs to create our parser.
 %x fragmentHeader
 %x fragmentReference
 %x fragmentReferenceExpanded
+%x scrapContentsInsideFragmentReference
 
 %%
  /* rules */
@@ -65,10 +66,12 @@ We try to use the Flex and Bison programs to create our parser.
 @<Lexer rule for cross reference@>
 <INITIAL>@@o { start(outputFileHeader); TOKEN(AT_SMALL_O) }
 <INITIAL>@@O { start(outputFileHeader); TOKEN(AT_LARGE_O) }
-<scrapContents>@@f { TOKEN(AT_SMALL_F) }
+<scrapContents,scrapContentsInsideFragmentReference>@@f { TOKEN(AT_SMALL_F) }
 @<Lexer rules for regular nuweb commands@>
 @<Lexer rules for fragment headers and references@>
 <INITIAL,outputFileHeader,fragmentHeader>[@@][{] { start(scrapContents); TOKEN(AT_CURLY_BRACKET_OPEN) }
+<fragmentReference>[@@][{] { start(scrapContentsInsideFragmentReference); TOKEN(AT_CURLY_BRACKET_OPEN) }
+<scrapContentsInsideFragmentReference>[@@][}][[:space:]]* { start(fragmentReference); TOKEN(AT_CURLY_BRACKET_CLOSE) }
 <scrapContents,userIdentifiers>[@@][}][[:space:]]* { start(INITIAL); TOKEN(AT_CURLY_BRACKET_CLOSE) }
 @| AT_AT MINUS_D AT_LARGE_D AT_SMALL_O AT_LARGE_O AT_SMALL_F AT_TICK AT_NUMBER AT_CURLY_BRACKET_OPEN AT_CURLY_BRACKET_CLOSE @}
 
