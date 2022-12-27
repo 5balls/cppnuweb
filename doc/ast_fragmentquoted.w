@@ -26,7 +26,7 @@ public:
     fragmentQuoted(documentPart* l_fragmentName, documentPart* l_scrap, bool pageBreak = false);
     //virtual std::string texUtf8(void) const override;
     virtual std::string scrapFileUtf8(filePosition& l_filePosition) const override;
-    virtual std::string scrapFileUtf8(filePosition& l_filePosition, documentPart* fragmentName) const override;
+    virtual std::string scrapFileUtf8(filePosition& l_filePosition, const std::vector<std::string>& fragmentArgumentsExpanded) const override;
 };
 @| fragmentQuoted @}
 
@@ -52,8 +52,8 @@ public:
 \indexClassMethod{fragmentQuoted}{scrapFileUtf8}
 @d \classImplementation{fragmentQuoted}
 @{@%
-    std::string nuweb::fragmentQuoted::scrapFileUtf8(filePosition& l_filePosition, documentPart* fragmentName) const{
-        m_scrap->resolveFragmentArguments(fragmentName);
+    std::string nuweb::fragmentQuoted::scrapFileUtf8(filePosition& l_filePosition, const std::vector<std::string>& fragmentArgumentsExpanded) const{
+        m_scrap->resolveFragmentArguments(fragmentArgumentsExpanded);
         return m_scrap->quotedFileUtf8(l_filePosition);
         
     }

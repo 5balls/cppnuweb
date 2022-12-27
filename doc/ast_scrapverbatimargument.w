@@ -34,6 +34,8 @@ public:
     }
     virtual std::string utf8(filePosition& l_filePosition) const override;
     virtual std::string texUtf8(void) const override;
+    virtual std::string fileUtf8(filePosition& l_filePosition) const override;
+    virtual std::string fileUtf8(filePosition& l_filePosition, const std::vector<std::string>& fragmentArgumentsExpanded) const;
     static void setMissingScrapNumbers(void);
 };
 @| scrapVerbatimArgument @}
@@ -48,7 +50,7 @@ std::vector<nuweb::scrapVerbatimArgument*> nuweb::scrapVerbatimArgument::m_missi
 @d \classImplementation{scrapVerbatimArgument}
 @{@%
     std::string nuweb::scrapVerbatimArgument::utf8(nuweb::filePosition& l_filePosition) const {
-        return "";
+        return fileUtf8(l_filePosition);
        //return scrapVerbatim::utf8(l_filePosition); 
     }
 @| utf8 @}
@@ -80,3 +82,44 @@ std::vector<nuweb::scrapVerbatimArgument*> nuweb::scrapVerbatimArgument::m_missi
         m_missingScrapNumbers.clear();
     }
 @| setMissingScrapNumbers @}
+\subsubsection{fileUtf8}
+\indexClassMethod{scrapVerbatimArgument}{fileUtf8}
+@d \classImplementation{scrapVerbatimArgument}
+@{@%
+    std::string nuweb::scrapVerbatimArgument::fileUtf8(nuweb::filePosition& l_filePosition) const{
+        std::string returnString;
+        for(auto& scrapPart: *this){
+            fragmentArgument* possibleFragmentArgument = dynamic_cast<fragmentArgument*>(scrapPart);
+            if(possibleFragmentArgument)
+                returnString += scrapPart->fileUtf8(l_filePosition);
+            else
+                returnString += indexableText::progressFilePosition(l_filePosition, scrapPart->texUtf8());
+        }
+        return returnString;
+    }
+@| fileUtf8 @}
+\subsubsection{fileUtf8}
+\indexClassMethod{scrapVerbatimArgument}{fileUtf8}
+@d \classImplementation{scrapVerbatimArgument}
+@{@%
+    std::string nuweb::scrapVerbatimArgument::fileUtf8(nuweb::filePosition& l_filePosition, const std::vector<std::string>& fragmentArgumentsExpanded) const{
+        std::string returnString;
+        unsigned int numberOfArguments = 0;
+        for(auto& scrapPart: *this){
+            fragmentArgument* possibleFragmentArgument = dynamic_cast<fragmentArgument*>(scrapPart);
+            if(possibleFragmentArgument){
+                if(numberOfArguments<fragmentArgumentsExpanded.size()){
+                    returnString += fragmentArgumentsExpanded.at(numberOfArguments);
+                    numberOfArguments++;
+                }
+                else{
+                    std::cout << "More arguments than available in scrapVerbatimArgument!\n";
+                    returnString += scrapPart->fileUtf8(l_filePosition);
+                }
+            }
+            else
+                returnString += indexableText::progressFilePosition(l_filePosition, scrapPart->texUtf8());
+        }
+        return returnString;
+    }
+@| fileUtf8 @}

@@ -22,10 +22,10 @@
 class fragmentArgument : public documentPart {
 private:
     unsigned int m_number;
-    documentPart* m_nameToExpandTo;
+    std::string m_nameToExpandTo;
 public:
     fragmentArgument(unsigned int number);
-    void setNameToExpandTo(documentPart* nameToExpandTo);
+    void setNameToExpandTo(const std::string& nameToExpandTo);
     virtual std::string utf8(filePosition& l_filePosition) const override;
     virtual std::string texUtf8(void) const override;
     virtual std::string fileUtf8(filePosition& l_filePosition) const override;
@@ -38,7 +38,7 @@ public:
 \indexClassMethod{fragmentDefinition}{fragmentArgument}
 @d \classImplementation{fragmentArgument}
 @{@%
-    nuweb::fragmentArgument::fragmentArgument(unsigned int number) : documentPart(), m_number(number), m_nameToExpandTo(nullptr){
+    nuweb::fragmentArgument::fragmentArgument(unsigned int number) : documentPart(), m_number(number), m_nameToExpandTo(""){
         
     }
 @| fragmentArgument @}
@@ -48,14 +48,13 @@ public:
 @d \classImplementation{fragmentArgument}
 @{@%
     std::string nuweb::fragmentArgument::texUtf8(void) const{
-        if(m_nameToExpandTo)
+        if(!m_nameToExpandTo.empty())
             if(listingsPackageEnabled())
-                return "@@" + m_nameToExpandTo->texUtf8() + "\\lstinline@@";
+                return "@@" + m_nameToExpandTo + "\\lstinline@@";
             else
-                return "@@" + m_nameToExpandTo->texUtf8() + "\\verb@@";
+                return "@@" + m_nameToExpandTo + "\\verb@@";
         else{
-            std::cout << "Could not resolve argument name at runtime!";
-            return "";
+            return "@@{\\tt @@}\\verb@@" + std::to_string(m_number);
         }
     }
 @| texUtf8 @}
@@ -64,7 +63,7 @@ public:
 \indexClassMethod{fragmentDefinition}{setNameToExpandTo}
 @d \classImplementation{fragmentArgument}
 @{@%
-    void nuweb::fragmentArgument::setNameToExpandTo(documentPart* nameToExpandTo){
+    void nuweb::fragmentArgument::setNameToExpandTo(const std::string& nameToExpandTo){
         m_nameToExpandTo = nameToExpandTo;
     }
 @| setNameToExpandTo @}
@@ -81,9 +80,7 @@ public:
 @d \classImplementation{fragmentArgument}
 @{@%
     std::string nuweb::fragmentArgument::fileUtf8(filePosition& l_filePosition) const{
-        if(!m_nameToExpandTo)
-            return "";
-        return m_nameToExpandTo->utf8(l_filePosition);
+        return indexableText::progressFilePosition(l_filePosition, m_nameToExpandTo);
     }
 @| fileUtf8 @}
 \subsubsection{utf8}

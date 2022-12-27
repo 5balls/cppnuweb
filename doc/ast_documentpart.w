@@ -63,7 +63,6 @@ namespace nuweb {
 @{@%
 class documentPart: public std::vector<documentPart*> {
 private:
-    filePosition* m_filePosition = nullptr;
     static bool auxFileParsed;
     static bool m_listingsPackageEnabled;
     static bool m_hyperlinksEnabled;
@@ -81,6 +80,7 @@ protected:
     static unsigned int m_nextSectionLevel;
     std::string escapeLatexCharacters(std::string input) const;
 public:
+    filePosition* m_filePosition = nullptr;
     documentPart(const documentPart&) = delete;
     documentPart(void);
     documentPart(documentPart&& l_documentPart);

@@ -28,10 +28,11 @@ public:
     }
     scrap(documentPart* l_documentPart) : documentPart(l_documentPart){
     }
-    bool resolveFragmentArguments(documentPart* fragmentName);
+    bool resolveFragmentArguments(const std::vector<std::string>& fragmentArgumentsExpanded);
     void setUserIdentifiersScrapNumber(unsigned int scrapNumber);
     void setCrossReferencesScrapNumber(unsigned int scrapNumber);
     virtual std::string utf8(filePosition& l_filePosition) const override;
+    virtual std::string fileUtf8(filePosition& l_filePosition) const override;
 };
 @| scrap @}
 
@@ -40,33 +41,23 @@ public:
 \indexClassMethod{fragmentDefinition}{resolveFragmentArguments}
 @d \classImplementation{scrap}
 @{@%
-    bool nuweb::scrap::resolveFragmentArguments(documentPart* fragmentName){
-        if(fragmentName->empty()) return false;
-        std::vector<documentPart*> fragmentNameArguments;
-        for(auto& fragmentNamePart: *fragmentName){
-            fragmentNamePartDefinition* fragmentNamePossibleArgument = dynamic_cast<fragmentNamePartDefinition*>(fragmentNamePart);
-            if(!fragmentNamePossibleArgument)
-                throw std::runtime_error("Internal error, could not convert argument to argument type!");
-            if(dynamic_cast<fragmentNamePartArgument*>(fragmentNamePossibleArgument)) fragmentNameArguments.push_back(fragmentNamePart);
-        }
+    bool nuweb::scrap::resolveFragmentArguments(const std::vector<std::string>& fragmentArgumentsExpanded){
         if(!empty()){
             for(const auto& l_documentPart: *this){
                 fragmentArgument* foundFragmentArgument = dynamic_cast<fragmentArgument*>(l_documentPart);
                 if(foundFragmentArgument){
                     unsigned int argumentNumber = foundFragmentArgument->number();
-                    if(argumentNumber>fragmentNameArguments.size())
+                    if(argumentNumber>fragmentArgumentsExpanded.size())
                     {
-                        std::cout << "  Referencing argument number " + std::to_string(argumentNumber) + " but there are only " + std::to_string(fragmentNameArguments.size()) + " arguments defined in this fragment!\n";
-                        fragmentNamePartArgument* emptyFragmentArgument = new fragmentNamePartArgument(argumentNumber);
-                        foundFragmentArgument->setNameToExpandTo(emptyFragmentArgument);
+                        std::cout << "  Referencing argument number " + std::to_string(argumentNumber) + " but there are only " + std::to_string(fragmentArgumentsExpanded.size()) + " arguments defined in this fragment!\n";
+                        foundFragmentArgument->setNameToExpandTo("");
                     }
                     else
-                        foundFragmentArgument->setNameToExpandTo(fragmentNameArguments.at(argumentNumber-1));
-
+                        foundFragmentArgument->setNameToExpandTo(fragmentArgumentsExpanded.at(argumentNumber-1));
                 }
                 fragmentReference* possibleFragmentReference = dynamic_cast<fragmentReference*>(l_documentPart);
                 if(possibleFragmentReference)
-                    possibleFragmentReference->setFragmentDefinitionName(fragmentName);
+                    possibleFragmentReference->setFragmentArgumentsExpanded(fragmentArgumentsExpanded);
             }
         }
         // Note: Empty scraps are possible and no reason to throw an error here
@@ -125,3 +116,19 @@ public:
         }
     }
 @| utf8 @}
+\subsubsection{fileUtf8}
+\indexClassMethod{scrap}{fileUtf8}
+@d \classImplementation{scrap}
+@{@%
+    std::string nuweb::scrap::fileUtf8(filePosition& l_filePosition) const{
+       if(empty())
+           return documentPart::fileUtf8(l_filePosition); 
+       else{
+           std::string returnString;
+           for(const auto& scrapPart: *this)
+               if(!dynamic_cast<blockCommentReference*>(scrapPart))
+                   returnString += scrapPart->fileUtf8(l_filePosition);
+           return returnString;
+       }
+    }
+@| fileUtf8 @}
