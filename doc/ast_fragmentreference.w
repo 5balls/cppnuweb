@@ -150,7 +150,6 @@ public:
 @d \classImplementation{fragmentReference}
 @{@%
     std::string nuweb::fragmentReference::fileUtf8(filePosition& l_filePosition) const{
-        std::vector<std::string> fragmentArgumentsExpanded;
         if(!m_fragment){
             std::cout << "Could not resolve fragment \"" + m_unresolvedFragmentName->texUtf8() + "\" in file " + m_unresolvedFragmentName->filePositionString() + "\n";
             return "@@<" + m_unresolvedFragmentName->texUtf8() + "@@>";
@@ -166,20 +165,18 @@ public:
                     throw std::runtime_error("Internal error, could not get fragment reference name correctly!");
                 if(dynamic_cast<fragmentNamePartArgumentString*>(referenceNamePart)){
                     std::string fragmentArgumentExpanded = m_referenceFragmentNamePart->utf8(ll_filePosition);
-                    fragmentArgumentsExpanded.push_back(fragmentArgumentExpanded);
                     fragmentNameString += "'" + fragmentArgumentExpanded + "'";
                 }
                 else if(dynamic_cast<scrapVerbatimArgument*>(referenceNamePart)){
                     if(!m_fragmentArgumentsExpanded.empty()){
                         std::string scrapVerbatimArgumentExpanded = dynamic_cast<scrapVerbatimArgument*>(m_referenceFragmentNamePart)->fileUtf8(ll_filePosition, m_fragmentArgumentsExpanded);
-                        fragmentArgumentsExpanded.push_back(scrapVerbatimArgumentExpanded);
                         fragmentNameString += "{" + scrapVerbatimArgumentExpanded + "} ";
                     }
                     else
                         fragmentNameString += m_referenceFragmentNamePart->fileUtf8(ll_filePosition);
                 }
                 else
-                    fragmentNameString += m_referenceFragmentNamePart->fileUtf8(ll_filePosition);
+                    fragmentNameString += m_referenceFragmentNamePart->utf8(ll_filePosition);
             }
             if(m_includeCrossReferenceEnabled){
                 if(documentPart::auxFileWasParsed()){
@@ -220,7 +217,7 @@ public:
                     break;
             }
         }
-        returnString += m_fragment->fileUtf8(l_filePosition, fragmentArgumentsExpanded);
+        returnString += m_fragment->fileUtf8(l_filePosition, m_fragmentArgumentsExpanded);
         documentPart::m_fileIndentation -= m_leadingSpaces;
         return returnString;
     }
@@ -354,7 +351,6 @@ public:
 @d \classImplementation{fragmentReference}
 @{@%
     void nuweb::fragmentReference::setFragmentArgumentsExpanded(const std::vector<std::string>& fragmentArgumentsExpanded){
-        std::cout << "DEBUG " << __FILE__ << " " << __FUNCTION__ << " " << __LINE__ << " " << fragmentArgumentsExpanded.size() << "\n"; 
         m_fragmentArgumentsExpanded.clear();
         filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
         for(auto& referenceFragmentNamePart: *m_referenceFragmentName){
@@ -365,6 +361,5 @@ public:
             else if(possibleOtherArgument)
                 m_fragmentArgumentsExpanded.push_back(possibleOtherArgument->fileUtf8(ll_filePosition));
         }
-        std::cout << "DEBUG " << __FILE__ << " " << __FUNCTION__ << " " << __LINE__ << " " << m_fragmentArgumentsExpanded.size() << "\n"; 
     }
 @| setFragmentArgumentsExpanded @}

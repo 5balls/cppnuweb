@@ -483,11 +483,9 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
         std::vector<std::string> fragmentArgumentsExpanded;
         for(auto& fragmentNamePart: *m_fragmentName){
             if(dynamic_cast<fragmentNamePartArgument*>(fragmentNamePart)){
-std::cout << "DEBUG " << __FILE__ << " " << __FUNCTION__ << " " << __LINE__ << " " << "\n"; 
                 fragmentArgumentsExpanded.push_back(fragmentNamePart->utf8(ll_filePosition));
             }
             else if(dynamic_cast<scrapVerbatimArgument*>(fragmentNamePart)){
-std::cout << "DEBUG " << __FILE__ << " " << __FUNCTION__ << " " << __LINE__ << " " << "\n"; 
                 fragmentArgumentsExpanded.push_back(fragmentNamePart->utf8(ll_filePosition));
             }
         }
@@ -499,10 +497,6 @@ std::cout << "DEBUG " << __FILE__ << " " << __FUNCTION__ << " " << __LINE__ << "
 @d \classImplementation{fragmentDefinition}
 @{@%
     std::string nuweb::fragmentDefinition::fileUtf8(filePosition& l_filePosition, const std::vector<std::string>& fragmentArgumentsExpanded) const{
-        for(auto& fragmentArgumentExpanded: fragmentArgumentsExpanded)
-            std::cout << "DEBUG " << __FILE__ << " " << __FUNCTION__ << " " << __LINE__ << " " << fragmentArgumentExpanded << "\n"; 
-        if(fragmentArgumentsExpanded.empty())
-            std::cout << "DEBUG " << __FILE__ << " " << __FUNCTION__ << " " << __LINE__ << " " << "No arguments\n"; 
         unsigned int cacheIndentation = documentPart::m_fileIndentation;
         documentPart::m_fileIndentation = 0;
         std::vector<unsigned int> scraps = scrapsFromFragmentName(m_definitionSectionLevel, m_fragmentName);

@@ -47,7 +47,22 @@ public:
     std::string nuweb::fragmentNamePartArgumentFragmentName::utf8(filePosition& l_filePosition) const{
         if(!m_fragmentReference)
             throw std::runtime_error("Internal error, unresolved fragmentNamePartArgumentFragmentName!");
-        return m_fragmentReference->fileUtf8(l_filePosition);
+        documentPart* l_referenceFragmentName = m_fragmentReference->getFragmentName();
+        if(!l_referenceFragmentName)
+            throw std::runtime_error("Internal error, could not get fragment name in fragmentNamePartArgumentFragmentName!");
+        std::string returnString;
+        std::string fragmentNameString;
+        for(const auto& m_referenceFragmentNamePart: *l_referenceFragmentName){
+            filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
+            fragmentNamePartDefinition* referenceNamePart = dynamic_cast<fragmentNamePartDefinition*>(m_referenceFragmentNamePart);
+            if(!referenceNamePart) 
+                throw std::runtime_error("Internal error, could not get fragment reference name correctly!");
+            if(dynamic_cast<fragmentNamePartArgumentString*>(referenceNamePart))
+                fragmentNameString += "'" + m_referenceFragmentNamePart->utf8(ll_filePosition) + "'";
+            else
+                fragmentNameString += m_referenceFragmentNamePart->fileUtf8(ll_filePosition);
+        }
+        return indexableText::progressFilePosition(l_filePosition, "<" + fragmentNameString + ">");
     }
 @| utf8 @}
 \subsubsection{texUtf8}
@@ -101,7 +116,6 @@ public:
     std::string nuweb::fragmentNamePartArgumentFragmentName::fileUtf8(filePosition& l_filePosition) const{
         if(!m_fragmentReference)
             throw std::runtime_error("Internal error, unresolved fragmentNamePartArgumentFragmentName!");
-
         documentPart* l_referenceFragmentName = m_fragmentReference->getFragmentName();
         if(!l_referenceFragmentName)
             throw std::runtime_error("Internal error, could not get fragment name in fragmentNamePartArgumentFragmentName!");
@@ -117,7 +131,38 @@ public:
             else
                 fragmentNameString += m_referenceFragmentNamePart->fileUtf8(ll_filePosition);
         }
-        returnString += indexableText::progressFilePosition(l_filePosition, "<" + fragmentNameString + ">");
+        //if((indexableText::isCurrentLineIndented() && (l_filePosition.m_column == documentPart::m_fileIndentation))||(l_filePosition.m_column == 0)){
+            switch(documentPart::m_commentStyle){
+                case outputFileFlags::C_COMMENTS:
+                    if(indexableText::isCurrentLineIndented())
+                        returnString += indexableText::progressFilePosition(l_filePosition, "/* " + fragmentNameString + " */\n" + std::string(documentPart::m_fileIndentation,' '));
+                    else
+                        returnString += indexableText::progressFilePosition(l_filePosition,std::string(documentPart::m_fileIndentation,' ') + "/* " + fragmentNameString + " */\n");
+                    indexableText::increaseCurrentLine();
+                    break;
+                case outputFileFlags::CPP_COMMENTS:
+                    if(indexableText::isCurrentLineIndented())
+                        returnString += indexableText::progressFilePosition(l_filePosition, "// " + fragmentNameString + "\n" + std::string(documentPart::m_fileIndentation,' '));
+                    else
+                        returnString += indexableText::progressFilePosition(l_filePosition,std::string(documentPart::m_fileIndentation,' ') + "// " + fragmentNameString + "\n");
+                    indexableText::increaseCurrentLine();
+                    break;
+                case outputFileFlags::PERL_COMMENTS:
+                    if(indexableText::isCurrentLineIndented())
+                        returnString += indexableText::progressFilePosition(l_filePosition, "# " + fragmentNameString + "\n" + std::string(documentPart::m_fileIndentation,' '));
+                    else
+                        returnString += indexableText::progressFilePosition(l_filePosition,std::string(documentPart::m_fileIndentation,' ') + "# " + fragmentNameString + "\n");
+                    indexableText::increaseCurrentLine();
+                    break;
+
+                    break;
+                case outputFileFlags::NO_COMMENTS:
+                default:
+                    break;
+            }
+        //}
+        fragmentDefinition* fragment = m_fragmentReference->getFragmentDefinition();
+        returnString += fragment->fileUtf8(l_filePosition); 
         return returnString;
     }
 @| fileUtf8 @}

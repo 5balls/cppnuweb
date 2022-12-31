@@ -111,6 +111,7 @@ public:
         unsigned int currentOutputFileIndex = 0;
         for(const auto& outputFile: m_outputFiles){
             m_currentFlags = m_allFlags.at(currentOutputFileIndex);
+            documentPart::setCommentStyle(m_currentFlags);
             std::string outputFileName = outputFile->name();
             filePosition l_filePosition(outputFileName, 0, 0, 0, 0);
             std::ofstream outputFileStream;
@@ -130,6 +131,7 @@ public:
             outputFileStream.close();
             currentOutputFileIndex++;
         }
+        documentPart::setCommentStyle({});
     }
 @| writeFiles @}
 \subsubsection{currentFlags}
