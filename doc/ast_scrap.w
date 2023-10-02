@@ -28,7 +28,7 @@ public:
     }
     scrap(documentPart* l_documentPart) : documentPart(l_documentPart){
     }
-    bool resolveFragmentArguments(const std::vector<std::string>& fragmentArgumentsExpanded);
+    bool resolveFragmentArguments(const std::vector<std::string>& fragmentArgumentsExpanded, const std::vector<std::string>& fragmentArgumentsUnexpanded);
     void setUserIdentifiersScrapNumber(unsigned int scrapNumber);
     void setCrossReferencesScrapNumber(unsigned int scrapNumber);
     virtual std::string utf8(filePosition& l_filePosition) const override;
@@ -41,7 +41,7 @@ public:
 \indexClassMethod{fragmentDefinition}{resolveFragmentArguments}
 @d \classImplementation{scrap}
 @{@%
-    bool nuweb::scrap::resolveFragmentArguments(const std::vector<std::string>& fragmentArgumentsExpanded){
+    bool nuweb::scrap::resolveFragmentArguments(const std::vector<std::string>& fragmentArgumentsExpanded, const std::vector<std::string>& fragmentArgumentsUnexpanded){
         if(!empty()){
             for(const auto& l_documentPart: *this){
                 fragmentArgument* foundFragmentArgument = dynamic_cast<fragmentArgument*>(l_documentPart);
@@ -57,7 +57,7 @@ public:
                 }
                 fragmentReference* possibleFragmentReference = dynamic_cast<fragmentReference*>(l_documentPart);
                 if(possibleFragmentReference)
-                    possibleFragmentReference->setFragmentArgumentsExpanded(fragmentArgumentsExpanded);
+                    possibleFragmentReference->setFragmentArgumentsExpanded(fragmentArgumentsExpanded, fragmentArgumentsUnexpanded);
             }
         }
         // Note: Empty scraps are possible and no reason to throw an error here

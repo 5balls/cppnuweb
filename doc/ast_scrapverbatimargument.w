@@ -35,7 +35,7 @@ public:
     virtual std::string utf8(filePosition& l_filePosition) const override;
     virtual std::string texUtf8(void) const override;
     virtual std::string fileUtf8(filePosition& l_filePosition) const override;
-    virtual std::string fileUtf8(filePosition& l_filePosition, const std::vector<std::string>& fragmentArgumentsExpanded) const;
+    virtual std::string fileUtf8(filePosition& l_filePosition, const std::vector<std::string>& fragmentArgumentsExpanded, const std::vector<std::string>& fragmentArgumentsUnexpanded) const;
     static void setMissingScrapNumbers(void);
 };
 @| scrapVerbatimArgument @}
@@ -102,7 +102,7 @@ std::vector<nuweb::scrapVerbatimArgument*> nuweb::scrapVerbatimArgument::m_missi
 \indexClassMethod{scrapVerbatimArgument}{fileUtf8}
 @d \classImplementation{scrapVerbatimArgument}
 @{@%
-    std::string nuweb::scrapVerbatimArgument::fileUtf8(nuweb::filePosition& l_filePosition, const std::vector<std::string>& fragmentArgumentsExpanded) const{
+    std::string nuweb::scrapVerbatimArgument::fileUtf8(nuweb::filePosition& l_filePosition, const std::vector<std::string>& fragmentArgumentsExpanded, const std::vector<std::string>& fragmentArgumentsUnexpanded) const{
         std::string returnString;
         unsigned int numberOfArguments = 0;
         for(auto& scrapPart: *this){

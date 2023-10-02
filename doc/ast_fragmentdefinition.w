@@ -67,11 +67,11 @@ public:
     virtual std::string texUtf8(void) const override;
     virtual std::string utf8(filePosition& l_filePosition) const override;
     virtual std::string fileUtf8(filePosition& l_filePosition) const override;
-    std::string fileUtf8(filePosition& l_filePosition, const std::vector<std::string>& fragmentArgumentsExpanded) const;
+    std::string fileUtf8(filePosition& l_filePosition, const std::vector<std::string>& fragmentArgumentsExpanded, const std::vector<std::string>& fragmentArgumentsUnexpanded = {}) const;
     virtual void resolveReferences(void) override;
     virtual void resolveReferences2(void) override;
     virtual std::string scrapFileUtf8(filePosition& l_filePosition) const;
-    virtual std::string scrapFileUtf8(filePosition& l_filePosition, const std::vector<std::string>& fragmentArgumentsExpanded) const;
+    virtual std::string scrapFileUtf8(filePosition& l_filePosition, const std::vector<std::string>& fragmentArgumentsExpanded, const std::vector<std::string>& fragmentArgumentsUnexpanded = {}) const;
     void addReference(fragmentReference*);
     void setGlobal();
     bool global(void);
@@ -431,13 +431,19 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
         if(!scrap)
             throw ("Internal problem convering scrap to scrap type in fragmentDefinition::texUtf8");
         std::vector<std::string> fragmentArgumentsExpanded;
+        std::vector<std::string> fragmentArgumentsUnexpanded;
         for(auto& fragmentNamePart: *m_fragmentName){
-            if(dynamic_cast<fragmentNamePartArgument*>(fragmentNamePart))
+            filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
+            if(dynamic_cast<fragmentNamePartArgument*>(fragmentNamePart)){
                 fragmentArgumentsExpanded.push_back(fragmentNamePart->texUtf8());
-            else if(dynamic_cast<scrapVerbatimArgument*>(fragmentNamePart))
+                fragmentArgumentsUnexpanded.push_back(fragmentNamePart->utf8(ll_filePosition));
+            }
+            else if(dynamic_cast<scrapVerbatimArgument*>(fragmentNamePart)){
                 fragmentArgumentsExpanded.push_back(fragmentNamePart->texUtf8());
+                fragmentArgumentsUnexpanded.push_back(fragmentNamePart->utf8(ll_filePosition));
+            }
         }
-        m_scrap->resolveFragmentArguments(fragmentArgumentsExpanded);
+        m_scrap->resolveFragmentArguments(fragmentArgumentsExpanded, fragmentArgumentsUnexpanded);
         returnString += m_scrap->texUtf8();
         returnString += "\\end{list}\n";
         returnString += "\\vspace{-1.5ex}\n";
@@ -481,29 +487,32 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
     std::string nuweb::fragmentDefinition::fileUtf8(filePosition& l_filePosition) const{
         filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
         std::vector<std::string> fragmentArgumentsExpanded;
+        std::vector<std::string> fragmentArgumentsUnexpanded;
         for(auto& fragmentNamePart: *m_fragmentName){
             if(dynamic_cast<fragmentNamePartArgument*>(fragmentNamePart)){
                 fragmentArgumentsExpanded.push_back(fragmentNamePart->utf8(ll_filePosition));
+                fragmentArgumentsUnexpanded.push_back(fragmentNamePart->utf8(ll_filePosition));
             }
             else if(dynamic_cast<scrapVerbatimArgument*>(fragmentNamePart)){
                 fragmentArgumentsExpanded.push_back(fragmentNamePart->utf8(ll_filePosition));
+                fragmentArgumentsUnexpanded.push_back(fragmentNamePart->utf8(ll_filePosition));
             }
         }
-        return fileUtf8(l_filePosition, fragmentArgumentsExpanded);
+        return fileUtf8(l_filePosition, fragmentArgumentsExpanded, fragmentArgumentsUnexpanded);
     }
 @| fileUtf8 @}
 \subsubsection{fileUtf8}
 \indexClassMethod{fragmentDefinition}{fileUtf8}
 @d \classImplementation{fragmentDefinition}
 @{@%
-    std::string nuweb::fragmentDefinition::fileUtf8(filePosition& l_filePosition, const std::vector<std::string>& fragmentArgumentsExpanded) const{
+    std::string nuweb::fragmentDefinition::fileUtf8(filePosition& l_filePosition, const std::vector<std::string>& fragmentArgumentsExpanded, const std::vector<std::string>& fragmentArgumentsUnexpanded) const{
         unsigned int cacheIndentation = documentPart::m_fileIndentation;
         documentPart::m_fileIndentation = 0;
         std::vector<unsigned int> scraps = scrapsFromFragmentName(m_definitionSectionLevel, m_fragmentName);
         documentPart::m_fileIndentation = cacheIndentation;
         std::string returnString;
         for(const auto& scrap: scraps){
-            returnString += fragmentDefinitions[scrap]->scrapFileUtf8(l_filePosition, fragmentArgumentsExpanded);
+            returnString += fragmentDefinitions[scrap]->scrapFileUtf8(l_filePosition, fragmentArgumentsExpanded, fragmentArgumentsUnexpanded);
         }
         return returnString;
     }
@@ -520,8 +529,8 @@ std::vector<unsigned int> nuweb::fragmentDefinition::scrapsFromFragment(void){
 \indexClassMethod{fragmentDefinition}{scrapFileUtf8}
 @d \classImplementation{fragmentDefinition}
 @{@%
-    std::string nuweb::fragmentDefinition::scrapFileUtf8(filePosition& l_filePosition, const std::vector<std::string>& fragmentArgumentsExpanded) const{
-        m_scrap->resolveFragmentArguments(fragmentArgumentsExpanded);
+    std::string nuweb::fragmentDefinition::scrapFileUtf8(filePosition& l_filePosition, const std::vector<std::string>& fragmentArgumentsExpanded, const std::vector<std::string>& fragmentArgumentsUnexpanded) const{
+        m_scrap->resolveFragmentArguments(fragmentArgumentsExpanded, fragmentArgumentsUnexpanded);
         return m_scrap->fileUtf8(l_filePosition);
     }
 @| scrapFileUtf8 @}

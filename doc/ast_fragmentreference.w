@@ -31,6 +31,7 @@ private:
     unsigned int m_referenceSectionLevel;
     bool m_global;
     std::vector<std::string> m_fragmentArgumentsExpanded;
+    std::vector<std::string> m_fragmentArgumentsUnexpanded;
 public:
     fragmentReference(documentPart* fragmentName, bool expandReference=false);
     virtual std::string utf8(filePosition& l_filePosition) const override;
@@ -45,7 +46,7 @@ public:
     documentPart* getFragmentName(void) const;
     unsigned int getScrapNumber(void) const;
     void setGlobal(void);
-    void setFragmentArgumentsExpanded(const std::vector<std::string>& fragmentArgumentsExpanded);
+    void setFragmentArgumentsExpanded(const std::vector<std::string>& fragmentArgumentsExpanded, const std::vector<std::string>& fragmentArgumentsUnexpanded);
 };
 @}
 
@@ -82,7 +83,7 @@ public:
                 return m_unresolvedFragmentName->texUtf8();
             }
             filePosition l_filePosition;
-            return m_fragment->fileUtf8(l_filePosition, m_fragmentArgumentsExpanded);
+            return m_fragment->fileUtf8(l_filePosition, m_fragmentArgumentsExpanded, m_fragmentArgumentsUnexpanded);
         }
         else {
             std::string returnString;
@@ -169,7 +170,7 @@ public:
                 }
                 else if(dynamic_cast<scrapVerbatimArgument*>(referenceNamePart)){
                     if(!m_fragmentArgumentsExpanded.empty()){
-                        std::string scrapVerbatimArgumentExpanded = dynamic_cast<scrapVerbatimArgument*>(m_referenceFragmentNamePart)->fileUtf8(ll_filePosition, m_fragmentArgumentsExpanded);
+                        std::string scrapVerbatimArgumentExpanded = dynamic_cast<scrapVerbatimArgument*>(m_referenceFragmentNamePart)->fileUtf8(ll_filePosition, m_fragmentArgumentsExpanded, m_fragmentArgumentsUnexpanded);
                         fragmentNameString += "{" + scrapVerbatimArgumentExpanded + "} ";
                     }
                     else
@@ -217,7 +218,7 @@ public:
                     break;
             }
         }
-        returnString += m_fragment->fileUtf8(l_filePosition, m_fragmentArgumentsExpanded);
+        returnString += m_fragment->fileUtf8(l_filePosition, m_fragmentArgumentsExpanded, m_fragmentArgumentsUnexpanded);
         documentPart::m_fileIndentation -= m_leadingSpaces;
         return returnString;
     }
@@ -261,7 +262,7 @@ public:
             for(auto& fragmentNamePart: *m_referenceFragmentName){
                 scrapVerbatimArgument* possibleScrapArgument = dynamic_cast<scrapVerbatimArgument*>(fragmentNamePart);
                 if(possibleScrapArgument)
-                    possibleScrapArgument->resolveFragmentArguments(m_fragmentArgumentsExpanded);
+                    possibleScrapArgument->resolveFragmentArguments(m_fragmentArgumentsExpanded, m_fragmentArgumentsUnexpanded);
             }
         if(m_fragment && m_fragment->fragmentNameSize() > m_referenceFragmentName->size())
             for(unsigned int missingFragmentPart = m_referenceFragmentName->size(); missingFragmentPart<m_fragment->fragmentNameSize(); missingFragmentPart++){
@@ -350,16 +351,22 @@ public:
 \indexClassMethod{fragmentReference}{setFragmentArgumentsExpanded}
 @d \classImplementation{fragmentReference}
 @{@%
-    void nuweb::fragmentReference::setFragmentArgumentsExpanded(const std::vector<std::string>& fragmentArgumentsExpanded){
+    void nuweb::fragmentReference::setFragmentArgumentsExpanded(const std::vector<std::string>& fragmentArgumentsExpanded, const std::vector<std::string>& fragmentArgumentsUnexpanded){
         m_fragmentArgumentsExpanded.clear();
+        m_fragmentArgumentsUnexpanded.clear();
         filePosition ll_filePosition("",1,documentPart::m_fileIndentation+1,1,1);
         for(auto& referenceFragmentNamePart: *m_referenceFragmentName){
             scrapVerbatimArgument* possibleScrapArgument = dynamic_cast<scrapVerbatimArgument*>(referenceFragmentNamePart);
             fragmentNamePartArgument* possibleOtherArgument = dynamic_cast<fragmentNamePartArgument*>(referenceFragmentNamePart);
-            if(possibleScrapArgument)
-                m_fragmentArgumentsExpanded.push_back(possibleScrapArgument->fileUtf8(ll_filePosition, fragmentArgumentsExpanded));
-            else if(possibleOtherArgument)
+            if(possibleScrapArgument){
+                m_fragmentArgumentsExpanded.push_back(possibleScrapArgument->fileUtf8(ll_filePosition, fragmentArgumentsExpanded, fragmentArgumentsUnexpanded));
+
+                m_fragmentArgumentsUnexpanded.push_back(possibleScrapArgument->utf8(ll_filePosition));
+            }
+            else if(possibleOtherArgument){
                 m_fragmentArgumentsExpanded.push_back(possibleOtherArgument->fileUtf8(ll_filePosition));
+                m_fragmentArgumentsUnexpanded.push_back(possibleOtherArgument->utf8(ll_filePosition));
+            }
         }
     }
 @| setFragmentArgumentsExpanded @}
