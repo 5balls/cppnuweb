@@ -23,9 +23,11 @@ class fragmentArgument : public documentPart {
 private:
     unsigned int m_number;
     std::string m_nameToExpandTo;
+    std::string m_nameToUnexpandTo;
 public:
     fragmentArgument(unsigned int number);
     void setNameToExpandTo(const std::string& nameToExpandTo);
+    void setNameToUnexpandTo(const std::string& nameToUnexpandTo);
     virtual std::string utf8(filePosition& l_filePosition) const override;
     virtual std::string texUtf8(void) const override;
     virtual std::string fileUtf8(filePosition& l_filePosition) const override;
@@ -67,6 +69,14 @@ public:
         m_nameToExpandTo = nameToExpandTo;
     }
 @| setNameToExpandTo @}
+\subsubsection{setNameToUnexpandTo}
+\indexClassMethod{fragmentDefinition}{setNameToUnexpandTo}
+@d \classImplementation{fragmentArgument}
+@{@%
+    void nuweb::fragmentArgument::setNameToUnexpandTo(const std::string& nameToUnexpandTo){
+        m_nameToUnexpandTo = nameToUnexpandTo;
+    }
+@| setNameToUnexpandTo @}
 \subsubsection{number}
 \indexClassMethod{fragmentDefinition}{number}
 @d \classImplementation{fragmentArgument}

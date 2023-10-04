@@ -55,6 +55,17 @@ public:
                     else
                         foundFragmentArgument->setNameToExpandTo(fragmentArgumentsExpanded.at(argumentNumber-1));
                 }
+                if(foundFragmentArgument){
+                    unsigned int argumentNumber = foundFragmentArgument->number();
+                    if(argumentNumber>fragmentArgumentsUnexpanded.size())
+                    {
+                        std::cout << "  Referencing unexpanded argument number " + std::to_string(argumentNumber) + " but there are only " + std::to_string(fragmentArgumentsUnexpanded.size()) + " unexpanded arguments defined in this fragment!\n";
+                        foundFragmentArgument->setNameToUnexpandTo("");
+                    }
+                    else
+                        foundFragmentArgument->setNameToUnexpandTo(fragmentArgumentsUnexpanded.at(argumentNumber-1));
+                }
+
                 fragmentReference* possibleFragmentReference = dynamic_cast<fragmentReference*>(l_documentPart);
                 if(possibleFragmentReference)
                     possibleFragmentReference->setFragmentArgumentsExpanded(fragmentArgumentsExpanded, fragmentArgumentsUnexpanded);
