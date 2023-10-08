@@ -17,6 +17,7 @@
 
 \section{Class blockComment}
 \subsection{Interface}
+\indexClass{blockComment}
 @d \classDeclaration{blockComment}
 @{@%
 class blockComment : public documentPart {

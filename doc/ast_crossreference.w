@@ -17,6 +17,7 @@
 
 \section{Class crossReference}
 \subsection{Interface}
+\indexClass{crossReference}
 @d \classDeclaration{crossReference}
 @{@%
 class crossReference : public documentPart {

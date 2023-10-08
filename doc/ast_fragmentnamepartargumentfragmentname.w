@@ -17,6 +17,7 @@
 
 \section{Class fragmentNamePartArgumentFragmentName}
 \subsection{Interface}
+\indexClass{fragmentNamePartArgumentFragmentName}
 @d \classDeclaration{fragmentNamePartArgumentFragmentName}
 @{@%
 class fragmentNamePartArgumentFragmentName : public fragmentNamePartArgument {

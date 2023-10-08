@@ -24,6 +24,7 @@ The aux file is created by \LaTeX. We need to read it to get the correct Id's fo
 @}
 } of the class and can therefore be accessed by all members classes of the abstract syntax tree later. Currently we do everything in the constructor (that may be refactored later if we need to reread the aux file during the program run) and have once access function \codecpp\lstinline{scrapId}.
 
+\indexClass{auxFile}
 @D \classDeclaration{auxFile}
 @{
 class auxFile : public file {

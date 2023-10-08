@@ -17,6 +17,7 @@
 
 \section{Class fragmentQuoted}
 \subsection{Interface}
+\indexClass{fragmentQuoted}
 @d \classDeclaration{fragmentQuoted}
 @{@%
 class fragmentQuoted : public fragmentDefinition {

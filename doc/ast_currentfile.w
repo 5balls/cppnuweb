@@ -17,6 +17,7 @@
 
 \section{Class currentFile}
 \subsection{Interface}
+\indexClass{currentFile}
 @d \classDeclaration{currentFile}
 @{@%
 class currentFile : public emptyDocumentPart {

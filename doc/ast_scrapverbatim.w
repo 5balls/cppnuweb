@@ -17,6 +17,7 @@
 
 \section{Class scrapVerbatim}
 \subsection{Interface}
+\indexClass{scrapVerbatim}
 @d \classDeclaration{scrapVerbatim}
 @{@%
 class scrapVerbatim : public scrap {

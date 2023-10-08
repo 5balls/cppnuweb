@@ -17,6 +17,7 @@
 
 \section{Class fragmentNamePartText}
 \subsection{Interface}
+\indexClass{fragmentNamePartText}
 @d \classDeclaration{fragmentNamePartText}
 @{@%
 class fragmentNamePartText : public fragmentNamePartDefinition, public documentPart {

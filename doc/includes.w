@@ -29,6 +29,8 @@
 \usepackage{amssymb}
 \usepackage{amsmath}
 \usepackage{bigfoot}
+\usepackage{tcolorbox}
+\tcbuselibrary{breakable}
 \setlength{\grammarparsep}{10pt} % increase separation between rules
 \setlength{\grammarindent}{12em} % increase separation between LHS/RHS 
 

@@ -17,6 +17,7 @@
 
 \section{Class scrapVerbatimArgument}
 \subsection{Interface}
+\indexClass{scrapVerbatimArgument}
 @d \classDeclaration{scrapVerbatimArgument}
 @{@%
 class scrapVerbatimArgument : public fragmentNamePartDefinition, public scrapVerbatim {

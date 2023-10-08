@@ -17,6 +17,7 @@
 
 \section{Class outputFile}
 \subsection{Interface}
+\indexClass{outputFile}
 @d \classDeclaration{outputFile}
 @{
 class outputFile: public fragmentDefinition {

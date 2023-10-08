@@ -17,6 +17,7 @@
 
 \section{Class fragmentNamePartArgumentString}
 \subsection{Interface}
+\indexClass{fragmentNamePartArgumentString}
 @d \classDeclaration{fragmentNamePartArgumentString}
 @{@%
 class fragmentNamePartArgumentString : public fragmentNamePartArgument {

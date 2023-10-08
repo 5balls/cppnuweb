@@ -17,6 +17,7 @@
 
 \section{Class scrap}
 \subsection{Interface}
+\indexClass{scrap}
 @d \classDeclaration{scrap}
 @{@%
 class scrap : public documentPart {
@@ -132,6 +133,7 @@ public:
 @d \classImplementation{scrap}
 @{@%
     std::string nuweb::scrap::fileUtf8(filePosition& l_filePosition) const{
+        // TODO Insert comment of unexpanded fragArgument before line
        if(empty())
            return documentPart::fileUtf8(l_filePosition); 
        else{

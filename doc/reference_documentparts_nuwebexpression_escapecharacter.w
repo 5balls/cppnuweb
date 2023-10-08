@@ -20,6 +20,7 @@
 @{@%
 <INITIAL,scrapContents,scrapContentsInsideFragmentReference,fragmentHeader>[@@][@@] { TOKEN(AT_AT) } @| AT_AT @}
 
+\indexClass{escapeCharacterDocumentPart}
 @d \classDeclaration{escapeCharacterDocumentPart}
 @{
 class escapeCharacterDocumentPart : public documentPart {
@@ -42,7 +43,7 @@ public:
         return indexableText::progressFilePosition(l_filePosition, m_escapementString);
     }
 };
-@}
+@| escapeCharacterDocumentPart @}
 
 @d \staticDefinitions{escapeCharacterDocumentPart}
 @{

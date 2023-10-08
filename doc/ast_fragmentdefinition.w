@@ -17,6 +17,7 @@
 
 \section{Class fragmentDefinition}
 \subsection{Interface}
+\indexClass{fragmentDefinition}
 @d \classDeclaration{fragmentDefinition}
 @{@%
 class fragmentReference;

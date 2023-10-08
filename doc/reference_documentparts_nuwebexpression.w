@@ -37,7 +37,7 @@ A ``\lstinline{nuwebExpression}'' is basically every nuweb command\footnote{Anyt
 \caption{BNF for nuwebExpression}
 \end{figure}
 
-\indexBisonRule{nuwebExpression}\indexBisonRuleUsesToken{nuwebExpression}{INCLUDE\_FILE}\indexBisonRuleUsesToken{nuwebExpression}{AT\_SMALL\_F}\indexBisonRuleUsesToken{nuwebExpression}{NOT\_IMPLEMENTED}
+\indexBisonRule{nuwebExpression}\indexBisonRule{emptyDocumentPart}\indexBisonRule{escapeCharacterDocumentPart}\indexBisonRule{scrapStandalone}\indexBisonRuleUsesToken{nuwebExpression}{INCLUDE\_FILE}\indexBisonRuleUsesToken{nuwebExpression}{AT\_SMALL\_F}\indexBisonRuleUsesToken{nuwebExpression}{NOT\_IMPLEMENTED}
 @D Bison rules
 @{
 nuwebExpression

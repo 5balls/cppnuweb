@@ -17,6 +17,7 @@
 
 \section{Class indexFragmentNames}
 \subsection{Interface}
+\indexClass{indexFragmentNames}
 @d \classDeclaration{indexFragmentNames}
 @{@%
 class indexFragmentNames : public documentPart{

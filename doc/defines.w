@@ -116,8 +116,10 @@ literate={ä}{{\"a}}1 {ö}{{\"o}}1 {ü}{{\"u}}1 {é}{{\'e}}1 {—}{{-}}1
 \newcommand{\doubleLinkedIndexEntry}[2]{\index{#1@@\textbf{#1}!#2@@\textsl{#2}}\index{#2@@\textsl{#2}!#1}}
 \newcommand{\indexHeader}[1]{\index{Header@@\textbf{Header}!#1@@\textsl{#1}}\codecpp}
 \newcommand{\indexBackusNaur}[1]{\doubleLinkedIndexEntry{Backus-Naur form}{#1}}
-\newcommand{\indexBisonRule}[1]{\doubleLinkedIndexEntry{Bison rule}{#1}\codebisonflex}
-\newcommand{\indexClass}[1]{\doubleLinkedIndexEntry{Class definition}{#1}\codecpp}
+\newcommand{\indexBisonRule}[1]{\label{Bison:Rule:#1}\doubleLinkedIndexEntry{Bison rule}{#1}\codebisonflex}
+\newcommand{\refBisonRule}[1]{\hyperref[Bison:Rule:#1]{Bison}}
+\newcommand{\indexClass}[1]{\label{Class:Definition:#1}\doubleLinkedIndexEntry{Class definition}{#1}\codecpp}
+\newcommand{\refClass}[1]{\hyperref[Class:Definition:#1]{Definition}}
 \newcommand{\indexClassBaseOf}[2]{\index{#2@@\textsl{#2}!Base class #1@@Base class \textsl{#1}}\codecpp}
 \newcommand{\indexClassMethod}[2]{\index{#1@@\textsl{#1}!Methods!#2@@\textsl{#2}}}
 \newcommand{\indexUnitTest}[2]{\index{#1@@\textsl{#1}!Unit tests!#2@@\textsl{#2}}\doubleLinkedIndexEntry{Unit tests}{#2}}
@@ -131,3 +133,4 @@ literate={ä}{{\"a}}1 {ö}{{\"o}}1 {ü}{{\"u}}1 {é}{{\'e}}1 {—}{{-}}1
 \newcommand{\staticDefinitions}[1]{Static definitions for \normalfont``\codecpp{\lstinline{class #1}}''}
 \newcommand{\bisonRule}[1]{Bison rule for \normalfont``\codebisonflex{\lstinline{#1}}''}
 \newcommand{\bisonTypeDefinition}[1]{Bison type definition for \normalfont``\codebisonflex{\lstinline{#1}}''}
+\newcommand{\refClassLinks}[1]{#1 {(\refClass{#1}, \refBisonRule{#1})}}

@@ -17,6 +17,7 @@
 
 \section{Class userIdentifiers}
 \subsection{Interface}
+\indexClass{userIdentifiers}
 @d \classDeclaration{userIdentifiers}
 @{@%
 class userIdentifiers : public documentPart {

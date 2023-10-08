@@ -17,6 +17,7 @@
 
 \section{Class versionString}
 \subsection{Interface}
+\indexClass{versionString}
 @d \classDeclaration{versionString}
 @{@%
 class versionString : public documentPart {

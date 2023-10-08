@@ -17,6 +17,7 @@
 
 \section{Class scrapStandalone}
 \subsection{Interface}
+\indexClass{scrapStandalone}
 @d \classDeclaration{scrapStandalone}
 @{@%
 class scrapStandalone : public scrap {

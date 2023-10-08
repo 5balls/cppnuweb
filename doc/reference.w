@@ -99,6 +99,7 @@ document
 
 Now we have everything needed to define ``\codecpp\lstinline{class document}''. This class takes ownership of any instance of ``\lstinline{class documentPart}'', so we need to delete those instances in the destructor. ``\lstinline{document::addElement}'' adds those instances to an internal list.
 
+\indexClass{document}
 @d \classDeclaration{document}
 @{
 class document : public documentPart {
@@ -136,6 +137,8 @@ public:
         return returnString;
     }
 };
-@| document addElement @}\indexClass{document}\indexClassMethod{document}{addElement}
+@| document addElement @}
+
+\indexClass{document}\indexClassMethod{document}{addElement}
 
 @i reference_documentparts.w

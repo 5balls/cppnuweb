@@ -17,6 +17,7 @@
 
 \section{Class fragmentArgument}
 \subsection{Interface}
+\indexClass{fragmentArgument}
 @d \classDeclaration{fragmentArgument}
 @{@%
 class fragmentArgument : public documentPart {

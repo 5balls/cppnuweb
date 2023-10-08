@@ -17,6 +17,7 @@
 
 \section{Class blockCommentReference}
 \subsection{Interface}
+\indexClass{blockCommentReference}
 @d \classDeclaration{blockCommentReference}
 @{@%
 class blockCommentReference : public emptyDocumentPart {
